@@ -45,9 +45,12 @@ class User
     private function __construct() {
         $this->conn = new mysqli(
             "wheatley.cs.up.ac.za", 
-            "u23718146", 
-            "IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2", 
-            "u23718146_null&void"
+            // student id
+            "", 
+            // db password
+            "", 
+            // db name
+            ""
         );
         
         if ($this->conn->connect_error) {
