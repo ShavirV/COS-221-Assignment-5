@@ -204,6 +204,7 @@ class User
 
         // adds flavour (unique)
         $salt = bin2hex(random_bytes(16)); 
+        // now fixed
         $hashedInput = hash("sha256", $salt . $password);
         
         try {
@@ -214,6 +215,7 @@ class User
                 throw new Exception("Prepare failed: " . $this->conn->error);
             }
             
+            // small name mismatch error fixed
             $stmt->bind_param("sssssss", $name, $surname, $email, $hashedInput, $salt, $api_key, $user_type);
             
             if (!$stmt->execute()) 
