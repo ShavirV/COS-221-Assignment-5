@@ -4,9 +4,9 @@
 // see construct function in api to see how i have altered it
 // config should now be implemented and used correctly now
 define('DB_HOST', 'wheatley.cs.up.ac.za');
-define('DB_USER', 'u23718146');
-define('DB_PASS', 'IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2');
-define('DB_NAME', 'u23718146_null&void');
+define('DB_USER', $_ENV['DB_USER']);
+define('DB_PASS', $_ENV['DB_PASS']);
+define('DB_NAME', $_ENV['DB_NAME']);
 
 // *Singleton db now*
 class Database {
