@@ -3,10 +3,14 @@
 // i made the config a singleton these credentials are only used here
 // see construct function in api to see how i have altered it
 // config should now be implemented and used correctly now
+// url
 define('DB_HOST', 'wheatley.cs.up.ac.za');
-define('DB_USER', 'u23718146');
-define('DB_PASS', 'IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2');
-define('DB_NAME', 'u23718146_null&void');
+// student num
+define('DB_USER', '');
+// db password
+define('DB_PASS', '');
+// db name
+define('DB_NAME', '');
 
 // *Singleton db now*
 class Database {
