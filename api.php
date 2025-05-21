@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__.'/config.php');
+//require_once(__DIR__.'/config.php');
 
 class User
 {
@@ -45,12 +45,9 @@ class User
     private function __construct() {
         $this->conn = new mysqli(
             "wheatley.cs.up.ac.za", 
-            // student id
-            "", 
-            // db password
-            "", 
-            // db name
-            ""
+            "u23718146", 
+            "IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2", 
+            "u23718146_null&void"
         );
         
         if ($this->conn->connect_error) {
@@ -282,12 +279,273 @@ class User
             }
     }
 
-    }
-    $user = User::instance();
-    $jsonObj = file_get_contents('php://input');
-    $decodeObj = json_decode($jsonObj, true);
+    /* 
+    work in progress shav code starts here
+    */
 
-    if (isset($decodeObj['type'])) 
+    //will also handle returning errors 
+    //provides the response, a json object and an http status code 
+    public function respond($status, $data, $http_code = 200){
+        http_response_code($http_code);
+        echo json_encode([
+            "status"=> $status,
+            "timestamp" => round(microtime(true) *1000),
+            "data" => $data
+        ]); //data will be passed in, either the return or error object
+        exit();
+    }
+    
+    //this is reused a lot, just check if the user with the assoc api key exists   
+    //also returns the user's type. use to check if a customer is trying to do things only an admin can do 
+    public function validateKey($key){
+        if (!$key) $this->respond("error", "API key not set", 400);
+        
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $key);
+        $stmt->execute();
+        //throw error since the key isnt valid
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        return $result->fetch_assoc()["user_type"];
+    }
+    
+    //this will be used for most product population
+    public function getAllProducts($data){
+        $this->validateKey($data["api_key"]);
+        
+        if (empty($data["return"])){
+            $this->respond("error", "Return parameters not set",400);
+        }
+        
+        //validate return params
+        $returnParams = ["product_id", "name", "description", "brand", "image_url"];
+        
+        $return = $data["return"];
+        
+        if ($return == "*"){
+            $sql = "SELECT * FROM product";
+        } else {
+            //check for malformed inupt
+            if (!is_array($return)) {
+                $this->respond("error", "return parameters must be an array of strings or a *",400);
+            }   
+            //is an array so normalise
+            $return = array_map("strtolower", $data["return"]);
+            //validate return params
+            foreach ($return as $field){
+                if (!in_array(strtolower($field), $returnParams)) {
+                    $this->respond("error", "$field is not a valid return parameter",400);
+                }
+            }
+
+            //format return so that SQL likes it
+            $cols = implode(",", array_map(function($f) { return "`$f`"; }, $return));
+            $sql = "SELECT $cols FROM product";
+        }
+        
+        //optional limit
+        if (!isset($data["limit"])){
+            $limit = 50;
+        }
+        else {
+            $limit = $data["limit"];
+        }
+        
+        //restrict limit instead of screaming at the user
+        //only scream at them if its not numeric
+        if (!is_int($limit)) {
+            $this->respond("error", "Limit needs to be an integer between 1 and 500",400);
+        }
+        else if ($limit > 500){
+            $limit = 500;
+        }
+        else if ($limit < 1){
+            $limit = 1;
+        }
+    
+        //sort - do the same check as with return 
+        //i want to expand on this and add the attributes only obtainable by joins ************************
+        if (!isset ($data["sort"]) || !is_string($data["sort"])){
+            $sort = "product_id";
+        }
+        else {
+            $sort = $data["sort"];
+        }
+
+        $sort_options = ["product_id", "name", "brand"];
+        if (!in_array($sort, $sort_options)){
+            $this->respond("error", "Invalid selection for sort",400);
+        }
+
+        $order = isset($data["order"]) && 
+        strtoupper($data["order"]) === "DESC" ? "DESC" : "ASC";
+
+        $fuzzy = isset($data["fuzzy"]) && is_bool($data["fuzzy"]) ? $data["fuzzy"] : true;
+        //search will be in json format 
+        //also expand on this with joins ******************************************************************
+        $search = isset($data["search"]) ? $data["search"] : null;
+
+        $searchParams = ["product_id", "name", "brand"];
+        
+        $wheres = [];
+        $params = [];
+        $paramTypes = "";
+        
+        if ($search){
+            if (!is_array($search)){
+           $this->respond("error", "Search must be a JSON object",400);
+        }
+        //validate all values
+        foreach ($search as $key => $value){
+            //normalise, less errors for no reason
+            $keyLower = strtolower($key);
+            
+            //invalid parameter, stop
+            if (!in_array($keyLower, $searchParams)){
+                $this->respond("error", "$key is not a valid search parameter", 400);
+            }
+
+            switch ($keyLower){
+                case "product_id":
+                    $wheres[] = "`product_id` = ?";
+                    $paramTypes .= 'i';
+                    $params[] = $value;
+                    break;
+                //these cases work the same
+                case "name":
+                case "brand":
+                if ($fuzzy) { //fuzzy search uses LIKE keyword
+                    $wheres[] = "`$keyLower` LIKE ?";
+                    $paramTypes .= 's';
+                    $params[] = "%" . $value . "%";
+                } else {
+                    $wheres[] = "`$keyLower` = ?";
+                    $paramTypes .= 's';
+                    $params[] = $value;
+                }
+                break;
+            }
+        }
+    }
+
+    //finally assemble sql and execute
+    $sql .= count($wheres) > 0 ? " WHERE " . implode(" AND ", $wheres) : "";
+    $sql .= " ORDER BY `$sort` $order LIMIT ?";
+    $paramTypes .= 'i';
+    $params[] = $limit;
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bind_param($paramTypes, ...$params);
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $products[] = $row;
+        }
+        $this->respond("success", $products, 201);
+    } else {
+        $this->respond("error", "Database request failed",500);
+    }  
+}
+
+    //just returns all rows in the offers table, a less useful getOffer
+    public function getAllOffers($data){
+        $this->validateKey($data["api_key"]);
+
+        $stmt = $this->conn->prepare("SELECT * FROM offers");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("success", "Offers table is empty",400);
+        }
+        //table is not empty, populate offers
+        $offers = [];
+
+        while($row = $result->fetch_assoc()){
+            $offers[] = $row;
+        }
+        $this->respond("success", $offers, 200); 
+
+    }
+
+    //use this to get all offers for one specific product
+    public function getOffer($data){
+        $this->validateKey($data["api_key"]);
+        
+        $prodId = $data["product_id"];
+        if(!$prodId || !is_string($prodId)){
+            $this->respond("error", "malformed or misssing product_id", 400);
+        }
+
+        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ?");
+        $stmt->bind_param("s", $prodId);
+        
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            $offers = [];
+            while ($row = $result->fetch_assoc()) {
+                $offers[] = $row;
+            }
+            $this->respond("success", $offers, 200);
+        } else {
+            $this->respond("error", "database request failed", 500);
+        }
+    }
+
+    //for the passed in id, gets the lowest price where there is stock
+    public function getBestOffer($data){
+        $this->validateKey($data["api_key"]);
+
+        $prodId = $data["product_id"];
+        if(!$prodId || !is_string($prodId)){
+            $this->respond("error", "malformed or misssing product_id", 400);
+        }
+
+        //sort by asc to get lowest price at first index
+        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ? AND stock > 0 ORDER BY price ASC LIMIT 1");
+        $stmt->bind_param("s", $prodId);
+
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            //respond with best offer
+            if ($row = $result->fetch_assoc()){
+                $this->respond("success", $row, 200);
+            }
+            else { //no valid offers 
+                $this->respond("success", "no offers found with stock for this product", 200);
+            }
+        } else {
+            $this->respond("error", "database request failed", 500);
+        }
+    }
+
+    public function createProduct($data){
+        //all fields need to be filled in
+        $fields = ["name", "description", "brand", "image_url"];
+        foreach ( $fields as $field ) {
+            if (empty($data[$field])){
+                respond("error","$field not set", 400);
+            }
+        }
+        
+        //only admins can add products
+        if ($this->validateKey($data["api_key"]) !== "admin"){
+            $this->respond("error", "you need to be an admin to add products", 403);
+        }
+        
+    }
+
+
+}
+
+
+$user = User::instance();
+$jsonObj = file_get_contents('php://input');
+$decodeObj = json_decode($jsonObj, true);
+
+if (isset($decodeObj['type'])) 
     {
         switch ($decodeObj['type']) 
         {
@@ -307,9 +565,9 @@ class User
                     http_response_code(400);
                     echo json_encode(["status" => "error", "message" => "Missing registration parameters"]);
                 }
-                break;
+            break;
             
-                case 'Login':
+            case 'Login':
                     if (isset($decodeObj['email'], $decodeObj['password'])) {
                         $response = $user->loginUser(
                             $decodeObj['email'],
@@ -327,7 +585,27 @@ class User
                         "message" => "Email and password required"
                         ]);
                 }
-                break;
+            break;
+
+            //these types will change along with the products and retailers structure
+            //this is the big chunky one for now 
+            //need to add more sort and search options by joining to associated tables
+            //maybe do some fancy things like sort by num reviews or avg *s
+            case "GetAllProducts":
+                $user->getAllProducts($decodeObj);
+            break;
+            case "GetAllOffers":
+                $user->getAllOffers($decodeObj);
+            break;
+            case "GetOffer":
+                $user->getOffer($decodeObj);
+            break;
+            case "GetBestOffer":
+                $user->getBestOffer($decodeObj);
+            break;
+            case "CreateProduct":
+                $user->createProduct($decodeObj);
+            break;
 
             default:
                 http_response_code(400);
