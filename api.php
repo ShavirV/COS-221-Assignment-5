@@ -175,7 +175,7 @@ class User
 
         // adds flavour (unique)
         $salt = bin2hex(random_bytes(16)); 
-        $hashedInput = hash("sha256", $user['salt'] . $password);
+        $hashedInput = hash("sha256", $salt . $password);
         
         try {
             $stmt = $this->conn->prepare("INSERT INTO user (name, surname, email, password, salt, api_key, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
