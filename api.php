@@ -55,19 +55,35 @@ class User
     
     private function __construct() {
         // changed to match new config.php
-        $this->conn = new mysqli(
-            DB_HOST, 
-            DB_USER, 
-            DB_PASS, 
-            DB_NAME
-        );
-        
-        if ($this->conn->connect_error) {
-            die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
+        if (!class_exists('Database')) 
+        {
+            die(json_encode([
+                'status' => 'error',
+                'message' => 'Database configuration not loaded'
+            ]));
         }
-        
-        // Verify table structure on connection
-        $this->verifyTableStructure();
+    
+        try {
+            $db = Database::instance();
+            $this->conn = $db->getConnection();
+            
+            if ($this->conn->connect_error) 
+            {
+                throw new Exception('Database connection failed');
+            }
+            
+            // Verify table structure func
+            if (!$this->verifyTableStructure())
+            {
+                throw new Exception('Table verification failed');
+            }
+            
+        } catch (Exception $e) {
+            die(json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]));
+        }
     }
     
     public function __destruct()
