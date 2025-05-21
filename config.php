@@ -1,56 +1,49 @@
 <?php
+// Database constants
+// i made the config a singleton these credentials are only used here
+// see construct function in api to see how i have altered it
+// config should now be implemented and used correctly now
+define('DB_HOST', 'wheatley.cs.up.ac.za');
+define('DB_USER', 'u23718146');
+define('DB_PASS', 'IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2');
+define('DB_NAME', 'u23718146_null&void');
 
-// using shavir config cause it works
-//this file will store all the database stuff, so we'll include
-//it in the header file since thats present on all pages
-//singleton design pattern since we only need one database connection
-
-
-require __DIR__ . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
+// *Singleton db now*
 class Database {
     private static $instance = null;
     private $conn;
 
-    private $host = "wheatley.cs.up.ac.za";
-    // student id
-    private $user = $_ENV['DB_USER'];
-    // db password
-    private $pass = $_ENV['DB_PASS'];
-    // db name
-    private $db = $_ENV['DB_NAME'];
-
-    //establish a connection to the database
     private function __construct() {
-        $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db);
+        $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-        if ($this->conn->connect_error) 
-        {
+        if ($this->conn->connect_error) {
+            error_log("DB connection failed: " . $this->conn->connect_error);
             die(json_encode([
                 "status" => "error",
                 "timestamp" => round(microtime(true) * 1000),
-                "data" => "Database connection failed: " . $this->conn->connect_error
+                "data" => "Database connection failed"
             ]));
         }
     }
 
-    public function __destruct() {
-        //disconnect from the database
-        $this->conn->close();
-    }
-
     public static function instance() {
-        if (self::$instance == null) {
+        if (self::$instance === null) 
+        {
             self::$instance = new Database();
         }
-        return self::$instance->conn;
+
+        return self::$instance;
     }
 
     public function getConnection() {
         return $this->conn;
     }
-}
 
+    // destruct function now in config no longer in api.php
+    public function __destruct() {
+        if ($this->conn) {
+            $this->conn->close();
+        }
+    }
+}
 ?>

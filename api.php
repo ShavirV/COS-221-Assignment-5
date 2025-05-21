@@ -95,6 +95,7 @@ class User
         return $instance;
     }
 
+    // altered func to handle errors better and to work accordingly with new config
     private function verifyTableStructure() {
         $requiredColumns = [
             'user_id' => 'int',
@@ -107,43 +108,69 @@ class User
             'user_type' => 'enum'
         ];
         
-        $result = $this->conn->query("DESCRIBE user");
-        $existingColumns = [];
-        while ($row = $result->fetch_assoc()) {
-            $existingColumns[$row['Field']] = $row['Type'];
-        }
-        
-        foreach ($requiredColumns as $col => $type) {
-            if (!array_key_exists($col, $existingColumns)) {
-                die(json_encode([
-                    'status' => 'error',
-                    'message' => "Missing column: $col"
-                ]));
+        try {
+            $result = $this->conn->query("DESCRIBE `user`");
+            if ($result === false) {
+                error_log("Table check failed: ".$this->conn->error);
+                return false;
             }
+            
+            $existingColumns = [];
+            while ($row = $result->fetch_assoc()) {
+                $existingColumns[$row['Field']] = $row['Type'];
+            }
+            
+            foreach ($requiredColumns as $col => $type) {
+                if (!array_key_exists($col, $existingColumns)) {
+                    error_log("Missing column: $col");
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log("Table verification error: ".$e->getMessage());
+            return false;
         }
     }
     
     private function __construct() {
         // changed to match new config.php
-        $this->conn = new mysqli(
-            DB_HOST, 
-            DB_USER, 
-            DB_PASS, 
-            DB_NAME
-        );
-        
-        if ($this->conn->connect_error) {
-            die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
+        if (!class_exists('Database')) 
+        {
+            die(json_encode([
+                'status' => 'error',
+                'message' => 'Database configuration not loaded'
+            ]));
         }
-        
-        // Verify table structure on connection
-        $this->verifyTableStructure();
+    
+        try {
+            $db = Database::instance();
+            $this->conn = $db->getConnection();
+            
+            if ($this->conn->connect_error) 
+            {
+                throw new Exception('Database connection failed');
+            }
+            
+            // Verify table structure func
+            if (!$this->verifyTableStructure())
+            {
+                throw new Exception('Table verification failed');
+            }
+            
+        } catch (Exception $e) {
+            die(json_encode([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]));
+        }
     }
     
-    public function __destruct()
+    // in config file no longer needed here
+    /*public function __destruct()
     {
         $this->conn->close();
-    }
+    }*/
 
     public function validAPI($api_key)
     {
@@ -257,6 +284,7 @@ class User
 
         // adds flavour (unique)
         $salt = bin2hex(random_bytes(16)); 
+        // now fixed
         $hashedInput = hash("sha256", $salt . $password);
         
         try {
@@ -267,6 +295,7 @@ class User
                 throw new Exception("Prepare failed: " . $this->conn->error);
             }
             
+            // small name mismatch error fixed
             $stmt->bind_param("sssssss", $name, $surname, $email, $hashedInput, $salt, $api_key, $user_type);
             
             if (!$stmt->execute()) 
@@ -330,7 +359,8 @@ class User
                 error_log("Stored hash: " . $user['password']);
                 error_log("Computed hash: " . hash("sha256", $password . $user['salt']));
                 error_log("Salt used: " . $user['salt']);
-        
+
+                // should be fixed now to match addUser method
                 $hashedInput = hash("sha256", $user['salt'] . $password);
                 if ($hashedInput !== $user['password']) 
                 {
