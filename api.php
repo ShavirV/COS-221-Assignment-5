@@ -279,7 +279,8 @@ class User
                 error_log("Stored hash: " . $user['password']);
                 error_log("Computed hash: " . hash("sha256", $password . $user['salt']));
                 error_log("Salt used: " . $user['salt']);
-        
+
+                // should be fixed now to match addUser method
                 $hashedInput = hash("sha256", $user['salt'] . $password);
                 if ($hashedInput !== $user['password']) 
                 {
