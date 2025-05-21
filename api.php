@@ -44,16 +44,20 @@ class User
     }
     
     private function __construct() {
+        // changed to match new config.php
         $this->conn = new mysqli(
-            "wheatley.cs.up.ac.za", 
-            "", 
-            "", 
-            ""
+            DB_HOST, 
+            DB_USER, 
+            DB_PASS, 
+            DB_NAME
         );
         
         if ($this->conn->connect_error) {
             die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
         }
+        
+        // Verify table structure on connection
+        $this->verifyTableStructure();
     }
     
     public function __destruct()
