@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__.'/config.php');
+//require_once(__DIR__.'/config.php');
 
 class User
 {
@@ -45,12 +45,9 @@ class User
     private function __construct() {
         $this->conn = new mysqli(
             "wheatley.cs.up.ac.za", 
-            // student id
-            "", 
-            // db password
-            "", 
-            // db name
-            ""
+            "u23718146", 
+            "IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2", 
+            "u23718146_null&void"
         );
         
         if ($this->conn->connect_error) {
@@ -299,7 +296,7 @@ class User
     }
     
     //this is reused a lot, just check if the user with the assoc api key exists   
-    //if we're doing user type validation the return can be changed to a string of their type
+    //also returns the user's type. use to check if a customer is trying to do things only an admin can do 
     public function validateKey($key){
         if (!$key) $this->respond("error", "API key not set", 400);
         
@@ -307,10 +304,11 @@ class User
         $stmt->bind_param("s", $key);
         $stmt->execute();
         //throw error since the key isnt valid
-        if ($stmt->get_result()->num_rows <= 0){
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
             $this->respond("error", "Invalid API key",400);
         }
-        //just exits if alls good
+        return $result->fetch_assoc()["user_type"];
     }
     
     //this will be used for most product population
@@ -452,12 +450,102 @@ class User
     }  
 }
 
-    }
-    $user = User::instance();
-    $jsonObj = file_get_contents('php://input');
-    $decodeObj = json_decode($jsonObj, true);
+    //just returns all rows in the offers table, a less useful getOffer
+    public function getAllOffers($data){
+        $this->validateKey($data["api_key"]);
 
-    if (isset($decodeObj['type'])) 
+        $stmt = $this->conn->prepare("SELECT * FROM offers");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("success", "Offers table is empty",400);
+        }
+        //table is not empty, populate offers
+        $offers = [];
+
+        while($row = $result->fetch_assoc()){
+            $offers[] = $row;
+        }
+        $this->respond("success", $offers, 200); 
+
+    }
+
+    //use this to get all offers for one specific product
+    public function getOffer($data){
+        $this->validateKey($data["api_key"]);
+        
+        $prodId = $data["product_id"];
+        if(!$prodId || !is_string($prodId)){
+            $this->respond("error", "malformed or misssing product_id", 400);
+        }
+
+        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ?");
+        $stmt->bind_param("s", $prodId);
+        
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            $offers = [];
+            while ($row = $result->fetch_assoc()) {
+                $offers[] = $row;
+            }
+            $this->respond("success", $offers, 200);
+        } else {
+            $this->respond("error", "database request failed", 500);
+        }
+    }
+
+    //for the passed in id, gets the lowest price where there is stock
+    public function getBestOffer($data){
+        $this->validateKey($data["api_key"]);
+
+        $prodId = $data["product_id"];
+        if(!$prodId || !is_string($prodId)){
+            $this->respond("error", "malformed or misssing product_id", 400);
+        }
+
+        //sort by asc to get lowest price at first index
+        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ? AND stock > 0 ORDER BY price ASC LIMIT 1");
+        $stmt->bind_param("s", $prodId);
+
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            //respond with best offer
+            if ($row = $result->fetch_assoc()){
+                $this->respond("success", $row, 200);
+            }
+            else { //no valid offers 
+                $this->respond("success", "no offers found with stock for this product", 200);
+            }
+        } else {
+            $this->respond("error", "database request failed", 500);
+        }
+    }
+
+    public function createProduct($data){
+        //all fields need to be filled in
+        $fields = ["name", "description", "brand", "image_url"];
+        foreach ( $fields as $field ) {
+            if (empty($data[$field])){
+                respond("error","$field not set", 400);
+            }
+        }
+        
+        //only admins can add products
+        if ($this->validateKey($data["api_key"]) !== "admin"){
+            $this->respond("error", "you need to be an admin to add products", 403);
+        }
+        
+    }
+
+
+}
+
+
+$user = User::instance();
+$jsonObj = file_get_contents('php://input');
+$decodeObj = json_decode($jsonObj, true);
+
+if (isset($decodeObj['type'])) 
     {
         switch ($decodeObj['type']) 
         {
@@ -505,6 +593,18 @@ class User
             //maybe do some fancy things like sort by num reviews or avg *s
             case "GetAllProducts":
                 $user->getAllProducts($decodeObj);
+            break;
+            case "GetAllOffers":
+                $user->getAllOffers($decodeObj);
+            break;
+            case "GetOffer":
+                $user->getOffer($decodeObj);
+            break;
+            case "GetBestOffer":
+                $user->getBestOffer($decodeObj);
+            break;
+            case "CreateProduct":
+                $user->createProduct($decodeObj);
             break;
 
             default:
