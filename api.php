@@ -45,9 +45,9 @@ class User
     private function __construct() {
         $this->conn = new mysqli(
             "wheatley.cs.up.ac.za", 
-            "u23718146", 
-            "IIIPL4Q62ZB4O6HGENQWS4AT3UUXA5K2", 
-            "u23718146_null&void"
+            "", 
+            "", 
+            ""
         );
         
         if ($this->conn->connect_error) {
@@ -172,7 +172,7 @@ class User
 
         // adds flavour (unique)
         $salt = bin2hex(random_bytes(16)); 
-        $hashedInput = hash("sha256", $user['salt'] . $password);
+        $hashedInput = hash("sha256", $salt . $password);
         
         try {
             $stmt = $this->conn->prepare("INSERT INTO user (name, surname, email, password, salt, api_key, user_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
