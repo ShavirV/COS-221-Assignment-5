@@ -1,6 +1,82 @@
 <?php
 //require_once(__DIR__.'/config.php');
 
+/* setting up composer (required for reading env files)
+
+first we need to add php to the system path 
+
+Step 1: 
+download php from https://windows.php.net/download/ 
+(download the first zip file marked thread safe)
+
+Step 2:
+unzip the file and place it in your C drive 
+
+Step 3: ok now it gets a bit tricky 
+in the folder you just unzipped and moved to C drive,
+find the file called php.ini-development
+copy it and rename the copy to php.ini
+this is the file that will be used to configure php
+
+Step 4: yes now it gets worse
+Press win+R and type in "sysdm.cpl"
+go to the advanced tab and click on environment variables
+in the user variables section, click new and add a new variable with the name php and the path of the folder you unzipped
+click ok until all the windows close
+
+Step 5:
+restart vs code and open a new terminal 
+run command "php -v"
+if it works, you should see the version of php you downloaded
+
+PHP 8.0.30 (cli) (built: Sep  1 2023 14:15:38) ( ZTS Visual C++ 2019 x64 )
+Copyright (c) The PHP Group
+Zend Engine v4.0.30, Copyright (c) Zend Technologies
+
+this was my output, if u see something similar u good
+
+Now because some of our group doesnt wanna use windows 
+Here is the isntructions for installing php on mac os 
+
+make sure homebrew is installed
+run the command
+brew install php
+
+restart vs code and open a new terminal
+check if php is installed by running the command
+php -v
+
+
+
+Now we gotta actually install composer 
+
+Step 1: 
+download composer installer from https://getcomposer.org/download/
+its the first link on the page
+
+Step 2: 
+in the installer, select the php.exe file in the folder you unzipped
+
+step 3: 
+complete installation and check if it worked by running the command
+"composer -v" 
+
+
+i cant figure out how to do this on mac os so u gonna have to figure it out yourself
+sorry dude
+
+if it doesnt work, try restarting vs code again
+
+next we install the dotenv package
+composer require vlucas/phpdotenv
+
+
+*/
+
+require __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 class User
 {
     private $instance;
@@ -45,10 +121,12 @@ class User
     private function __construct() {
         $this->conn = new mysqli(
             "wheatley.cs.up.ac.za", 
-            "", 
-            "", 
-            ""
-        );
+            $_ENV['DB_USER'], 
+            $_ENV['DB_PASS'], 
+            $_ENV['DB_NAME']
+        );//idk if this actually works but it should so just trust me bro 
+        //we can test it after uploading the api to the server
+        
         
         if ($this->conn->connect_error) {
             die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
