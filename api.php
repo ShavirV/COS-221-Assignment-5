@@ -183,7 +183,7 @@ class User
                 throw new Exception("Prepare failed: " . $this->conn->error);
             }
             
-            $stmt->bind_param("sssssss", $name, $surname, $email, $passwordHash, $salt, $api_key, $user_type);
+            $stmt->bind_param("sssssss", $name, $surname, $email, $hashedInput, $salt, $api_key, $user_type);
             
             if (!$stmt->execute()) 
             {
