@@ -1,5 +1,6 @@
 <?php
 //require_once(__DIR__.'/config.php');
+// test
 
 /* setting up composer (required for reading env files)
 
@@ -119,18 +120,20 @@ class User
     }
     
     private function __construct() {
+        // changed to match new config.php
         $this->conn = new mysqli(
-            "wheatley.cs.up.ac.za", 
-            $_ENV['DB_USER'], 
-            $_ENV['DB_PASS'], 
-            $_ENV['DB_NAME']
-        );//idk if this actually works but it should so just trust me bro 
-        //we can test it after uploading the api to the server
-        
+            DB_HOST, 
+            DB_USER, 
+            DB_PASS, 
+            DB_NAME
+        );
         
         if ($this->conn->connect_error) {
             die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
         }
+        
+        // Verify table structure on connection
+        $this->verifyTableStructure();
     }
     
     public function __destruct()
@@ -260,7 +263,7 @@ class User
                 throw new Exception("Prepare failed: " . $this->conn->error);
             }
             
-            $stmt->bind_param("sssssss", $name, $surname, $email, $passwordHash, $salt, $api_key, $user_type);
+            $stmt->bind_param("sssssss", $name, $surname, $email, $hashedInput, $salt, $api_key, $user_type);
             
             if (!$stmt->execute()) 
             {
