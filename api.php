@@ -86,10 +86,11 @@ class User
         }
     }
     
-    public function __destruct()
+    // in config file no longer needed here
+    /*public function __destruct()
     {
         $this->conn->close();
-    }
+    }*/
 
     public function validAPI($api_key)
     {
