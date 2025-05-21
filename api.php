@@ -15,6 +15,7 @@ class User
         return $instance;
     }
 
+    // altered func to handle errors better and to work accordingly with new config
     private function verifyTableStructure() {
         $requiredColumns = [
             'user_id' => 'int',
@@ -27,19 +28,28 @@ class User
             'user_type' => 'enum'
         ];
         
-        $result = $this->conn->query("DESCRIBE user");
-        $existingColumns = [];
-        while ($row = $result->fetch_assoc()) {
-            $existingColumns[$row['Field']] = $row['Type'];
-        }
-        
-        foreach ($requiredColumns as $col => $type) {
-            if (!array_key_exists($col, $existingColumns)) {
-                die(json_encode([
-                    'status' => 'error',
-                    'message' => "Missing column: $col"
-                ]));
+        try {
+            $result = $this->conn->query("DESCRIBE `user`");
+            if ($result === false) {
+                error_log("Table check failed: ".$this->conn->error);
+                return false;
             }
+            
+            $existingColumns = [];
+            while ($row = $result->fetch_assoc()) {
+                $existingColumns[$row['Field']] = $row['Type'];
+            }
+            
+            foreach ($requiredColumns as $col => $type) {
+                if (!array_key_exists($col, $existingColumns)) {
+                    error_log("Missing column: $col");
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log("Table verification error: ".$e->getMessage());
+            return false;
         }
     }
     
