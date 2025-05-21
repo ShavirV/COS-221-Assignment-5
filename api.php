@@ -758,6 +758,9 @@ class User
         }
     }
 
+    // to add: create product, review?
+    // optional: add new retailer, add new offers (since new retailer)
+
 }
 
 
