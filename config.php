@@ -4,17 +4,23 @@
 //this file will store all the database stuff, so we'll include
 //it in the header file since thats present on all pages
 //singleton design pattern since we only need one database connection
+
+
+require __DIR__ . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
 class Database {
     private static $instance = null;
     private $conn;
 
     private $host = "wheatley.cs.up.ac.za";
     // student id
-    private $user = "";
+    private $user = $_ENV['DB_USER'];
     // db password
-    private $pass = "";
+    private $pass = $_ENV['DB_PASS'];
     // db name
-    private $db = "";
+    private $db = $_ENV['DB_NAME'];
 
     //establish a connection to the database
     private function __construct() {
