@@ -100,6 +100,17 @@ update offer
 }
 
 ==================================================
+delete offer (need to test)
+==================================================
+
+{
+    "type": "DeleteOffer",
+    "api_key": "your_admin_api_key",
+    "product_id": 123,
+    "retailer_id": 456
+}
+
+==================================================
 update retailer 
 ==================================================
 
@@ -111,5 +122,15 @@ update retailer
     "address": "123 Tech Street",
     "opening_time": "09:00:00",
     "closing_time": "17:00:00"
+}
+
+==================================================
+delete retailer (need to test)
+==================================================
+
+{
+    "type": "DeleteRetailer",
+    "api_key": "your_admin_api_key",
+    "retailer_id": 123
 }
 
