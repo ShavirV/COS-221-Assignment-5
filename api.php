@@ -1389,6 +1389,78 @@ class User
             $this->respond("error", "Failed to update retailer: " . $e->getMessage(), 500);
         }
     }
+
+    public function deleteRetailer($data) {
+        if ($this->validateKey($data["api_key"]) !== "admin") 
+        {
+            $this->respond("error", "Must be logged in as admin to delete retailers", 403);
+        }
+    
+        // Validate retailer id
+        if (empty($data['retailer_id'])) 
+        {
+            $this->respond("error", "retailer_id is required", 400);
+        }
+    
+        $retailerId = $data['retailer_id'];
+    
+        try {
+            // check to see if retailer exists and get current dat
+            $checkStmt = $this->conn->prepare("SELECT * FROM retailer WHERE retailer_id = ?");
+            $checkStmt->bind_param("i", $retailerId);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+            
+            if ($checkResult->num_rows === 0) {
+                $checkStmt->close();
+                $this->respond("error", "Retailer not found", 404);
+            }
+            
+            $retailerToDelete = $checkResult->fetch_assoc();
+            $checkStmt->close();
+    
+            // checkk for existing offers
+            $offerCheck = $this->conn->prepare("SELECT COUNT(*) AS offer_count FROM offers WHERE retailer_id = ?");
+            $offerCheck->bind_param("i", $retailerId);
+            $offerCheck->execute();
+            $offerResult = $offerCheck->get_result();
+            $offerCount = $offerResult->fetch_assoc()['offer_count'];
+            $offerCheck->close();
+    
+            if ($offerCount > 0) 
+            {
+                $this->respond("error", [
+                    "message" => "Cannot delete retailer with existing offers",
+                    "offer_count" => $offerCount,
+                    "suggestion" => "Delete associated offers first or use ON DELETE CASCADE"
+                ], 409); 
+            }
+    
+            // Execute delete
+            $deleteStmt = $this->conn->prepare("DELETE FROM retailer WHERE retailer_id = ?");
+            $deleteStmt->bind_param("i", $retailerId);
+    
+            if (!$deleteStmt->execute()) 
+            {
+                throw new Exception("Delete failed: " . $deleteStmt->error);
+            }
+    
+            // cehck deletion was successful
+            if ($deleteStmt->affected_rows === 0) 
+            {
+                $this->respond("error", "No retailer was deleted", 500);
+            }
+    
+            $this->respond("success", [
+                "message" => "Retailer deleted successfully",
+                "deleted_retailer" => $retailerToDelete,
+                "deleted_at" => date('Y-m-d H:i:s')
+            ], 200);
+    
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to delete retailer: " . $e->getMessage(), 500);
+        }
+    }
 }
 
 
@@ -1509,6 +1581,10 @@ if (isset($decodeObj['type']))
 
             case "UpdateRetailer":
                 $user->updateRetailer($decodeObj);
+            break;
+
+            case "DeleteRetailer":
+                $user->deleteRetailer($decodeObj);
             break;
 
             default:
