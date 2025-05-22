@@ -572,7 +572,7 @@ class User
             $this->respond("error", "you need to be an admin to add products", 403);
         }
         
-        $stmt = $this->conn->prepare("INSERT INTO products (name, description, brand, image_url), values (?, ?, ?, ?)");
+        $stmt = $this->conn->prepare("INSERT INTO product (name, description, brand, image_url) values (?, ?, ?, ?)");
         $stmt->bind_param("ssss", $data["name"], $data["description"], $data["brand"], $data["image_url"]);
         $stmt->execute();   
         
