@@ -55,3 +55,33 @@ login Test
 "email": "tony@starkindustries1.com",
 "password": "@LoveYou3000"
 }
+
+==================================================
+CreateProduct
+==================================================
+
+
+
+==================================================
+CreateOffer
+==================================================
+
+
+{
+  "type": "CreateOffer",
+  "api_key": "0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3",
+  "product_id": 6,
+  "retailer_id": 9,
+  "stock": 100,
+  "price": 1499.99,
+  "link": "https://techworld.com/product/1"
+}
+
+Response: 
+
+{
+    "status": "success",
+    "timestamp": 1747920533389,
+    "data": "Offer added successfully"
+}
+
