@@ -85,3 +85,17 @@ Response:
     "data": "Offer added successfully"
 }
 
+==================================================
+update offer 
+==================================================
+
+{
+    "type": "UpdateOffer",
+    "api_key": "0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3",
+    "product_id": 1,
+    "retailer_id": 1,
+    "price": 199.99,
+    "stock": 199,
+    "discount": 0
+}
+
