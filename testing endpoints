@@ -1,3 +1,10 @@
+0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3: admin api key
+AszmfHu4W8Wd4nPRg2yKOGtbiwzGrxvH: customer api key
+
+==================================================
+register test
+==================================================
+
 {
 "type":"Register",
 "name": "Tony",
@@ -15,6 +22,23 @@
 "password": "@TestOne12345",
 "user_type": "customer"
 }
+
+==================================================
+update Test
+==================================================
+
+{
+    "type": "UpdateProduct",
+    "api_key": "0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3",
+    "product_id": 1,
+    "name": "Redragon Shiva Wired Membrane Keyboard",
+    "description": "Experience the tactile feedback of a mechanical keyboard without the loud actuation of each keypress with the Redragon Shiva K512 Membrane RGB Gaming Keyboard. Its full 104-Key QWERTY layout doesn’t take anything away from a standard keyboard, however it does allow for 26 conflict-free key presses and featuresan extra 9 multimedia keys and 6 macro keys for your enjoyment. Its RGB lighting has 7 pre-set backlight patterns and 6 customized modes which can be changed with a button combination. This keyboard allows at most 26 keys to work simultaneously to provide fast as well as accurate game response. This keyboard’s bevel is host to a unique and smooth lighting which runs around the keyboard’s edges. Ergonomically designed with a detachable wrist-rest section connected by magnets, the wrist-rest offers great support to make use more comfortable..",
+    "image_url": "https://m.media-amazon.com/images/I/51uJkrDsDuL._AC_SX522_.jpg"
+}
+
+==================================================
+login Test
+==================================================
 
 {
 "type":"Login",
