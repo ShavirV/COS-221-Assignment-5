@@ -825,8 +825,7 @@ class User
             $this->respond("success", "Offer added successfully", 200);
         } else {
             $this->respond("error", "database entry failed", 500);
-        }
-        
+        }  
     }
 
 }
