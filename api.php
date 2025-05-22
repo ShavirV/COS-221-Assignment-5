@@ -332,11 +332,15 @@ class User
     //this is reused a lot, just check if the user with the assoc api key exists   
     //also returns the user's type. use to check if a customer is trying to do things only an admin can do 
     public function validateKey($key){
-        if (!$key) $this->respond("error", "API key not set", 400);
-        
+
+        if (!$key){
+            $this->respond("error", "API key not set", 400);
+        }
+
         $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
         $stmt->bind_param("s", $key);
         $stmt->execute();
+
         //throw error since the key isnt valid
         $result = $stmt->get_result();
         if ($result->num_rows <= 0){
@@ -554,13 +558,13 @@ class User
             $this->respond("error", "database request failed", 500);
         }
     }
-
+    
     public function createProduct($data){
         //all fields need to be filled in
         $fields = ["name", "description", "brand", "image_url"];
         foreach ( $fields as $field ) {
             if (empty($data[$field])){
-                respond("error","$field not set", 400);
+                $this->respond("error","$field not set", 400);
             }
         }
         
@@ -569,8 +573,17 @@ class User
             $this->respond("error", "you need to be an admin to add products", 403);
         }
         
+        $stmt = $this->conn->prepare("INSERT INTO products (name, description, brand, image_url), values (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $data["name"], $data["description"], $data["brand"], $data["image_url"]);
+        $stmt->execute();   
+        
+        if ($stmt->execute()){
+            $this->respond("success", "Product successfully added", 200);
+        } else{
+            $this->respond("error", "database request failed", 500);
+        }
     }
-
+    
     // update func
     public function updateProduct($data) {
         if ($this->validateKey($data["api_key"]) !== "admin") 
