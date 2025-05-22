@@ -79,11 +79,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Get form values
         const formData = {
+            type: 'Register',
             name: document.getElementById('name').value.trim(),
             surname: document.getElementById('surname').value.trim(),
             email: document.getElementById('email').value.trim(),
             password: passwordInput.value,
-            accountType: document.querySelector('input[name="accountType"]:checked').value
+            user_type: document.querySelector('input[name="accountType"]:checked').value
         };
 
         // Validate all fields
@@ -116,7 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form submission
     function submitForm(formData) {
-        fetch('#', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
+
+        console.log(formData);
+
+        fetch('../api.php', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -125,8 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                window.location.href = '/../php/login.php?signup=success';
+
+            console.log(data);
+
+            if (data.status === 'success') {
+                window.location.href = '../php/login.php?signup=success';
             } else {
                 showError(data.message || 'Registration failed. Please try again.');
             }

@@ -26,12 +26,12 @@ require_once(__DIR__.'/../config.php');?>
                 Compare IT
             </div>
             <ul>
-                <li><a href="home.html">HOME</a></li>
-                <li><a href="products.html">PRODUCTS</a></li>
-                <li><a href="wishlist.html">WISHLIST</a></li>
-                <li><a href="aboutUs.html">ABOUT US</a></li>
+                <li><a href="home.php">HOME</a></li>
+                <li><a href="products.php">PRODUCTS</a></li>
+                <li><a href="wishlist.php">WISHLIST</a></li>
+                <li><a href="aboutUs.php">ABOUT US</a></li>
                 <li><a href="login.php" class="active">LOGIN</a></li>
-                <li><a href="signup.html">SIGN UP</a></li>
+                <li><a href="signup.php">SIGN UP</a></li>
             </ul>
         </nav>
 
