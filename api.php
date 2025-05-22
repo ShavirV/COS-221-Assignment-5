@@ -1227,6 +1227,168 @@ class User
             $this->respond("error", "Failed to delete offer: " . $e->getMessage(), 500);
         }
     }
+
+    public function updateRetailer($data) {
+        if ($this->validateKey($data["api_key"]) !== "admin") 
+        {
+            $this->respond("error", "Must be logged in as admin to update retailers", 403);
+        }
+    
+        // need retailer id check
+        if (empty($data['retailer_id'])) 
+        {
+            $this->respond("error", "retailer_id is required", 400);
+        }
+    
+        $retailerId = $data['retailer_id'];
+    
+        // cehck if retailer exists
+        $checkStmt = $this->conn->prepare("SELECT * FROM retailer WHERE retailer_id = ?");
+        $checkStmt->bind_param("i", $retailerId);
+        $checkStmt->execute();
+        $checkResult = $checkStmt->get_result();
+        
+        if ($checkResult->num_rows === 0) 
+        {
+            $checkStmt->close();
+            $this->respond("error", "Retailer not found", 404);
+        }
+        
+        $currentRetailer = $checkResult->fetch_assoc();
+        $checkStmt->close();
+    
+        $updates = [];
+        $params = [];
+        $types = "";
+        
+        $fieldRules = [
+            'name' => [
+                'type' => 'string',
+                'max_length' => 50,
+                'required' => false
+            ],
+            'retailer_type' => [
+                'type' => 'enum',
+                'values' => ['online', 'physical'],
+                'required' => false
+            ],
+            'opening_time' => [
+                'type' => 'time',
+                'required' => false
+            ],
+            'closing_time' => [
+                'type' => 'time',
+                'required' => false
+            ],
+            'address' => [
+                'type' => 'string',
+                'max_length' => 10000, 
+                'required' => false
+            ],
+            'postal_code' => [
+                'type' => 'integer',
+                'required' => false
+            ],
+            'website' => [
+                'type' => 'string',
+                'max_length' => 100,
+                'filter' => FILTER_VALIDATE_URL,
+                'required' => false
+            ],
+            'country' => [
+                'type' => 'string',
+                'max_length' => 30,
+                'required' => false
+            ]
+        ];
+    
+        foreach ($fieldRules as $field => $rules) {
+            if (isset($data[$field])) 
+            {
+                $value = $data[$field];
+                
+                // validate
+                if ($rules['type'] === 'string' && strlen($value) > $rules['max_length']) 
+                {
+                    $this->respond("error", "$field exceeds maximum length of {$rules['max_length']}", 400);
+                }
+                
+                if ($rules['type'] === 'integer' && !is_numeric($value)) 
+                {
+                    $this->respond("error", "$field must be an integer", 400);
+                }
+                
+                if ($rules['type'] === 'enum' && !in_array($value, $rules['values'])) 
+                {
+                    $this->respond("error", "$field must be one of: " . implode(', ', $rules['values']), 400);
+                }
+                
+                if ($field === 'website' && $rules['filter'] && !filter_var($value, $rules['filter'])) 
+                {
+                    $this->respond("error", "Invalid URL format for website", 400);
+                }
+                
+                // handling for time fields
+                if (($field === 'opening_time' || $field === 'closing_time') && $value !== null) 
+                {
+                    if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/', $value)) {
+                        $this->respond("error", "Invalid time format for $field (expected HH:MM:SS)", 400);
+                    }
+                }
+                
+                $updates[] = "`$field` = ?";
+                $params[] = $value;
+                $types .= $rules['type'] === 'integer' ? 'i' : 's';
+            }
+        }
+    
+        if (empty($updates)) {
+            $this->respond("error", "No valid fields provided for update", 400);
+        }
+    
+        // add retailer_id to params for WHERE thingy
+        $params[] = $retailerId;
+        $types .= 'i';
+    
+        //  execute update 
+        try {
+            $sql = "UPDATE retailer SET " . implode(", ", $updates) . " WHERE retailer_id = ?";
+            $stmt = $this->conn->prepare($sql);
+            
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $this->conn->error);
+            }
+    
+            $stmt->bind_param($types, ...$params);
+            
+            if (!$stmt->execute()) {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+    
+            if ($stmt->affected_rows === 0) {
+                $this->respond("success", [
+                    "message" => "Retailer data unchanged",
+                    "affected_fields" => array_keys($data)
+                ], 200);
+            }
+    
+            // gets the now updated retailer details 
+            $getStmt = $this->conn->prepare("SELECT * FROM retailer WHERE retailer_id = ?");
+            $getStmt->bind_param("i", $retailerId);
+            $getStmt->execute();
+            $result = $getStmt->get_result();
+            $updatedRetailer = $result->fetch_assoc();
+            
+            $this->respond("success", [
+                "message" => "Retailer updated successfully",
+                "retailer" => $updatedRetailer,
+                "previous_values" => $currentRetailer
+            ], 200);
+            
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to update retailer: " . $e->getMessage(), 500);
+        }
+    }
 }
 
 
@@ -1343,6 +1505,10 @@ if (isset($decodeObj['type']))
 
             case "DeleteOffer":
                 $user->deleteOffer($decodeObj);
+            break;
+
+            case "UpdateRetailer":
+                $user->updateRetailer($decodeObj);
             break;
 
             default:
