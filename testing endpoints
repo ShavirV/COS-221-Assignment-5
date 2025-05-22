@@ -99,3 +99,17 @@ update offer
     "discount": 0
 }
 
+==================================================
+update retailer 
+==================================================
+
+{
+    "type": "UpdateRetailer",
+    "api_key": "0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3",
+    "retailer_id": 2,
+    "name": "ayush's store",
+    "address": "123 Tech Street",
+    "opening_time": "09:00:00",
+    "closing_time": "17:00:00"
+}
+
