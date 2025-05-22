@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>COMPARE IT - login</title>
+    <link rel="stylesheet" href="../css/login.css" />
+  </head>
+  <body>
+    <div class="background-image"></div>
+    <div class="content">
+      <nav class="navbar">
+        <div class="brand">
+          <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo" />
+          Compare IT
+        </div>
+        <ul>
+          <li><a href="home.html">HOME</a></li>
+          <li><a href="products.html">PRODUCTS</a></li>
+          <li><a href="wishlist.html">WISHLIST</a></li>
+          <li><a href="aboutUs.html">ABOUT US</a></li>
+          <li><a href="login.html" class="active">LOGIN</a></li>
+          <li><a href="signup.html">SIGN UP</a></li>
+        </ul>
+      </nav>
+
+      <div class="login-container">
+        <div class="logo-container">
+          <!-- <img src="../img/logo.jpg" alt="COMPARE IT Logo" class="logo-image" /> -->
+        </div>
+
+        <form>
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <div class="user-type">
+            <div class="user-option">
+              <input
+                type="radio"
+                id="customer"
+                name="userType"
+                value="customer"
+                checked
+              />
+              <label for="customer">Customer</label>
+            </div>
+            <div class="user-option">
+              <input type="radio" id="admin" name="userType" value="admin" />
+              <label for="admin">Admin</label>
+            </div>
+          </div>
+
+          <button type="submit" class="login-btn">LOGIN</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,269 @@
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Arial", sans-serif;
+}
+
+body {
+  overflow-x: hidden;
+  color: white;
+  background-attachment: fixed;
+}
+
+/* Background Overlay */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("../img/wish.jpg");
+  background-repeat: no-repeat;
+}
+
+/* Top Navigation Bar - Updated to match login.css style */
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.top-navbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+}
+
+.top-navbar .logo {
+  height: 50px;
+  width: auto;
+}
+
+.top-navbar .nav-links {
+  display: flex;
+  list-style: none;
+  gap: 25px;
+}
+
+.top-navbar .nav-links li a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.top-navbar .nav-links li a:hover {
+  color: white;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+    0 0 25px rgba(255, 255, 255, 0.8);
+  transform: translateY(-3px);
+}
+
+.top-navbar .nav-links li a.active {
+  color: white;
+  background-color: rgb(22, 46, 90);
+  border-radius: 3px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 1),
+    0 0 25px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4),
+    0 0 25px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(255, 255, 255, 0.3);
+}
+
+.top-navbar .nav-links li a::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.top-navbar .nav-links li a:hover::after {
+  transform: scaleX(1);
+}
+
+
+/* About Container Styles */
+.about-container {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    padding: 40px;
+    border-radius: 15px;
+    width: 900px;
+    max-width: 95%;
+    margin: 30px auto;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+}
+
+.logo-container {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.logo-image {
+    max-width: 250px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+/* Content Sections */
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.about-section,
+.mission-section,
+.team-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.about-section:hover,
+.mission-section:hover,
+.team-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    position: relative;
+    padding-bottom: 10px;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #8e2de2, #4a00e0);
+}
+
+.section-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.section-content p {
+    margin-bottom: 15px;
+}
+
+/* Team Section Styles */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.team-member {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.team-member:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.member-icon {
+    font-size: 2.5rem;
+    color: #909090;
+    margin-bottom: 15px;
+}
+
+
+
+.member-name {
+    font-weight: bold;
+    color: #3e55c9;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.member-bio {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .top-navbar {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .nav-links {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .about-container {
+        padding: 20px;
+    }
+    
+    h2 {
+        font-size: 1.6rem;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand span {
+        font-size: 1.2rem;
+    }
+    
+    .nav-links {
+        gap: 10px;
+    }
+    
+    .about-container {
+        padding: 15px;
+    }
+    
+    .about-section,
+    .mission-section,
+    .team-section {
+        padding: 20px;
+    }
+}
