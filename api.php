@@ -1461,6 +1461,164 @@ class User
             $this->respond("error", "Failed to delete retailer: " . $e->getMessage(), 500);
         }
     }
+
+    public function getAllRetailers($data) {
+        // commented out for now but we can make it require an customer/admin api_key->default
+        // $this->validateKey($data["api_key"]);
+        
+        if (isset($data["return"]) && empty($data["return"])) 
+        {
+            $this->respond("error", "Return parameters cannot be empty", 400);
+        }
+        
+        $validColumns = [
+            'retailer_id', 'name', 'retailer_type', 'opening_time', 
+            'closing_time', 'address', 'postal_code', 'website', 'country'
+        ];
+        
+        // selct clause here
+        if (isset($data["return"]) && $data["return"] !== "*") {
+            if (!is_array($data["return"])) 
+            {
+                $this->respond("error", "Return parameters must be an array of column names or '*'", 400);
+            }
+            
+            // normalized the coloumns
+            $requestedColumns = array_map('strtolower', $data["return"]);
+            $invalidColumns = array_diff($requestedColumns, $validColumns);
+            
+            if (!empty($invalidColumns)) 
+            {
+                $this->respond("error", "Invalid return parameters: " . implode(', ', $invalidColumns), 400);
+            }
+            
+            $columns = implode(', ', array_map(function($col) {
+                return "`$col`";
+            }, $requestedColumns));
+        } else {
+            $columns = "*";
+        }
+        
+        $sql = "SELECT $columns FROM retailer";
+        $params = [];
+        $types = "";
+        $whereClauses = [];
+        
+        // Adds filtering options(might need to alter we'll see how it goes first)
+        if (isset($data["filters"])) 
+        {
+            if (!is_array($data["filters"])) 
+            {
+                $this->respond("error", "Filters must be an associative array", 400);
+            }
+            
+            foreach ($data["filters"] as $field => $value) {
+                $fieldLower = strtolower($field);
+                
+                if (!in_array($fieldLower, $validColumns)) 
+                {
+                    $this->respond("error", "$field is not a filterable field", 400);
+                }
+                
+                // handling for different field types to match table
+                switch ($fieldLower) {
+                    case 'retailer_type':
+                        if (!in_array(strtolower($value), ['online', 'physical'])) 
+                        {
+                            $this->respond("error", "retailer_type must be either 'online' or 'physical'", 400);
+                        }
+                        $whereClauses[] = "`$fieldLower` = ?";
+                        $params[] = $value;
+                        $types .= "s";
+                        break;
+                        
+                    case 'postal_code':
+                        if (!is_numeric($value)) 
+                        {
+                            $this->respond("error", "postal_code must be numeric", 400);
+                        }
+                        $whereClauses[] = "`$fieldLower` = ?";
+                        $params[] = $value;
+                        $types .= "i";
+                        break;
+                        
+                    case 'name':
+                    case 'country':
+                        // partial matching & case sensitive****
+                        $whereClauses[] = "`$fieldLower` LIKE ?";
+                        $params[] = "%$value%";
+                        $types .= "s";
+                        break;
+                        
+                    default:
+                        $whereClauses[] = "`$fieldLower` = ?";
+                        $params[] = $value;
+                        $types .= "s";
+                }
+            }
+        }
+        
+        // Add WHERE clause for the filters (i dont know the filters)
+        if (!empty($whereClauses)) {
+            $sql .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+        
+        // sorting
+        $sortField = isset($data["sort"]) ? strtolower($data["sort"]) : 'retailer_id';
+        if (!in_array($sortField, $validColumns)) 
+        {
+            $this->respond("error", "Invalid sort field: $sortField", 400);
+        }
+
+        // order of retailers
+        $sortOrder = isset($data["order"]) && strtoupper($data["order"]) === 'DESC' ? 'DESC' : 'ASC';
+        $sql .= " ORDER BY `$sortField` $sortOrder";
+        
+        // i made the limit 50 like from 216 we can change it tho 
+        $limit = 50; 
+        if (isset($data["limit"])) {
+            if (!is_numeric($data["limit"]) || $data["limit"] < 1) {
+                $this->respond("error", "Limit must be a positive integer", 400);
+            }
+            // max cap could make 300 if we wat
+            $limit = min($data["limit"], 500); 
+        }
+        $sql .= " LIMIT ?";
+        $params[] = $limit;
+        $types .= "i";
+        
+        // exceute the query
+        try {
+            $stmt = $this->conn->prepare($sql);
+            if (!empty($params)) 
+            {
+                $stmt->bind_param($types, ...$params);
+            }
+            
+            if (!$stmt->execute()) 
+            {
+                throw new Exception("Database query failed: " . $stmt->error);
+            }
+            
+            $result = $stmt->get_result();
+            $retailers = [];
+            
+            while ($row = $result->fetch_assoc()) 
+            {
+                $retailers[] = $row;
+            }
+            
+            if (empty($retailers))
+            {
+                $this->respond("success", "No retailers found matching your criteria", 200);
+            }
+            
+            $this->respond("success", $retailers, 200);
+            
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to retrieve retailers: " . $e->getMessage(), 500);
+        }
+    }
 }
 
 
@@ -1585,6 +1743,10 @@ if (isset($decodeObj['type']))
 
             case "DeleteRetailer":
                 $user->deleteRetailer($decodeObj);
+            break;
+
+            case "GetAllRetailers":
+                $user->getAllRetailers($decodeObj);
             break;
 
             default:
