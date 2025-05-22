@@ -505,7 +505,6 @@ class User
             $offers[] = $row;
         }
         $this->respond("success", $offers, 200); 
-
     }
 
     //use this to get all offers for one specific product
@@ -772,7 +771,63 @@ class User
     }
 
     // to add: create product, review?
-    // optional: add new retailer, add new offers (since new retailer)
+
+    public function createRetailer($data){
+        //check if all fields are filled and valid
+        $fields = ["api_key", "name", "retailer_type", "address", "postal_code", "website", "country"];
+        foreach ( $fields as $field ) {
+            if (empty($data[$field])){
+                $this->respond("error","$field not set", 400);
+            }
+        }
+
+        //only admins can add products
+        if ($this->validateKey($data["api_key"]) !== "admin"){
+            $this->respond("error", "You need to be an admin to add retailers", 403);
+        }
+
+        //prepare the query and insert
+        $stmt = $this->conn->prepare("INSERT INTO retailer (name, retailer_type, opening_time, closing_time, address, postal_code, website, country) 
+                                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssssss", $data["name"], $data["retailer_type"], $data["opening_time"],
+                           $data["closing_time"], $data["address"], $data["postal_code"], $data["website"], $data["country"]);
+        if ($stmt->execute()){
+            $this->respond("success", "Retailer added successfully", 200);
+        } else {
+            $this->respond("error", "database entry failed", 500);
+        }
+    }
+
+    public function createOffer($data){
+        //check if all fields are filled and valid
+        $fields = ["api_key", "product_id", "retailer_id", "stock", "price", "link"];
+        foreach ( $fields as $field ) {
+            if (empty($data[$field])){
+                $this->respond("error","$field not set", 400);
+            }
+        }
+
+        //only admins can create offers
+        if ($this->validateKey($data["api_key"]) !== "admin"){
+            $this->respond("error", "You need to be an admin to add retailers", 403);
+        }
+
+        //default values for unset values
+        $currency = ($data["currency"]) ? $data["currency"] : "ZAR";
+        $discount = ($data["discount"]) ? $data["discount"] : 0;
+
+        //insert into database
+        $stmt = $this->conn->prepare("INSERT INTO offers (product_id, retailer_id, stock, price, discount, currency, link) 
+                                      VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iiiddss", $data["product_id"], $data["retailer_id"], $data["stock"],
+                           $data["price"], $discount, $currency, $data["link"]);
+        if ($stmt->execute()){
+            $this->respond("success", "Offer added successfully", 200);
+        } else {
+            $this->respond("error", "database entry failed", 500);
+        }
+        
+    }
 
 }
 
@@ -855,13 +910,21 @@ if (isset($decodeObj['type']))
                 $user->deleteProduct($decodeObj);
             break;
 
+            case "CreateRetailer":
+                $user->createRetailer($decodeObj);
+            break;
+
+            case "CreateOffer":
+                $user->createOffer($decodeObj);
+            break;
+
             default:
                 http_response_code(400);
                 echo json_encode(["status" => "error", "message" => "Invalid request type"]);
                 break;
         }
     } 
-    
+
     else
     {
         http_response_code(400);
