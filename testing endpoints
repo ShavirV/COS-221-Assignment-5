@@ -134,3 +134,31 @@ delete retailer (need to test)
     "retailer_id": 123
 }
 
+==================================================
+get all retailer 
+==================================================
+
+{
+    "type": "GetAllRetailers"
+}
+
+{
+    "type": "GetAllRetailers",
+    "return": ["retailer_id", "name", "retailer_type"]
+}
+
+{
+    "type": "GetAllRetailers",
+    "filters": {
+        "retailer_type": "physical",
+        "country": "South Africa"
+    }
+}
+
+{
+    "type": "GetAllRetailers",
+    "sort": "name",
+    "order": "ASC",
+    "limit": 20
+}
+
