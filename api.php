@@ -1172,6 +1172,61 @@ class User
             $this->respond("error", "Failed to update offer: " . $e->getMessage(), 500);
         }
     }
+
+    public function deleteOffer($data) {
+        if ($this->validateKey($data["api_key"]) !== "admin") 
+        {
+            $this->respond("error", "Must be logged in as admin to delete offers", 403);
+        }
+    
+        if (empty($data['product_id']) || empty($data['retailer_id'])) 
+        {
+            $this->respond("error", "Both product_id and retailer_id are required", 400);
+        }
+    
+        $productId = $data['product_id'];
+        $retailerId = $data['retailer_id'];
+    
+        try {
+            // check if offer exists
+            $checkStmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ? AND retailer_id = ?");
+            $checkStmt->bind_param("ii", $productId, $retailerId);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+            
+            if ($checkResult->num_rows === 0) 
+            {
+                $checkStmt->close();
+                $this->respond("error", "Offer not found for this product and retailer combination", 404);
+            }
+            
+            $offerToDelete = $checkResult->fetch_assoc();
+            $checkStmt->close();
+    
+            // Execute delete
+            $deleteStmt = $this->conn->prepare("DELETE FROM offers WHERE product_id = ? AND retailer_id = ?");
+            $deleteStmt->bind_param("ii", $productId, $retailerId);
+    
+            if (!$deleteStmt->execute()) 
+            {
+                throw new Exception("Delete failed: " . $deleteStmt->error);
+            }
+    
+            // check if deletion was a success
+            if ($deleteStmt->affected_rows === 0) 
+            {
+                $this->respond("error", "No offer was deleted", 500);
+            }
+    
+            $this->respond("success", [
+                "message" => "Offer deleted successfully",
+                "deleted_offer" => $offerToDelete
+            ], 200);
+    
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to delete offer: " . $e->getMessage(), 500);
+        }
+    }
 }
 
 
@@ -1284,6 +1339,10 @@ if (isset($decodeObj['type']))
 
             case "YourReviews":
                 $user->yourReviews($decodeObj);
+            break;
+
+            case "DeleteOffer":
+                $user->deleteOffer($decodeObj);
             break;
 
             default:
