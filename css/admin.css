@@ -526,6 +526,15 @@ body {
 
 .form-group input:focus,
 .form-group select:focus,
+select option {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+}
+
+select:focus option:checked {
+  background-color: rgba(22, 46, 90, 0.8);
+  color: white;
+}
 .form-group textarea:focus {
   border-color: #4caf50;
   background-color: rgba(255, 255, 255, 0.2);
