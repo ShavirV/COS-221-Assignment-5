@@ -11,7 +11,7 @@ register test
 "surname": "Stark",
 "email": "tony@starkindustries1.com",
 "password": "@LoveYou3000",
-"user_type": "customer"
+"user_type": "admin"
 }
 
 {
