@@ -73,9 +73,7 @@ composer require vlucas/phpdotenv
 
 */
 
-require __DIR__ . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+
 
 ini_set('log_errors', 1); // Enable logging
 ini_set('error_log', __DIR__ . '/error.log'); // Path to your log file
