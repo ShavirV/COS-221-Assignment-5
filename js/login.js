@@ -28,20 +28,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // formData.append('userType', userType);
 
 
-        request = {
+        const request = {
            type: 'Login',
            email: username,
            password: password, 
         }; 
+
+        const jrequest = JSON.stringify(request);
+
+        console.log(request);
         
         // AJAX request
         fetch('../api.php', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
             method: 'POST',
-            //headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(request)
+            headers: {'Content-Type': 'application/json'},
+            body: jrequest
         })
         .then(response => response.json())
         .then(data => {
+            console.log(data);
+
             if (data.success) {
                 // Redirect based on user type
 
