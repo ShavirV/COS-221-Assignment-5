@@ -829,6 +829,22 @@ class User
         
     }
 
+    public function updateOffers($data) {
+
+    }
+
+    public function deleteOffers($data) {
+        
+    }
+
+    public function updateRetailer($data) {
+
+    }
+
+    public function deleteRetailer($data) {
+
+    }
+
 }
 
 
@@ -917,6 +933,23 @@ if (isset($decodeObj['type']))
             case "CreateOffer":
                 $user->createOffer($decodeObj);
             break;
+
+            /*case "updateOffer"
+                $user->createOffer($decodeObj);
+            break;
+
+            case "deleteOffer"
+                $user->updateOffers($decodeObj);
+            break;
+
+            case "updateRetailer"
+                $user->updateRetailer($decodeObj);
+            break;
+
+            case "deleteRetailer"
+                $user->deleteRetailer($decodeObj);
+            break;
+            */
 
             default:
                 http_response_code(400);
