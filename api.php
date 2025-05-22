@@ -906,23 +906,110 @@ class User
         $id =  $result->fetch_assoc()["user_id"];       
         
         //check if the review matches the users id
+        if (empty($data["review_id"])){
+            $this->respond("error", "review_id not set", 400);
+        }
+        // Check if review belongs to user
+        $stmt = $this->conn->prepare("SELECT * FROM review WHERE review_id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $data["review_id"], $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         
+        if ($result->num_rows <= 0) {
+            $this->respond("error", "review not found or not owned by this user", 403); // Forbidden
+        }
+
+        //funny things can be done since we already got the table row
+        $originalReview = $result->fetch_assoc();
+        //update if need update
+        $newRating = isset($data["rating"]) ? $data["rating"] : $originalReview["rating"];
+        $newComment = isset($data["comment"]) ? $data["comment"] : $originalReview["comment"];
+        
+        //do the thing
+        $stmt = $this->conn->prepare("UPDATE review SET rating = ?, comment = ? WHERE review_id = ?");
+        $stmt->bind_param("isi", $newRating, $newComment, $data["review_id"]);
+        
+        if ($stmt->execute()) {
+            $this->respond("success", "Review updated successfully", 200);
+        } 
+        $this->respond("error", "Failed to update review", 500);
     }
 
     public function deleteReview($data){
-        //filled in and valid data
-
-
         //only admins and the user that made the review can delete it 
-        $type = $this->validateKey($data["api_key"]);
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();    
+        $result = $stmt->get_result();
 
-        //check if the user key matches review
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
 
+        $user = $result->fetch_assoc();
+        $id = $user["user_id"];
+        $type = $user["user_type"];
+        if (empty($data["review_id"])){
+            $this->respond("error", "review_id not set", 400);
+        }
+        
+        if ($type === "admin"){
+            //check if review exists
+            $stmt = $this->conn->prepare("SELECT * FROM review WHERE review_id = ?");
+            $stmt->bind_param("i", $data["review_id"]);
+        } else {
+            //check if review belongs to user
+            $stmt = $this->conn->prepare("SELECT * FROM review WHERE review_id = ? AND user_id = ?");
+            $stmt->bind_param("ii", $data["review_id"], $id);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0) {
+            $this->respond("error", "review not found or not owned by this user", 403); //forbidden
+        }
+
+        //finally, do the delete
+        $stmt = $this->conn->prepare("DELETE FROM review WHERE review_id = ?");
+        $stmt->bind_param("i", $data["review_id"]);
+
+        if ($stmt->execute()){
+            $this->respond("success", "deleted review $id successfully", 200);
+        }
+        $this->respond("error", "deletion from the database failed", 500);
     }
 
     //show user's reviews in the user page, allow edit and delete there
     public function yourReviews($data){
+        //check key, get id
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
+        
+        //throw error since the key isnt valid
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        $id =  $result->fetch_assoc()["user_id"];  
 
+        //easy statement
+        $stmt = $this->conn->prepare("SELECT * FROM review WHERE user_id = ?");
+        $stmt->bind_param("i", $id);
+
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            if ($result->num_rows <= 0){
+                $this->respond("success", "no reviews found for this product", 204); //204 no content
+            }
+            //>=1 review, collect and send out 
+            $reviews = [];
+            while($row = $result->fetch_assoc()){
+                $reviews[] = $row; 
+            }
+            $this->respond("success", $reviews, 200);
+        }
+        $this->respond("error", "database query failed", "500");
     }
 
 
@@ -1022,6 +1109,18 @@ if (isset($decodeObj['type']))
 
             case "GetReviews":
                 $user->getReviews($decodeObj);
+            break;
+
+            case "EditReview":
+                $user->editReview($decodeObj);
+            break;
+
+            case "DeleteReview":
+                $user->deleteReview($decodeObj);
+            break;
+
+            case "YourReviews":
+                $user->yourReviews($decodeObj);
             break;
 
             default:
