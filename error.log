@@ -1,0 +1,2 @@
+[22-May-2025 15:20:19 Europe/Berlin] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'u23718146'@'10.32.38.109' (using password: NO) in C:\xampp\htdocs\COS-221-Assignment-5\config.php on line 23
+[22-May-2025 15:20:19 Europe/Berlin] DB connection failed: Access denied for user 'u23718146'@'10.32.38.109' (using password: NO)
