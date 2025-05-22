@@ -825,25 +825,46 @@ class User
             $this->respond("success", "Offer added successfully", 200);
         } else {
             $this->respond("error", "database entry failed", 500);
+        }  
+    }
+
+    //review functionality is still kinda up in the air
+    public function createReview($data){
+        //required fields
+        $fields = ["api_key", "rating", "product_id", "comment"];
+        foreach ( $fields as $field ) {
+            if (empty($data[$field])){
+                $this->respond("error","$field not set", 400);
+            }
         }
         
-    }
-
-    public function updateOffers($data) {
-
-    }
-
-    public function deleteOffers($data) {
+        //get user's id for foreign key
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
         
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        //user does exist, get id
+        $userId = $result->fetch_assoc()["user_id"];
+
+        //prepare the insertion
+        $stmt = $this->conn->prepare("INSERT INTO review (rating, product_id, comment, user_id, user_api) 
+                                      VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("iisis", $data["rating"], $data["product_id"], $data["comment"], $userId, $data["api_key"]);
+        if ($stmt->execute()){
+            $this->respond("success", "Review created successfully", 200);
+        } else {
+            $this->respond("error", "database entry failed", 500);
+        }  
     }
 
-    public function updateRetailer($data) {
+    public function getReview($data){
 
     }
 
-    public function deleteRetailer($data) {
-
-    }
 
 }
 
@@ -934,22 +955,13 @@ if (isset($decodeObj['type']))
                 $user->createOffer($decodeObj);
             break;
 
-            /*case "updateOffer"
-                $user->createOffer($decodeObj);
+            //still not sure about review functionality
+            case "CreateReview":
+                $user->createReview($decodeObj);
             break;
 
-            case "deleteOffer"
-                $user->updateOffers($decodeObj);
-            break;
-
-            case "updateRetailer"
-                $user->updateRetailer($decodeObj);
-            break;
-
-            case "deleteRetailer"
-                $user->deleteRetailer($decodeObj);
-            break;
-            */
+            case "GetReview":
+                $user->getReview($decodeObj);
 
             default:
                 http_response_code(400);
