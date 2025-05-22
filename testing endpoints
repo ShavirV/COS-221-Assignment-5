@@ -1,0 +1,23 @@
+{
+"type":"Register",
+"name": "Tony",
+"surname": "Stark",
+"email": "tony@starkindustries1.com",
+"password": "@LoveYou3000",
+"user_type": "customer"
+}
+
+{
+"type":"Register",
+"name": "test",
+"surname": "one",
+"email": "test@One.com",
+"password": "@TestOne12345",
+"user_type": "customer"
+}
+
+{
+"type":"Login",
+"email": "tony@starkindustries1.com",
+"password": "@LoveYou3000"
+}
