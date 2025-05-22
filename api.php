@@ -1,6 +1,8 @@
 <?php
 require_once(__DIR__.'/config.php');
 
+// test
+
 class User
 {
     private $instance;
