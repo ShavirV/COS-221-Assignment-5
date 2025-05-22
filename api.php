@@ -1,5 +1,4 @@
 <?php
-//test
 require_once(__DIR__.'/config.php');
 
 class User
@@ -352,8 +351,9 @@ class User
     
     //this will be used for most product population
     public function getAllProducts($data){
-        $this->validateKey($data["api_key"]);
-        
+        //$this->validateKey($data["api_key"]);
+        //enquire about this, no longer require apikey for product population, should be easier integration
+
         if (empty($data["return"])){
             $this->respond("error", "Return parameters not set",400);
         }
@@ -794,9 +794,9 @@ class User
                            $data["closing_time"], $data["address"], $data["postal_code"], $data["website"], $data["country"]);
         if ($stmt->execute()){
             $this->respond("success", "Retailer added successfully", 200);
-        } else {
-            $this->respond("error", "database entry failed", 500);
-        }
+        } 
+        $this->respond("error", "database entry failed", 500);
+        
     }
 
     public function createOffer($data){
@@ -824,9 +824,9 @@ class User
                            $data["price"], $discount, $currency, $data["link"]);
         if ($stmt->execute()){
             $this->respond("success", "Offer added successfully", 200);
-        } else {
-            $this->respond("error", "database entry failed", 500);
-        }  
+        }
+        $this->respond("error", "database entry failed", 500);
+ 
     }
 
     //review functionality is still kinda up in the air
@@ -852,17 +852,76 @@ class User
         $userId = $result->fetch_assoc()["user_id"];
 
         //prepare the insertion
-        $stmt = $this->conn->prepare("INSERT INTO review (rating, product_id, comment, user_id, user_api) 
-                                      VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iisis", $data["rating"], $data["product_id"], $data["comment"], $userId, $data["api_key"]);
+        $stmt = $this->conn->prepare("INSERT INTO review (rating, product_id, comment, user_id) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iisi", $data["rating"], $data["product_id"], $data["comment"], $userId);
         if ($stmt->execute()){
             $this->respond("success", "Review created successfully", 200);
-        } else {
-            $this->respond("error", "database entry failed", 500);
-        }  
+        }
+
+        $this->respond("error", "database entry failed", 500);
+ 
     }
 
-    public function getReview($data){
+    //returns all reviews for a product given its id
+    //allowing this to be called without a key so its easier to integrate
+    //(i think its bad practice and we should use default creds but please check me on that i just know this is easier)
+    public function getReviews($data){
+        if (!$data["product_id"]) $this->respond("error", "product_id not set", 400);
+
+        $stmt = $this->conn->prepare("SELECT * FROM review WHERE product_id = ?");
+        $stmt->bind_param("s", $data["product_id"]);
+
+        if ($stmt->execute()){
+            $result = $stmt->get_result();
+            if ($result->num_rows <= 0){
+                $this->respond("success", "no reviews found for this product", 204); //204 no content
+            }
+            //>=1 review, collect and send out 
+            $reviews = [];
+            while($row = $result->fetch_assoc()){
+                $reviews[] = $row; 
+            }
+            $this->respond("success", $reviews, 200);
+        }
+        $this->respond("error", "database query failed", "500");
+
+    }
+
+    public function editReview($data){
+        //only the user that made the review can change it
+        //since we arent doing a 1984 thing
+        if (!$data["api_key"]){
+            $this->respond("error", "API key not set", 400);
+        }
+        
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
+        
+        //throw error since the key isnt valid
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        $id =  $result->fetch_assoc()["user_id"];       
+        
+        //check if the review matches the users id
+        
+    }
+
+    public function deleteReview($data){
+        //filled in and valid data
+
+
+        //only admins and the user that made the review can delete it 
+        $type = $this->validateKey($data["api_key"]);
+
+        //check if the user key matches review
+
+    }
+
+    //show user's reviews in the user page, allow edit and delete there
+    public function yourReviews($data){
 
     }
 
@@ -961,8 +1020,9 @@ if (isset($decodeObj['type']))
                 $user->createReview($decodeObj);
             break;
 
-            case "GetReview":
-                $user->getReview($decodeObj);
+            case "GetReviews":
+                $user->getReviews($decodeObj);
+            break;
 
             default:
                 http_response_code(400);
