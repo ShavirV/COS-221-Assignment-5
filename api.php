@@ -1,6 +1,5 @@
 <?php
-//require_once(__DIR__.'/config.php');
-// test
+require_once(__DIR__.'/config.php');
 
 /* setting up composer (required for reading env files)
 
@@ -413,11 +412,15 @@ class User
     //this is reused a lot, just check if the user with the assoc api key exists   
     //also returns the user's type. use to check if a customer is trying to do things only an admin can do 
     public function validateKey($key){
-        if (!$key) $this->respond("error", "API key not set", 400);
-        
+
+        if (!$key){
+            $this->respond("error", "API key not set", 400);
+        }
+
         $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
         $stmt->bind_param("s", $key);
         $stmt->execute();
+
         //throw error since the key isnt valid
         $result = $stmt->get_result();
         if ($result->num_rows <= 0){
@@ -635,13 +638,13 @@ class User
             $this->respond("error", "database request failed", 500);
         }
     }
-
+    
     public function createProduct($data){
         //all fields need to be filled in
         $fields = ["name", "description", "brand", "image_url"];
         foreach ( $fields as $field ) {
             if (empty($data[$field])){
-                respond("error","$field not set", 400);
+                $this->respond("error","$field not set", 400);
             }
         }
         
@@ -650,8 +653,206 @@ class User
             $this->respond("error", "you need to be an admin to add products", 403);
         }
         
+        $stmt = $this->conn->prepare("INSERT INTO products (name, description, brand, image_url), values (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $data["name"], $data["description"], $data["brand"], $data["image_url"]);
+        $stmt->execute();   
+        
+        if ($stmt->execute()){
+            $this->respond("success", "Product successfully added", 200);
+        } else{
+            $this->respond("error", "database request failed", 500);
+        }
+    }
+    
+    // update func
+    public function updateProduct($data) {
+        if ($this->validateKey($data["api_key"]) !== "admin") 
+        {
+            $this->respond("error", "Must be logged in as admin to update products", 403);
+        }
+    
+        if (empty($data['product_id'])) 
+        {
+            $this->respond("error", "product id is required", 400);
+        }
+    
+        // check for product exist ? not
+        $productId = $data['product_id'];
+        $checkStmt = $this->conn->prepare("SELECT product_id FROM product WHERE product_id = ?");
+        $checkStmt->bind_param("i", $productId);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+        
+        if ($checkStmt->num_rows === 0) 
+        {
+            $checkStmt->close();
+            $this->respond("error", "Product not found", 404);
+        }
+        $checkStmt->close();
+    
+        // validations
+        $updates = [];
+        $params = [];
+        $types = "";
+        
+        // added validation can be removed convenient and matches the table structure type
+        $fieldRules = [
+            'name' => [
+                'max_length' => 50,
+                'required' => false
+            ],
+            'description' => [
+                'max_length' => 10000, 
+                'required' => false
+            ],
+            'brand' => [
+                'max_length' => 50,
+                'required' => false
+            ],
+            'image_url' => [
+                'max_length' => 100,
+                'required' => false,
+                'filter' => FILTER_VALIDATE_URL
+            ]
+        ];
+    
+        foreach ($fieldRules as $field => $rules) 
+        {
+            if (isset($data[$field])) {
+                $value = $data[$field];
+                
+                // check field lengths
+                if (strlen($value) > $rules['max_length']) 
+                {
+                    $this->respond("error", "$field exceeds maximum length of {$rules['max_length']} characters", 400);
+                }
+                
+                // important check -> sees if url is valid!
+                if ($field === 'image_url' && $rules['filter'] && !filter_var($value, $rules['filter'])) {
+                    $this->respond("error", "Invalid URL format for image_url", 400);
+                }
+                
+                $updates[] = "`$field` = ?";
+                $params[] = $value;
+                $types .= "s";
+            }
+        }
+    
+        if (empty($updates)) 
+        {
+            $this->respond("error", "No valid fields provided for update", 400);
+        }
+    
+        $params[] = $productId;
+        // i means integer 
+        $types .= "i"; 
+    
+        // actual update query 
+        try {
+            $sql = "UPDATE product SET " . implode(", ", $updates) . " WHERE product_id = ?";
+            $stmt = $this->conn->prepare($sql);
+            
+            if (!$stmt) 
+            {
+                throw new Exception("Prepare failed: " . $this->conn->error);
+            }
+    
+            $stmt->bind_param($types, ...$params);
+            
+            if (!$stmt->execute()) 
+            {
+                throw new Exception("Execute failed: " . $stmt->error);
+            }
+    
+            if ($stmt->affected_rows === 0) 
+            {
+                $this->respond("success", [
+                    "message" => "Product data unchanged",
+                    "affected_fields" => array_keys($data)
+                ], 200);
+            }
+    
+            $getStmt = $this->conn->prepare("SELECT * FROM product WHERE product_id = ?");
+            $getStmt->bind_param("i", $productId);
+            $getStmt->execute();
+            $result = $getStmt->get_result();
+            $updatedProduct = $result->fetch_assoc();
+            
+            $this->respond("success", [
+                "message" => "Product updated successfully",
+                "product" => $updatedProduct
+            ], 200);
+            
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to update product: " . $e->getMessage(), 500);
+        }
     }
 
+    public function deleteProduct($data) {
+        if ($this->validateKey($data["api_key"]) !== "admin") 
+        {
+            $this->respond("error", "Must be logged in as admin to delete products", 403);
+        }
+    
+        // validate product id
+        if (empty($data['product_id'])) 
+        {
+            $this->respond("error", "product_id is required", 400);
+        }
+    
+        $productId = $data['product_id'];
+    
+        try {
+            // check product existence
+            $checkStmt = $this->conn->prepare("SELECT product_id FROM product WHERE product_id = ?");
+            $checkStmt->bind_param("i", $productId);
+            $checkStmt->execute();
+            $checkStmt->store_result();
+            
+            if ($checkStmt->num_rows === 0) 
+            {
+                $checkStmt->close();
+                $this->respond("error", "Product not found", 404);
+            }
+            $checkStmt->close();
+    
+            // gets all product details relating to product to be deleted
+            $getStmt = $this->conn->prepare("SELECT * FROM product WHERE product_id = ?");
+            $getStmt->bind_param("i", $productId);
+            $getStmt->execute();
+            $result = $getStmt->get_result();
+            $product = $result->fetch_assoc();
+            $getStmt->close();
+    
+            // execute delete
+            $deleteStmt = $this->conn->prepare("DELETE FROM product WHERE product_id = ?");
+            $deleteStmt->bind_param("i", $productId);
+
+            // if fails 
+            if (!$deleteStmt->execute()) 
+            {
+                throw new Exception("Delete failed: " . $deleteStmt->error);
+            }
+    
+            //  validate success ? failure
+            if ($deleteStmt->affected_rows === 0) 
+            {
+                $this->respond("error", "No product was deleted", 500);
+            }
+    
+            // show it deleted
+            $this->respond("success", [
+                "message" => "Product deleted successfully",
+                "deleted_product" => $product
+            ], 200);
+    
+        } catch (Exception $e) {
+            $this->respond("error", "Failed to delete product: " . $e->getMessage(), 500);
+        }
+    }
+
+    // to add: create product, review?
+    // optional: add new retailer, add new offers (since new retailer)
 
 }
 
@@ -709,17 +910,29 @@ if (isset($decodeObj['type']))
             case "GetAllProducts":
                 $user->getAllProducts($decodeObj);
             break;
+
             case "GetAllOffers":
                 $user->getAllOffers($decodeObj);
             break;
+
             case "GetOffer":
                 $user->getOffer($decodeObj);
             break;
+
             case "GetBestOffer":
                 $user->getBestOffer($decodeObj);
             break;
+
             case "CreateProduct":
                 $user->createProduct($decodeObj);
+            break;
+
+            case "UpdateProduct":
+                $user->updateProduct($decodeObj);
+            break;
+
+            case "DeleteProduct":
+                $user->deleteProduct($decodeObj);
             break;
 
             default:

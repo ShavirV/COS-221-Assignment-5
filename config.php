@@ -3,6 +3,7 @@
 // i made the config a singleton these credentials are only used here
 // see construct function in api to see how i have altered it
 // config should now be implemented and used correctly now
+// url
 define('DB_HOST', 'wheatley.cs.up.ac.za');
 define('DB_USER', $_ENV['DB_USER']);
 define('DB_PASS', $_ENV['DB_PASS']);
