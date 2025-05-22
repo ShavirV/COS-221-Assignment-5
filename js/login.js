@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const userType = document.querySelector('input[name="userType"]:checked').value;
         const errorElement = document.getElementById('errorMessage');
 
-        console.log(username + "login attempt");
+        //console.log(username + "login attempt");
         
         // Clear previous errors
         errorElement.textContent = '';
@@ -35,8 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }; 
 
         const jrequest = JSON.stringify(request);
-
-        console.log(request);
         
         // AJAX request
         fetch('../api.php', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
@@ -46,16 +44,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
 
-            if (data.success) {
+            if (data.status === 'success') {
                 // Redirect based on user type
 
-                console.log(data.data.user_type);
+                //console.log(data.data.user_type);
                 if (data.data.user_type === 'admin') {
-                    window.location.href = 'admin.php';
+                    window.location.href = '../php/admin.php';
                 } else {
-                    window.location.href = 'home.php'; 
+                    window.location.href = '../php/home.php'; 
                 }
             } else {
                 errorElement.textContent = data.message;
