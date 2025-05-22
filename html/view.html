@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wishlist - Compare IT</title>
+    <link rel="stylesheet" href="../css/view.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="background-overlay"></div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-navbar">
+      <div class="brand">
+        <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo" />
+        <span>Compare IT</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="home.html">HOME</a></li>
+        <li><a href="products.html">PRODUCTS</a></li>
+        <li><a href="wishlist.html">WISHLIST</a></li>
+        <li><a href="aboutUs.html">ABOUT US</a></li>
+        <li><a href="login.html">LOGIN</a></li>
+        <li><a href="signup.html">SIGN UP</a></li>
+      </ul>
+    </nav>
+
+    <!-- view page main content -->
+<div class="product-container">
+        <div class="product-images">
+            <img id="main-image" class="main-image" src="" alt="Main Product Image">
+            <div class="thumbnail-container" id="thumbnail-container">
+                <!-- Thumbnails will be inserted here by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="product-info">
+            <h1 id="product-title">Product Title</h1>
+            <div class="price" id="price">$0.00</div>
+            <div class="description" id="description">Product description will load here...</div>
+            <div class="rating">
+                <span class="stars">★★★★★</span>
+                <span class="review-count">(0 reviews)</span>
+            </div>
+            <button class="add-to-wishlist" id ="add-to-wishlist">❤</button>
+        </div>
+    </div>
+    
+    <div class="offers-section">
+        <h2>Available Offers</h2>
+        <div class="offers-container" id="offers-container">
+            <!-- Offers will be inserted here by JavaScript -->
+        </div>
+    </div>
+    
+    <div class="reviews-section">
+        <h2>Customer Reviews</h2>
+        <div class="reviews-container" id="reviews-container">
+            <!-- Existing reviews will appear here -->
+        </div>
+        <button id="leave-review-btn" class="leave-review-btn">Leave a Review</button>
+        <div class="review-form-container" id="review-form-container" style="display: none;">
+            <h3>Write Your Review</h3>
+            <form id="review-form">
+                <div class="form-group">
+                    <label for="review-rating">Rating:</label>
+                    <select id="review-rating" required>
+                        <option value="">Select rating</option>
+                        <option value="5">★★★★★</option>
+                        <option value="4">★★★★☆</option>
+                        <option value="3">★★★☆☆</option>
+                        <option value="2">★★☆☆☆</option>
+                        <option value="1">★☆☆☆☆</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="review-text">Review:</label>
+                    <textarea id="review-text" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="submit-review">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <script src="../js/view.js"></script>
+  </body>
+</html>
