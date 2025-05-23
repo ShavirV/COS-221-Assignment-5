@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (userType === 'admin') {
                     window.location.href = 'admin.php';
                 } else {
-                    window.location.href = 'home.php'; //STILL NEED TO IMPLEMENT THIS BASED ON LOGGED IN CUSTOMER
+                    window.location.href = 'home.php'; 
                 }
             } else {
                 errorElement.textContent = data.message;
