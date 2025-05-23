@@ -6,19 +6,23 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchForm = document.getElementById("search-form");
   const searchInput = document.getElementById("search-input");
   const addProductBtn = document.getElementById("addProductBtn");
+  const addRetailerBtn = document.getElementById("addRetailerBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   const productModal = document.getElementById("productModal");
-  const closeModal = document.querySelector(".close-modal");
-  const cancelBtn = document.querySelector(".cancel-btn");
+  const retailerModal = document.getElementById("retailerModal");
+  const closeModals = document.querySelectorAll(".close-modal");
+  const cancelBtns = document.querySelectorAll(".cancel-btn");
   const productForm = document.getElementById("productForm");
+  const retailerForm = document.getElementById("retailerForm");
   const modalTitle = document.getElementById("modalTitle");
 
-  // Mock database that yall gotta replace :)
+  // Mock database
   let mockProducts = [
     {
       id: 1,
       name: 'Ultra HD Smart TV 55" with Quantum Dot',
       price: 799.99,
+      offerPrice: 699.99,
       image:
         "https://media.istockphoto.com/id/506550846/photo/monitor.jpg?s=1024x1024&w=is&k=20&c=NHFA6MmA4vBX-xWN6eK5J8UTgeoQVBs3pRkWeaMeYGw=",
       category: "Television",
@@ -29,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 2,
       name: "Wireless Noise-Canceling Headphones Pro",
       price: 349.99,
+      offerPrice: 299.99,
       image:
         "https://cdn.pixabay.com/photo/2016/11/19/16/01/audio-1840073_1280.jpg",
       category: "Audio",
@@ -59,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 5,
       name: "4K Action Camera with Stabilization",
       price: 299.99,
+      offerPrice: 249.99,
       image:
         "https://cdn.pixabay.com/photo/2014/08/29/14/53/camera-431119_1280.jpg",
       category: "Cameras",
@@ -76,6 +82,8 @@ document.addEventListener("DOMContentLoaded", function () {
         "Stay connected and monitor your health with our advanced smart watch. Features ECG, blood oxygen monitoring, sleep tracking, and fitness metrics. With a bright always-on display, customizable watch faces, and 5-day battery life, it's the perfect companion for your active lifestyle.",
     },
   ];
+
+  let mockRetailers = [];
 
   // Current filtered/sorted products
   let displayedProducts = [...mockProducts];
@@ -155,15 +163,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     addProductBtn.addEventListener("click", openAddProductModal);
+    addRetailerBtn.addEventListener("click", openAddRetailerModal);
 
     logoutBtn.addEventListener("click", function () {
       window.location.href = "login.html";
     });
 
-    closeModal.addEventListener("click", closeModalHandler);
-    cancelBtn.addEventListener("click", closeModalHandler);
+    closeModals.forEach((modal) => {
+      modal.addEventListener("click", closeModalHandler);
+    });
 
-    productForm.addEventListener("submit", handleFormSubmit);
+    cancelBtns.forEach((btn) => {
+      btn.addEventListener("click", closeModalHandler);
+    });
+
+    productForm.addEventListener("submit", handleProductFormSubmit);
+    retailerForm.addEventListener("submit", handleRetailerFormSubmit);
   }
 
   function showSortDropdown() {
@@ -294,11 +309,27 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <div class="product-details">
             <h3 class="product-title">${product.name}</h3>
-            <div class="product-price">$${product.price.toFixed(2)}</div>
+            <div class="product-price-container">
+              ${
+                product.offerPrice
+                  ? `<span class="original-price">$${product.price.toFixed(
+                      2
+                    )}</span>
+                 <span class="offer-price">$${product.offerPrice.toFixed(
+                   2
+                 )}</span>`
+                  : `<span class="current-price">$${product.price.toFixed(
+                      2
+                    )}</span>`
+              }
+            </div>
             <div class="product-category">${product.category}</div>
           </div>
         </div>
         <div class="product-actions">
+          <button class="offer-btn" data-id="${product.id}">
+            <i class="fas fa-tag"></i> Offer
+          </button>
           <button class="edit-btn" data-id="${product.id}">
             <i class="fas fa-edit"></i> Edit
           </button>
@@ -318,6 +349,14 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    document.querySelectorAll(".offer-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const productId = parseInt(this.getAttribute("data-id"));
+        openEditProductModal(productId, true);
+      });
+    });
+
     document.querySelectorAll(".delete-btn").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -331,6 +370,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("productId").value = "";
     document.getElementById("productName").value = "";
     document.getElementById("productPrice").value = "";
+    document.getElementById("productOfferPrice").value = "";
     document.getElementById("productCategory").value = "";
     document.getElementById("productImage").value = "";
     document.getElementById("productDescription").value = "";
@@ -338,36 +378,54 @@ document.addEventListener("DOMContentLoaded", function () {
     productModal.classList.add("active");
   }
 
-  function openEditProductModal(productId) {
+  function openAddRetailerModal() {
+    document.getElementById("retailerId").value = "";
+    document.getElementById("retailerName").value = "";
+    document.getElementById("retailerType").value = "";
+    document.getElementById("openingTime").value = "";
+    document.getElementById("closingTime").value = "";
+    document.getElementById("retailerAddress").value = "";
+    document.getElementById("postalCode").value = "";
+    document.getElementById("retailerWebsite").value = "";
+    document.getElementById("retailerCountry").value = "";
+    retailerModal.classList.add("active");
+  }
+
+  function openEditProductModal(productId, isOffer = false) {
     const product = mockProducts.find((p) => p.id === productId);
     if (!product) return;
 
     document.getElementById("productId").value = product.id;
     document.getElementById("productName").value = product.name;
     document.getElementById("productPrice").value = product.price;
+    document.getElementById("productOfferPrice").value =
+      product.offerPrice || "";
     document.getElementById("productCategory").value = product.category;
     document.getElementById("productImage").value = product.image;
     document.getElementById("productDescription").value = product.description;
-    modalTitle.textContent = "Edit Product";
+    modalTitle.textContent = isOffer ? "Add/Edit Offer" : "Edit Product";
     productModal.classList.add("active");
   }
 
   function closeModalHandler() {
     productModal.classList.remove("active");
+    retailerModal.classList.remove("active");
   }
 
-  function handleFormSubmit(e) {
+  function handleProductFormSubmit(e) {
     e.preventDefault();
 
     const id = document.getElementById("productId").value;
     const name = document.getElementById("productName").value;
     const price = parseFloat(document.getElementById("productPrice").value);
+    const offerPrice =
+      parseFloat(document.getElementById("productOfferPrice").value) || null;
     const category = document.getElementById("productCategory").value;
     const image = document.getElementById("productImage").value;
     const description = document.getElementById("productDescription").value;
 
     if (!name || isNaN(price) || !category || !image || !description) {
-      alert("Please fill in all fields correctly");
+      alert("Please fill in all required fields correctly");
       return;
     }
 
@@ -375,6 +433,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updateProduct(parseInt(id), {
         name,
         price,
+        offerPrice,
         category,
         image,
         description,
@@ -383,6 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
       addProduct({
         name,
         price,
+        offerPrice,
         category,
         image,
         description,
@@ -390,6 +450,52 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     closeModalHandler();
+  }
+
+  function handleRetailerFormSubmit(e) {
+    e.preventDefault();
+
+    const name = document.getElementById("retailerName").value;
+    const type = document.getElementById("retailerType").value;
+    const openingTime = document.getElementById("openingTime").value;
+    const closingTime = document.getElementById("closingTime").value;
+    const address = document.getElementById("retailerAddress").value;
+    const postalCode = document.getElementById("postalCode").value;
+    const website = document.getElementById("retailerWebsite").value;
+    const country = document.getElementById("retailerCountry").value;
+
+    if (
+      !name ||
+      !type ||
+      !openingTime ||
+      !closingTime ||
+      !address ||
+      !postalCode ||
+      !website ||
+      !country
+    ) {
+      alert("Please fill in all fields correctly");
+      return;
+    }
+
+    const newRetailer = {
+      id:
+        mockRetailers.length > 0
+          ? Math.max(...mockRetailers.map((r) => r.id)) + 1
+          : 1,
+      name,
+      retailer_type: type,
+      opening_time: openingTime,
+      closing_time: closingTime,
+      address,
+      postal_code: postalCode,
+      website,
+      country,
+    };
+
+    mockRetailers.push(newRetailer);
+    closeModalHandler();
+    alert("Retailer added successfully!");
   }
 
   function addProduct(product) {

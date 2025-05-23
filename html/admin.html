@@ -25,6 +25,9 @@
         <button class="admin-btn" id="addProductBtn">
           <i class="fas fa-plus-circle"></i> Add Product
         </button>
+        <button class="admin-btn" id="addRetailerBtn">
+          <i class="fas fa-store"></i> Add Retailer
+        </button>
         <button class="admin-btn" id="logoutBtn">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
@@ -77,6 +80,10 @@
             <input type="number" id="productPrice" step="0.01" required />
           </div>
           <div class="form-group">
+            <label for="productOfferPrice">Offer Price (optional)</label>
+            <input type="number" id="productOfferPrice" step="0.01" />
+          </div>
+          <div class="form-group">
             <label for="productCategory">Category</label>
             <select id="productCategory" required>
               <option value="">Select Category</option>
@@ -95,6 +102,52 @@
           <div class="form-group">
             <label for="productDescription">Description</label>
             <textarea id="productDescription" rows="4" required></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Save</button>
+            <button type="button" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="retailerModal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="retailerModalTitle">Add New Retailer</h2>
+        <form id="retailerForm">
+          <input type="hidden" id="retailerId" />
+          <div class="form-group">
+            <label for="retailerName">Retailer Name</label>
+            <input type="text" id="retailerName" required />
+          </div>
+          <div class="form-group">
+            <label for="retailerType">Retailer Type</label>
+            <input type="text" id="retailerType" required />
+          </div>
+          <div class="form-group">
+            <label for="openingTime">Opening Time</label>
+            <input type="time" id="openingTime" required />
+          </div>
+          <div class="form-group">
+            <label for="closingTime">Closing Time</label>
+            <input type="time" id="closingTime" required />
+          </div>
+          <div class="form-group">
+            <label for="retailerAddress">Address</label>
+            <input type="text" id="retailerAddress" required />
+          </div>
+          <div class="form-group">
+            <label for="postalCode">Postal Code</label>
+            <input type="text" id="postalCode" required />
+          </div>
+          <div class="form-group">
+            <label for="retailerWebsite">Website</label>
+            <input type="url" id="retailerWebsite" required />
+          </div>
+          <div class="form-group">
+            <label for="retailerCountry">Country</label>
+            <input type="text" id="retailerCountry" required />
           </div>
           <div class="form-actions">
             <button type="submit" class="save-btn">Save</button>
