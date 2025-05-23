@@ -86,5 +86,6 @@ $featuredProducts = [
 </div>
 
 <script src="../js/home.js"></script>
+<?php require_once 'footer.php'; ?>
 </body>
 </html>

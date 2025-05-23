@@ -57,5 +57,6 @@ require_once("header.php");
     </div>
 
     <script src="../js/wishlist.js"></script>
+    <?php require_once 'footer.php'; ?>
   </body>
 </html>
