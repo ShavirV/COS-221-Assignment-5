@@ -1,36 +1,11 @@
 <?php
-session_start();
-?>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wishlist - Compare IT</title>
-    <link rel="stylesheet" href="../css/wishlist.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-  </head>
-  <body>
-    <div class="background-overlay"></div>
+// session_start();
+$title = "WishList - Compare IT";
+$cssFile = "wishlist.css"; // CSS file for wishlist page
+require_once("header.php");
 
-    <!-- Top Navigation Bar -->
-    <nav class="top-navbar">
-      <div class="brand">
-        <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo" />
-        <span>Compare IT</span>
-      </div>
-      <ul class="nav-links">
-        <li><a href="home.php">HOME</a></li>
-        <li><a href="products.php">PRODUCTS</a></li>
-        <li><a href="wishlist.php" class="active">WISHLIST</a></li>
-        <li><a href="aboutUs.php">ABOUT US</a></li>
-        <li><a href="login.php">LOGIN</a></li>
-        <li><a href="signup.php">SIGN UP</a></li>
-      </ul>
-    </nav>
+?>
+
 
     <!-- Search Bar -->
     <div class="search-container">

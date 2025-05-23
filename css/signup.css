@@ -128,17 +128,7 @@ body {
   justify-content: center;
 }
 
-.logo-container {
-  margin-bottom: 25px;
-  display: flex;
-  justify-content: center;
-}
 
-.logo-image {
-  max-width: 100%;
-  height: auto;
-  max-height: 80px;
-}
 
 .signup-form {
   display: flex;
@@ -177,36 +167,6 @@ body {
   font-size: 1rem;
 }
 
-.user-type {
-  display: flex;
-  justify-content: space-between;
-  margin: 15px 0;
-  gap: 15px;
-}
-
-.user-option {
-  flex: 1;
-  text-align: center;
-}
-
-.user-option input {
-  display: none;
-}
-
-.user-option label {
-  display: block;
-  padding: 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.user-option input:checked + label {
-  background-color: rgba(255, 255, 255, 0.3);
-  font-weight: bold;
-}
 
 .signup-btn {
   width: 100%;
