@@ -1,6 +1,6 @@
 <?php
 
-// require_once(__DIR__.'/config.php');
+require_once(__DIR__.'/config.php');
 $title = "Signup - Compare IT";
 $cssFile = "signup.css"; // CSS file for signup page
 require_once 'header.php';
