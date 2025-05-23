@@ -24,6 +24,12 @@ go to the advanced tab and click on environment variables
 in the user variables section, click new and add a new variable with the name php and the path of the folder you unzipped
 click ok until all the windows close
 
+(this worked the first time however when doing it again i had to place it in the system variables section under path 
+find the one that says path and click edit 
+you will see a list of links
+click new and add ur php file path in there
+click ok till all boxes close)
+
 Step 5:
 restart vs code and open a new terminal 
 run command "php -v"
