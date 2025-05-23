@@ -1,5 +1,7 @@
 <?php
 require_once(__DIR__.'/config.php');
+require_once(__DIR__.'/mail.php');
+
 header("Content-Type: application/json; charset=utf-8"); //guys this wasnt here before thats why the api tests were looking so yee yee 😔
 class User
 {
@@ -829,9 +831,94 @@ class User
  
     }
 
-    //this is just for bonus marks i dont wanna mess with the main function
     public function createOfferEmail($data){
-        
+    //this is just for bonus marks i dont wanna mess with the main function
+    $fields = ["api_key", "product_id", "retailer_id", "stock", "price", "link"];
+    foreach ( $fields as $field ) {
+        if (empty($data[$field])){
+            $this->respond("error","$field not set", 400);
+        }
+    }
+    
+    //only admins can create offers
+    if ($this->validateKey($data["api_key"]) !== "admin") {
+        $this->respond("error", "You need to be an admin to add offers", 403);
+    }
+    
+    //default values if left null
+    $currency = isset($data["currency"]) ? $data["currency"] : "ZAR";
+    $discount = isset($data["discount"]) ? $data["discount"] : 0;
+    
+    //insert the offer
+    $stmt = $this->conn->prepare("INSERT INTO offers (product_id, retailer_id, stock, price, discount, currency, link) 
+                                         VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iiiddss", $data["product_id"], $data["retailer_id"], $data["stock"],
+                       $data["price"], $discount, $currency, $data["link"]);
+
+    if (!$stmt->execute()) {
+        $this->respond("error", "database entry failed", 500);
+    }
+
+    //new functionality
+    //check if the new offer is the best offer now
+    $newPrice = $data["price"];
+    $productId = $data["product_id"];    
+
+    //get lowest existing price
+    //scary sql but not bad
+    $stmt = $this->conn->prepare("SELECT MIN(price) AS min_price 
+                                  FROM offers WHERE product_id = ? 
+                                  AND NOT (retailer_id = ? AND price = ? AND link = ?)");
+    $stmt->bind_param("iids", $data["product_id"], $data["retailer_id"], $data["price"], $data["link"]);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $oldLowest = $row["min_price"];
+
+    //if this offer is a lower price, notify users 
+    if ($oldLowest === null || $newPrice < $oldLowest){
+        $this->notifyWishlistUsers($productId, $newPrice);
+    }
+
+    $this->respond("success", "offer created successfully", 200);
+}
+
+    //this will email users that have the passed in product wishlisted
+    private function notifyWishlistUsers($productId, $newPrice){
+        //big scary SQl 
+        //its not really that deep, just get the users email and product name (for emailing)
+        //where the product in question is in the users wishlist (use wishlist as an intermediary table)
+        $stmt = $this->conn->prepare("
+        SELECT u.email, p.name
+        FROM wishlist w
+        JOIN user u on w.user_id = u.user_id
+        JOIN product p on p.product_id = w.product_id
+        WHERE w.product_id = ?
+        ");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        //prepare emails for each user
+        while ($row = $result->fetch_assoc()){
+            $email = $row["email"];
+            $productName = $row["name"];
+
+            $subject = "Price Drop: $productName! ✈️💥🏢🏢";
+
+            //body needs to be in html (format myself later ch*t now)
+            $bodyHtml = "<html>
+            <body style='font-family: Arial, sans-serif; color: #333;'>
+            <h2 style='color: #2c7;'>Price Drop Alert!</h2>
+            <p>The product <strong>$productName</strong> in your wishlist is now available for <strong>R$newPrice</strong>.</p>
+            <p><a href='https://youtu.be/QnNttStV0KE?si=SsX_Lql3nV6Ut5Xo' style='background-color: #2c7; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>View Product</a></p>
+            <p>Thanks for using our store!<br><em>- Your E-Commerce Team</em></p>
+            </body>
+            </html>";
+
+            //in mail.php
+            sendWishlistEmail($email, $subject, $bodyHtml);
+        }
     }
 
     //review functionality is still kinda up in the air
@@ -1809,7 +1896,7 @@ if (isset($decodeObj['type']))
             break;
 
             case "CreateOffer":
-                $user->createOffer($decodeObj);
+                $user->createOfferEmail($decodeObj);
             break;
 
             case "CreateReview":
@@ -1862,6 +1949,23 @@ if (isset($decodeObj['type']))
 
             case "DeleteFromWishlist":
                 $user->deleteFromWishlist($decodeObj);
+            break;
+
+            case "CreateOfferOld": //just keeping it here in case of catastrophic failure 
+                $user->createOffer($decodeObj);
+            break;
+            
+            case "Debug": //can be deleted just using it to test periodically 
+            $success = sendWishlistEmail("shavirvallabh.exe@gmail.com", "debugging the email thing", "
+            <p>Good news! <strong>itemName</strong> just dropped to <strong>2</strong>.</p>
+            <p><a href='https://youtu.be/QnNttStV0KE?si=SsX_Lql3nV6Ut5Xo'>Click here</a> to check it out.</p>");
+            
+            if ($success) {
+                $user->respond("success", "Email sent successfully", 200);
+            } else {
+                $user->respond("error", "Email failed to send (check logs)", 500);
+            }
+            break;
 
             default:
                 http_response_code(400);
