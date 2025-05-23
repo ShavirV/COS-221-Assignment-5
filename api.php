@@ -1,6 +1,6 @@
 <?php
 require_once(__DIR__.'/config.php');
-
+header("Content-Type: application/json; charset=utf-8"); //guys this wasnt here before thats why the api tests were looking so yee yee 😔
 class User
 {
     private $instance;
@@ -829,6 +829,11 @@ class User
  
     }
 
+    //this is just for bonus marks i dont wanna mess with the main function
+    public function createOfferEmail($data){
+        
+    }
+
     //review functionality is still kinda up in the air
     public function createReview($data){
         //required fields
@@ -1619,6 +1624,105 @@ class User
             $this->respond("error", "Failed to retrieve retailers: " . $e->getMessage(), 500);
         }
     }
+
+    public function addToWishlist($data){
+        if (empty($data["api_key"]) || empty($data["product_id"])){
+            $this->respond("error", "missing api_key or product_id", 400);
+        }
+
+        //get user's id for foreign key
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        $userId = $result->fetch_assoc()["user_id"];
+
+        //dont allow duplicate entries 
+        $stmt = $this->conn->prepare("SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("ii", $userId, $data["product_id"]);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0){
+            $this->respond("error", "Product already in wishlist", 409); //conflict
+        }
+
+        //insert
+        $stmt = $this->conn->prepare("INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)");
+        $stmt->bind_param("ii", $userId, $data["product_id"]);
+        if ($stmt->execute()) {
+            $this->respond("success", "Product added to wishlist", 200);
+        }
+        $this->respond("error", "Insert failed", 500);    
+    }
+
+    public function getWishlist($data){
+        //get user's id for foreign key
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        $userId = $result->fetch_assoc()["user_id"];
+
+        //we in join territory now
+        $stmt = $this->conn->prepare("
+        SELECT p.* FROM wishlist w
+        JOIN product p ON w.product_id = p.product_id
+        WHERE w.user_id = ?
+        ");
+        $stmt->bind_param("i", $userId);
+        
+        if (!$stmt->execute()){
+            $this->respond("error", "database query on wishlist failed", "500");
+        }
+
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("success", "No items in wishlist. engage in more consumption", 204); //empty
+        }
+        //passed checks, has stuff to return
+        $wishlist = [];
+        while ($row = $result->fetch_assoc()){
+            $wishlist[] = $row;
+        }
+        $this->respond("success", $wishlist, 200);
+
+    }
+
+    public function deleteFromWishlist($data){
+        //just need a valid apikey and product must be in wishlist (ik its super redundant ill make it a function at some point)
+        $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
+        $stmt->bind_param("s", $data["api_key"]);
+        $stmt->execute();
+        
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("error", "Invalid API key",400);
+        }
+        $userId = $result->fetch_assoc()["user_id"];
+
+        //simple delete function
+        $stmt = $this->conn->prepare("DELETE FROM wishlist WHERE user_id = ? AND product_id = ?");
+        $stmt->bind_param("ii", $userId, $data["product_id"]);
+        
+        if (!$stmt->execute()){
+            $this->respond("error", "database deletion failed", 500);
+        }
+        //check if anything happened, if yes then good
+        if ($stmt->affected_rows > 0) {
+            $this->respond("success", "Product removed from wishlist.", 200);
+        } else {
+            $this->respond("error", "Product not found in wishlist or already removed.", 404);
+        }
+    }
+
 }
 
 
@@ -1708,7 +1812,6 @@ if (isset($decodeObj['type']))
                 $user->createOffer($decodeObj);
             break;
 
-            //still not sure about review functionality
             case "CreateReview":
                 $user->createReview($decodeObj);
             break;
@@ -1748,6 +1851,17 @@ if (isset($decodeObj['type']))
             case "GetAllRetailers":
                 $user->getAllRetailers($decodeObj);
             break;
+
+            case "AddToWishlist":
+                $user->addToWishlist($decodeObj);
+            break;
+
+            case "GetWishlist":
+                $user->getWishlist($decodeObj);
+            break;
+
+            case "DeleteFromWishlist":
+                $user->deleteFromWishlist($decodeObj);
 
             default:
                 http_response_code(400);
