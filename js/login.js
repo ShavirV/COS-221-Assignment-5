@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }; 
 
         const jrequest = JSON.stringify(request);
+
+        //console.log(request);
         
         // AJAX request
         fetch('../api.php', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
@@ -45,13 +47,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
 
+            console.log(data);
+
+            setCookie("apiKey", data.data.api_key,2);
+
             if (data.status === 'success') {
                 // Redirect based on user type
 
                 //console.log(data.data.user_type);
                 if (data.data.user_type === 'admin') {
+                    setCookie("isAdmin",'true',2);
                     window.location.href = '../php/admin.php';
                 } else {
+                    setCookie("isAdmin",'false',2);
                     window.location.href = '../php/home.php'; 
                 }
             } else {
@@ -64,3 +72,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function setCookie(name, value, time) {
+  let expires = "";
+  if (time) {
+    const date = new Date();
+    date.setTime(date.getTime() + time * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}

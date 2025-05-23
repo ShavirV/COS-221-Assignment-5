@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Add admin authentication check
-if (!isset($_SESSION['admin_logged_in']))
+if (!isset($_COOKIE['isAdmin']) || $_COOKIE['isAdmin'] == 'false')
  {
     header('Location: login.php');
     exit;
