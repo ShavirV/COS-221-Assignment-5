@@ -132,7 +132,7 @@ body {
             <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
             <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
             <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
-            <?php if (isset($_COOKIE['apiKey'])): ?>
+            <?php if (isset($_COOKIE['api_key'])): ?>
                 <li><a href="logout.php">LOGOUT</a></li>
             <?php else: ?>
                 <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
