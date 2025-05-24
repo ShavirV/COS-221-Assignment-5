@@ -593,7 +593,7 @@ class User
     }
 
     //use this to get all offers for one specific product
-     public function getOffer($data){
+    public function getOffer($data){
         //$this->validateKey($data["api_key"]); dont need keys
         
         $prodId = $data["product_id"];
@@ -1434,6 +1434,46 @@ if (isset($decodeObj['type']))
 
             case "DeleteOffer":
                 $user->deleteOffer($decodeObj);
+            break;
+
+            case "UpdateRetailer":
+                $user->updateRetailer($decodeObj);
+            break;
+
+            case "DeleteRetailer":
+                $user->deleteRetailer($decodeObj);
+            break;
+
+            case "GetAllRetailers":
+                $user->getAllRetailers($decodeObj);
+            break;
+
+            case "AddToWishlist":
+                $user->addToWishlist($decodeObj);
+            break;
+
+            case "GetWishlist":
+                $user->getWishlist($decodeObj);
+            break;
+
+            case "DeleteFromWishlist":
+                $user->deleteFromWishlist($decodeObj);
+            break;
+
+            case "CreateOfferOld": //just keeping it here in case of catastrophic failure 
+                $user->createOffer($decodeObj);
+            break;
+            
+            case "Debug":
+            $success = sendWishlistEmail("shavirvallabh.exe@gmail.com", "debugging the email thing", "
+            <p>Good news! <strong>itemName</strong> just dropped to <strong>2</strong>.</p>
+            <p><a href='https://youtu.be/QnNttStV0KE?si=SsX_Lql3nV6Ut5Xo'>Click here</a> to check it out.</p>");
+            
+            if ($success) {
+                $user->respond("success", "Email sent successfully", 200);
+            } else {
+                $user->respond("error", "Email failed to send (check logs)", 500);
+            }
             break;
 
             default:
