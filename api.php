@@ -1,6 +1,83 @@
 <?php
 require_once(__DIR__.'/config.php');
-require_once(__DIR__.'/mail.php');
+//require_once(__DIR__.'/mail.php');
+//require mail after env integration
+
+/* setting up composer (required for reading env files)
+
+first we need to add php to the system path 
+
+Step 1: 
+download php from https://windows.php.net/download/ 
+(download the first zip file marked thread safe)
+
+Step 2:
+unzip the file and place it in your C drive 
+
+Step 3: ok now it gets a bit tricky 
+in the folder you just unzipped and moved to C drive,
+find the file called php.ini-development
+copy it and rename the copy to php.ini
+this is the file that will be used to configure php
+
+Step 4: yes now it gets worse
+Press win+R and type in "sysdm.cpl"
+go to the advanced tab and click on environment variables
+in the user variables section, click new and add a new variable with the name php and the path of the folder you unzipped
+click ok until all the windows close
+
+(this worked the first time however when doing it again i had to place it in the system variables section under path 
+find the one that says path and click edit 
+you will see a list of links
+click new and add ur php file path in there
+click ok till all boxes close)
+
+Step 5:
+restart vs code and open a new terminal 
+run command "php -v"
+if it works, you should see the version of php you downloaded
+
+PHP 8.0.30 (cli) (built: Sep  1 2023 14:15:38) ( ZTS Visual C++ 2019 x64 )
+Copyright (c) The PHP Group
+Zend Engine v4.0.30, Copyright (c) Zend Technologies
+
+this was my output, if u see something similar u good
+
+Now because some of our group doesnt wanna use windows 
+Here is the isntructions for installing php on mac os 
+
+make sure homebrew is installed
+run the command
+brew install php
+
+restart vs code and open a new terminal
+check if php is installed by running the command
+php -v
+
+
+
+Now we gotta actually install composer 
+
+Step 1: 
+download composer installer from https://getcomposer.org/download/
+its the first link on the page
+
+Step 2: 
+in the installer, select the php.exe file in the folder you unzipped
+
+step 3: 
+complete installation and check if it worked by running the command
+"composer -v" 
+
+
+i cant figure out how to do this on mac os so u gonna have to figure it out yourself
+sorry dude
+
+if it doesnt work, try restarting vs code again
+
+next we install the dotenv package
+composer require vlucas/phpdotenv
+*/
 
 header("Content-Type: application/json; charset=utf-8"); //guys this wasnt here before thats why the api tests were looking so yee yee 😔
 class User
@@ -512,14 +589,20 @@ class User
 
     //use this to get all offers for one specific product
     public function getOffer($data){
-        $this->validateKey($data["api_key"]);
+        //$this->validateKey($data["api_key"]); dont need keys
         
         $prodId = $data["product_id"];
         if(!$prodId || !is_string($prodId)){
             $this->respond("error", "malformed or misssing product_id", 400);
         }
 
-        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ?");
+        //update: now returns retailer info as well
+        $stmt = $this->conn->prepare("
+        SELECT offers.*, r.name, r.website
+        FROM offers
+        INNER JOIN retailer as r ON offers.retailer_id = r.retailer_id
+        WHERE offers.product_id = ?
+        ");
         $stmt->bind_param("s", $prodId);
         
         if ($stmt->execute()){
@@ -1955,7 +2038,7 @@ if (isset($decodeObj['type']))
                 $user->createOffer($decodeObj);
             break;
             
-            case "Debug": //can be deleted just using it to test periodically 
+            case "Debug":
             $success = sendWishlistEmail("shavirvallabh.exe@gmail.com", "debugging the email thing", "
             <p>Good news! <strong>itemName</strong> just dropped to <strong>2</strong>.</p>
             <p><a href='https://youtu.be/QnNttStV0KE?si=SsX_Lql3nV6Ut5Xo'>Click here</a> to check it out.</p>");
