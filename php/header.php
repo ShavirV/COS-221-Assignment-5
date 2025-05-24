@@ -1,5 +1,13 @@
 <?php
 session_start();
+$loggedIn = false;
+$isAdmin = false;
+
+// checks if api key cookie exists & is not empty
+if (isset($_COOKIE['api_key']) && !empty($_COOKIE['api_key'])) {
+    $loggedIn = true;
+    $isAdmin = (isset($_COOKIE['isAdmin']) && $_COOKIE['isAdmin'] === 'true');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
