@@ -1,8 +1,19 @@
 <?php
+//require_once(__DIR__.'/config.php');
 require_once(__DIR__.'/../config.php');
 $title = "Login - Compare IT";
 $cssFile = "login.css";
 require_once 'header.php';
+
+session_start();
+
+// If alr logged in, redirect to home
+if (isset($_COOKIE['api_key']) && !empty($_COOKIE['api_key'])) 
+{
+    $redirect = isset($_COOKIE['login_redirect']) ? $_COOKIE['login_redirect'] : 'home.php';
+    header("Location: $redirect");
+    exit();
+}
 ?>
 
 <div class="login-content">
