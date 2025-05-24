@@ -1009,6 +1009,11 @@ class User
                 $this->respond("error","$field not set", 400);
             }
         }
+
+        //rating cap
+        if ($data["rating"] > 5 || $data["rating"] < 0){
+            $this->respond("error", "rating must be between 0-5 stars", 400);
+        }
         
         //get user's id for foreign key
         $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
@@ -1063,6 +1068,11 @@ class User
         //since we arent doing a 1984 thing
         if (!$data["api_key"]){
             $this->respond("error", "API key not set", 400);
+        }
+
+        //rating cap
+        if ($data["rating"] > 5 || $data["rating"] < 0){
+            $this->respond("error", "rating must be between 0-5 stars", 400);
         }
         
         $stmt = $this->conn->prepare("SELECT * FROM user WHERE api_key = ?");
