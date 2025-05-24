@@ -137,7 +137,26 @@ document.querySelectorAll(".add-to-wishlist").forEach(button => {
     button.addEventListener("click", function() {
         if (isLoggedIn) {
             this.innerHTML = '<i class="fas fa-heart" style="color: #ff6b6b;"></i>';
-            alert("Added to your wishlist!");
+
+            const apiKey = getCookie("apiKey");
+            request = {
+                type: 'AddToWishlist',
+                api_key: apiKey,
+                product_id: productId,
+            };
+
+            apiRequest(request).then(result =>{
+
+                if (result.status === 'success')
+                {
+                    alert("Added to your wishlist!");
+                }
+                else
+                {
+                    alert ("Oopsie\nSomthing went wrong");
+                }
+            });
+            
         } else {
             alert("Please log in to add items to your wishlist.");
             // Redirect to login page
@@ -275,7 +294,7 @@ reviewForm.addEventListener('submit', (e) => {
         }
         else
         {
-            alert ("Oopsie\nSomthing went wrong")
+            alert ("Oopsie\nSomthing went wrong");
         }
 
     });
