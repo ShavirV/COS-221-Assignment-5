@@ -6,60 +6,17 @@ document.addEventListener("DOMContentLoaded", function () {
   const searchForm = document.getElementById("search-form");
   const searchInput = document.getElementById("search-input");
 
-  //random products that yall can get rid of:
-  const mockProducts = [
-    {
-      id: 1,
-      name: 'Ultra HD Smart TV 55" with Quantum Dot',
-      price: 799.99,
-      image:
-        "https://media.istockphoto.com/id/506550846/photo/monitor.jpg?s=1024x1024&w=is&k=20&c=NHFA6MmA4vBX-xWN6eK5J8UTgeoQVBs3pRkWeaMeYGw=",
-      category: "Television",
-    },
-    {
-      id: 2,
-      name: "Wireless Noise-Canceling Headphones Pro",
-      price: 349.99,
-      image:
-        "https://cdn.pixabay.com/photo/2016/11/19/16/01/audio-1840073_1280.jpg",
-      category: "Audio",
-    },
-    {
-      id: 3,
-      name: "Gaming Laptop Pro with RTX 3080",
-      price: 1499.99,
-      image:
-        "https://media.istockphoto.com/id/906347962/photo/gaming-laptop-with-connected-mouse-and-headphones.jpg?s=2048x2048&w=is&k=20&c=6GMW6j7M7Lt2JcVslRrFwC4nlrsHjZt1wQj7Rmr07XE=",
-      category: "Computers",
-    },
-    {
-      id: 4,
-      name: "Smartphone X12 Pro Max 256GB",
-      price: 899.99,
-      image:
-        "https://media.istockphoto.com/id/2117741634/photo/abstract-modern-mobile-phone-smartphone-front-and-back-view-3d-rendering.jpg?s=2048x2048&w=is&k=20&c=ScPh7T-SZMP5zqKhWdrnslaVMRInInNgnlmXTS0qbE8=",
-      category: "Phones",
-    },
-    {
-      id: 5,
-      name: "4K Action Camera with Stabilization",
-      price: 299.99,
-      image:
-        "https://cdn.pixabay.com/photo/2014/08/29/14/53/camera-431119_1280.jpg",
-      category: "Cameras",
-    },
-    {
-      id: 6,
-      name: "Smart Watch Series 5 with ECG",
-      price: 249.99,
-      image:
-        "https://cdn.pixabay.com/photo/2023/10/07/14/24/smartwatch-8300238_1280.jpg",
-      category: "Wearables",
-    },
-  ];
+  const apiKey = getCookie('api_key');
+  
+  if (!apiKey) {
+    showLoginPrompt();
+    return;
+  }
 
-  // Current filtered/sorted products
-  let displayedProducts = [...mockProducts];
+  //let apiKey = getCookie('api_key'); // Get API key from cookie
+  let wishlistProducts = [];
+  let displayedProducts = [];
+  let productBrands = new Set();
 
   // Sort options
   const sortOptions = {
@@ -70,83 +27,241 @@ document.addEventListener("DOMContentLoaded", function () {
     "price-desc": "Price (High to Low)",
   };
 
-  // Filter options
-  const filterOptions = {
-    all: "All Categories",
-    Television: "Television",
-    Audio: "Audio",
-    Computers: "Computers",
-    Phones: "Phones",
-    Cameras: "Cameras",
-    Wearables: "Wearables",
-  };
-
   // Current selections
   let currentSort = "default";
   let currentFilter = "all";
 
   // Initialize the page
-  function init() {
-    renderWishlist();
+  async function init() {
+    if (!apiKey) {
+      showLoginPrompt();
+      return;
+    }
+    await fetchWishlist();
     setupEventListeners();
+  }
+
+  function showLoginPrompt() {
+    wishlistItems.innerHTML = `
+      <div class="empty-wishlist">
+        <i class="fas fa-heart-broken"></i>
+        <p>Please log in to view your wishlist</p>
+        <button class="browse-btn" id="loginRedirect">Login</button>
+        <button class="browse-btn" id="continueShopping">Continue Shopping</button>
+      </div>
+    `;
+    
+    document.getElementById('loginRedirect').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+    
+    document.getElementById('continueShopping').addEventListener('click', () => {
+      window.location.href = 'products.html';
+    });
+    
+    itemCountElement.textContent = "0 items";
+  }
+
+  // Fetch wishlist from API
+  async function fetchWishlist() {
+    try {
+      wishlistItems.innerHTML = `
+        <div class="loading-products">
+          <div class="spinner"></div>
+          <p>Loading your wishlist...</p>
+        </div>
+      `;
+
+      const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'GetWishlist',
+          api_key: apiKey
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        wishlistProducts = data.data;
+        
+        // Fetch prices for each product in wishlist
+        await fetchPricesForWishlist();
+        
+        // Get unique brands for filtering
+        wishlistProducts.forEach(product => {
+          if (product.brand) {
+            productBrands.add(product.brand);
+          }
+        });
+        
+        displayedProducts = [...wishlistProducts];
+        renderWishlist();
+      } else {
+        throw new Error(data.message || 'Failed to fetch wishlist');
+      }
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+      showErrorState(error);
+    }
+  }
+
+  // Fetch prices for wishlist items
+  async function fetchPricesForWishlist() {
+    try {
+      const pricePromises = wishlistProducts.map(product => {
+        const requestBody = {
+          type: 'GetBestOffer',
+          product_id: String(product.product_id)
+        };
+
+        return fetch('../api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        })
+        .then(response => {
+          if (!response.ok) {
+            console.error(`Failed to fetch price for product ${product.product_id}`, response.status);
+            return null;
+          }
+          return response.json();
+        })
+        .catch(error => {
+          console.error(`Error fetching price for product ${product.product_id}:`, error);
+          return null;
+        });
+      });
+
+      const priceResponses = await Promise.all(pricePromises);
+
+      priceResponses.forEach((response, index) => {
+        if (response && response.status === 'success') {
+          if (typeof response.data === 'object' && !Array.isArray(response.data) && response.data.price) {
+            wishlistProducts[index].price = parseFloat(response.data.price);
+            wishlistProducts[index].currency = response.data.currency || 'ZAR';
+            wishlistProducts[index].hasStock = true;
+          } else if (typeof response.data === 'string') {
+            wishlistProducts[index].price = null;
+            wishlistProducts[index].hasStock = false;
+          } else {
+            wishlistProducts[index].price = null;
+            wishlistProducts[index].hasStock = false;
+            console.warn('Unexpected response format for product', wishlistProducts[index].product_id, response);
+          }
+        } else {
+          wishlistProducts[index].price = null;
+          wishlistProducts[index].hasStock = false;
+          if (response) {
+            console.warn('Error response for product', wishlistProducts[index].product_id, response);
+          }
+        }
+      });
+
+      displayedProducts = [...wishlistProducts];
+      renderWishlist();
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+      renderWishlist(); // Render with what we have
+    }
+  }
+
+  function showErrorState(error) {
+    wishlistItems.innerHTML = `
+      <div class="error-products">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Failed to load wishlist</p>
+        <p>${error.message}</p>
+        <button class="retry-btn" id="retryFetch">Try Again</button>
+      </div>
+    `;
+    
+    document.getElementById("retryFetch").addEventListener("click", fetchWishlist);
   }
 
   // Set up event listeners
   function setupEventListeners() {
-    // Sort button click
     sortBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       showSortDropdown();
     });
 
-    // Filter button click
     filterBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       showFilterDropdown();
     });
 
-    // Close dropdowns when clicking elsewhere
     document.addEventListener("click", closeDropdowns);
+
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      let filteredProducts = [...wishlistProducts];
+
+      if (searchTerm) {
+        filteredProducts = filteredProducts.filter((product) =>
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.description.toLowerCase().includes(searchTerm) ||
+          product.brand.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      if (currentFilter !== "all") {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.brand === currentFilter
+        );
+      }
+
+      displayedProducts = filteredProducts;
+      applySortAndFilter();
+    });
   }
 
-  //search function
-  // Search functionality
-  searchInput.addEventListener("input", function () {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    let filteredProducts = [...mockProducts];
+  // Remove item from wishlist
+  async function removeFromWishlist(productId) {
+    try {
+      const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'DeleteFromWishlist',
+          api_key: apiKey,
+          product_id: productId
+        })
+      });
 
-    if (searchTerm) {
-      filteredProducts = filteredProducts.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm)
-      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Remove from local array
+        const index = wishlistProducts.findIndex(p => p.product_id === productId);
+        if (index !== -1) {
+          wishlistProducts.splice(index, 1);
+          displayedProducts = [...wishlistProducts];
+          renderWishlist();
+        }
+      } else {
+        throw new Error(data.message || 'Failed to remove from wishlist');
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      alert('Failed to remove from wishlist. Please try again.');
     }
-
-    // Apply current filter and sort to the filtered results
-    if (currentFilter !== "all") {
-      filteredProducts = filteredProducts.filter(
-        (product) => product.category === currentFilter
-      );
-    }
-
-    switch (currentSort) {
-      case "name-asc":
-        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "price-asc":
-        filteredProducts.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filteredProducts.sort((a, b) => b.price - a.price);
-        break;
-      // Default: no sorting
-    }
-
-    displayedProducts = filteredProducts;
-    renderWishlist();
-  });
+  }
 
   // Show sort dropdown
   function showSortDropdown() {
@@ -167,7 +282,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sortBtn.appendChild(dropdown);
 
-    // Add click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentSort = this.getAttribute("data-value");
@@ -183,20 +297,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const dropdown = document.createElement("div");
     dropdown.className = "filter-dropdown dropdown";
-    dropdown.innerHTML = Object.entries(filterOptions)
-      .map(
-        ([value, text]) => `
-        <div class="dropdown-item ${value === currentFilter ? "active" : ""}" 
-             data-value="${value}">
-          ${text}
+    
+    let filterOptionsHTML = `
+      <div class="dropdown-item ${"all" === currentFilter ? "active" : ""}" 
+           data-value="all">
+        All Brands
+      </div>
+    `;
+    
+    Array.from(productBrands).forEach(brand => {
+      filterOptionsHTML += `
+        <div class="dropdown-item ${brand === currentFilter ? "active" : ""}" 
+             data-value="${brand}">
+          ${brand}
         </div>
-      `
-      )
-      .join("");
+      `;
+    });
 
+    dropdown.innerHTML = filterOptionsHTML;
     filterBtn.appendChild(dropdown);
 
-    // Add click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentFilter = this.getAttribute("data-value");
@@ -216,10 +336,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // Apply current sort and filter
   function applySortAndFilter() {
     // Filter first
-    let products = [...mockProducts];
+    let products = [...wishlistProducts];
     if (currentFilter !== "all") {
       products = products.filter(
-        (product) => product.category === currentFilter
+        (product) => product.brand === currentFilter
       );
     }
 
@@ -232,12 +352,11 @@ document.addEventListener("DOMContentLoaded", function () {
         products.sort((a, b) => b.name.localeCompare(a.name));
         break;
       case "price-asc":
-        products.sort((a, b) => a.price - b.price);
+        products.sort((a, b) => (a.price || 0) - (b.price || 0));
         break;
       case "price-desc":
-        products.sort((a, b) => b.price - a.price);
+        products.sort((a, b) => (b.price || 0) - (a.price || 0));
         break;
-      // Default case keeps original order
     }
 
     displayedProducts = products;
@@ -252,24 +371,15 @@ document.addEventListener("DOMContentLoaded", function () {
       wishlistItems.innerHTML = `
         <div class="empty-wishlist">
           <i class="fas fa-heart-broken"></i>
-          <p>No items match your filters</p>
-          <button class="browse-btn" id="resetFilters">Reset Filters</button>
+          <p>No items in your wishlist</p>
+          <button class="browse-btn" onclick="window.location.href='products.html'">Browse Products</button>
         </div>
       `;
-
-      document
-        .getElementById("resetFilters")
-        .addEventListener("click", function () {
-          currentFilter = "all";
-          currentSort = "default";
-          applySortAndFilter();
-        });
 
       itemCountElement.textContent = "0 items";
       return;
     }
 
-    // Update item count
     itemCountElement.textContent = `${displayedProducts.length} ${
       displayedProducts.length === 1 ? "item" : "items"
     }`;
@@ -277,17 +387,31 @@ document.addEventListener("DOMContentLoaded", function () {
     displayedProducts.forEach((product) => {
       const item = document.createElement("div");
       item.className = "wishlist-card";
+      
+      // Price display logic
+      let priceDisplay = '';
+      if (product.price !== null) {
+        priceDisplay = `
+          <div class="card-price">${product.currency || 'ZAR'} ${product.price.toFixed(2)}</div>
+        `;
+      } else {
+        priceDisplay = `
+          <div class="card-price out-of-stock">Out of stock</div>
+        `;
+      }
+
       item.innerHTML = `
-        <span class="card-badge">${product.category}</span>
+        <span class="card-badge">${product.brand || 'No Brand'}</span>
         <div class="card-image-container">
-          <img src="${product.image}" alt="${product.name}" class="card-image">
+          <img src="${product.image_url || 'https://via.placeholder.com/300?text=No+Image'}" 
+               alt="${product.name}" class="card-image">
         </div>
         <div class="card-details">
           <h3 class="card-title">${product.name}</h3>
-          <div class="card-price">$${product.price.toFixed(2)}</div>
+          ${priceDisplay}
           <div class="card-actions">
-            <button class="add-to-view">Compare</button>
-            <button class="remove-btn" data-id="${product.id}">
+            <button class="add-to-view" data-id="${product.product_id}">Compare</button>
+            <button class="remove-btn" data-id="${product.product_id}">
               <i class="fas fa-heart-broken"></i>
             </button>
           </div>
@@ -304,24 +428,38 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // Add event listeners to add to view buttons
+    // Add event listeners to view buttons
     document.querySelectorAll(".add-to-view").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.preventDefault();
-        // Add to view functionality would go here
+        const productId = parseInt(this.getAttribute("data-id"));
+        setCookie("productId", productId, 2);
+        window.location.href = '../php/view.php';
       });
     });
-  }
-
-  // Remove item from wishlist
-  function removeFromWishlist(productId) {
-    const index = mockProducts.findIndex((product) => product.id === productId);
-    if (index !== -1) {
-      mockProducts.splice(index, 1);
-      applySortAndFilter();
-    }
   }
 
   // Initialize the page
   init();
 });
+
+function setCookie(name, value, time) {
+  let expires = "";
+  if (time) {
+    const date = new Date();
+    date.setTime(date.getTime() + time * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i=0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1);
+    if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+  }
+  return null;
+}
