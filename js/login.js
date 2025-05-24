@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const userType = document.querySelector('input[name="userType"]:checked').value;
         const errorElement = document.getElementById('errorMessage');
 
         //console.log(username + "login attempt");

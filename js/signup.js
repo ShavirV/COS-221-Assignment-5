@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
             surname: document.getElementById('surname').value.trim(),
             email: document.getElementById('email').value.trim(),
             password: passwordInput.value,
-            user_type: document.querySelector('input[name="accountType"]:checked').value
+            user_type: 'customer'
         };
 
         // Validate all fields

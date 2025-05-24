@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__.'/config.php');
+require_once(__DIR__.'/../config.php');
 $title = "Signup - Compare IT";
 $cssFile = "signup.css"; // CSS file for signup page
 require_once 'header.php';
@@ -10,7 +10,7 @@ require_once 'header.php';
         <div class="signup-container">
 
             <form id="signupForm">
-                <!-- <div id="errorMessage" class="error-message"></div> -->
+                <div id="errorMessage" class="error-message"></div> 
                 
                 <div class="name-fields">
                     <div class="input-group">

@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__.'/config.php');
+require_once(__DIR__.'/../config.php');
 $title = "Login - Compare IT";
 $cssFile = "login.css";
 require_once 'header.php';
