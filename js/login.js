@@ -48,10 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log(data);
 
-            setCookie("apiKey", data.data.api_key,2);
+            
 
             if (data.status === 'success') {
                 // Redirect based on user type
+
+                setCookie("apiKey", data.data.api_key,2);
 
                 //console.log(data.data.user_type);
                 if (data.data.user_type === 'admin') {

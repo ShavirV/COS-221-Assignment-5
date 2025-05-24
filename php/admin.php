@@ -1,9 +1,18 @@
 <?php
 session_start();
 // Add admin authentication check
+
+ini_set('log_errors', 1); // Enable logging
+ini_set('error_log', __DIR__ . '/../error.log'); // Path to your log file
+error_reporting(E_ALL); // Report all types of errors
+
 if (!isset($_COOKIE['isAdmin']) || $_COOKIE['isAdmin'] == 'false')
  {
-    header('Location: login.php');
+    $userKey = $_COOKIE['apiKey'] ?? 'unknown key';
+
+    error_log("Unauthorized attempt to access admin page by " . $userKey);
+
+    header('Location: logout.php');
     exit;
 }
 ?>
