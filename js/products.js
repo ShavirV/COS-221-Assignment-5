@@ -3,104 +3,190 @@ document.addEventListener("DOMContentLoaded", function () {
   const itemCountElement = document.querySelector(".item-count");
   const sortBtn = document.querySelector(".sort-btn");
   const filterBtn = document.querySelector(".filter-btn");
-  const searchForm = document.getElementById("search-form");
   const searchInput = document.getElementById("search-input");
 
-  // Mock products with descriptions
-  const mockProducts = [
-    {
-      id: 1,
-      name: 'Ultra HD Smart TV 55" with Quantum Dot',
-      price: 799.99,
-      image:
-        "https://media.istockphoto.com/id/506550846/photo/monitor.jpg?s=1024x1024&w=is&k=20&c=NHFA6MmA4vBX-xWN6eK5J8UTgeoQVBs3pRkWeaMeYGw=",
-      category: "Television",
-      description:
-        "Experience stunning visuals with our 55-inch Ultra HD Smart TV featuring Quantum Dot technology. With 4K resolution, HDR support, and smart features, this TV brings your favorite content to life with vibrant colors and incredible detail. Includes voice control and access to all major streaming platforms.",
-    },
-    {
-      id: 2,
-      name: "Wireless Noise-Canceling Headphones Pro",
-      price: 349.99,
-      image:
-        "https://cdn.pixabay.com/photo/2016/11/19/16/01/audio-1840073_1280.jpg",
-      category: "Audio",
-      description:
-        "Immerse yourself in pure sound with our premium wireless noise-canceling headphones. Featuring advanced active noise cancellation, 30-hour battery life, and crystal-clear call quality. The comfortable over-ear design and touch controls make these perfect for travel, work, or relaxation.",
-    },
-    {
-      id: 3,
-      name: "Gaming Laptop Pro with RTX 3080",
-      price: 1499.99,
-      image:
-        "https://media.istockphoto.com/id/906347962/photo/gaming-laptop-with-connected-mouse-and-headphones.jpg?s=2048x2048&w=is&k=20&c=6GMW6j7M7Lt2JcVslRrFwC4nlrsHjZt1wQj7Rmr07XE=",
-      category: "Computers",
-      description:
-        "Dominate the competition with our Gaming Laptop Pro featuring an NVIDIA RTX 3080 GPU, 16GB RAM, and a blazing-fast 1TB SSD. The 15.6-inch 240Hz display delivers buttery-smooth gameplay, while the advanced cooling system keeps performance at peak levels during marathon gaming sessions.",
-    },
-    {
-      id: 4,
-      name: "Smartphone X12 Pro Max 256GB",
-      price: 899.99,
-      image:
-        "https://media.istockphoto.com/id/2117741634/photo/abstract-modern-mobile-phone-smartphone-front-and-back-view-3d-rendering.jpg?s=2048x2048&w=is&k=20&c=ScPh7T-SZMP5zqKhWdrnslaVMRInInNgnlmXTS0qbE8=",
-      category: "Phones",
-      description:
-        "The Smartphone X12 Pro Max features a stunning 6.7-inch OLED display, professional-grade camera system with 4K video, and all-day battery life. With 256GB storage and 5G connectivity, this phone delivers premium performance for work and play. Includes water resistance and wireless charging.",
-    },
-    {
-      id: 5,
-      name: "4K Action Camera with Stabilization",
-      price: 299.99,
-      image:
-        "https://cdn.pixabay.com/photo/2014/08/29/14/53/camera-431119_1280.jpg",
-      category: "Cameras",
-      description:
-        "Capture your adventures in stunning 4K resolution with our rugged action camera. Features advanced image stabilization, waterproof casing (up to 30m), and multiple mounting options. The wide-angle lens and slow-motion capabilities make it perfect for sports and outdoor activities.",
-    },
-    {
-      id: 6,
-      name: "Smart Watch Series 5 with ECG",
-      price: 249.99,
-      image:
-        "https://cdn.pixabay.com/photo/2023/10/07/14/24/smartwatch-8300238_1280.jpg",
-      category: "Wearables",
-      description:
-        "Stay connected and monitor your health with our advanced smart watch. Features ECG, blood oxygen monitoring, sleep tracking, and fitness metrics. With a bright always-on display, customizable watch faces, and 5-day battery life, it's the perfect companion for your active lifestyle.",
-    },
-  ];
+  // ***this is ES6 JS since no restrictions in spec***
+  // Product data from API
+  let allProducts = [];
+  let displayedProducts = [];
+  let productBrands = new Set(); 
+  // store prod prices
+  let productPrices = {};
 
-  // Current filtered/sorted products
-  let displayedProducts = [...mockProducts];
+  // curr filtered/sorted products
+  let currentSort = "default";
+  let currentFilter = "all";
 
   // Sort options
   const sortOptions = {
     default: "Default",
     "name-asc": "Name (A-Z)",
     "name-desc": "Name (Z-A)",
-    "price-asc": "Price (Low to High)",
-    "price-desc": "Price (High to Low)",
   };
-
-  // Filter options
-  const filterOptions = {
-    all: "All Categories",
-    Television: "Television",
-    Audio: "Audio",
-    Computers: "Computers",
-    Phones: "Phones",
-    Cameras: "Cameras",
-    Wearables: "Wearables",
-  };
-
-  // Current selections
-  let currentSort = "default";
-  let currentFilter = "all";
 
   // Initialize the page
-  function init() {
-    renderProducts();
+  async function init() {
+    await fetchProducts();
+    await fetchPrices(); // Fetch prices after products
     setupEventListeners();
+  }
+
+  // Fetch products from API
+  async function fetchProducts() {
+    try {
+      // show loading state, optional can remove 
+      productsItems.innerHTML = `
+        <div class="loading-products">
+          <div class="spinner"></div>
+          <p>Loading products...</p>
+        </div>
+      `;
+
+      // path must be chnaged if your api.php is not located in the root directory
+      const response = await fetch('http://localhost/api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'GetAllProducts',
+          return: ['product_id', 'name', 'description', 'brand', 'image_url'],
+          limit: 50
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        allProducts = data.data.map(product => ({
+          id: product.product_id,
+          name: product.name,
+          description: product.description,
+          brand: product.brand,
+          image: product.image_url,
+          price: null
+        }));
+        
+        // note the filtering and sorting doesnt seem to be working yet
+        // focusing on main endpoints first
+        // gets unique brands for filtering
+        allProducts.forEach(product => {
+          if (product.brand) {
+            productBrands.add(product.brand);
+          }
+        });
+        
+        displayedProducts = [...allProducts];
+        renderProducts();
+      } else {
+        throw new Error(data.message || 'Unknown API error');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      showErrorState(error);
+    }
+  }
+
+  async function fetchPrices() {
+    try {
+      // create an array of promises for all price requests
+      // my promises are being fulfilled 
+      const pricePromises = allProducts.map(product => {
+        const requestBody = {
+          type: 'GetBestOffer',
+          // id gives error when not specified as string, tried clamping to integer and it freaked out
+          product_id: String(product.id) 
+        };
+
+        // remember file pathing!!!
+        return fetch('http://localhost/api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        })
+        .then(response => {
+          if (!response.ok) {
+            console.error(`Failed to fetch price for product ${product.id}`, response.status);
+            // null if failed 
+            return null; 
+          }
+          return response.json();
+        })
+        .catch(error => {
+          console.error(`Error fetching price for product ${product.id}:`, error);
+          return null;
+        });
+      });
+
+      // wait for all price requests to finish
+      const priceResponses = await Promise.all(pricePromises);
+
+      // process prices responses here
+      priceResponses.forEach((response, index) => {
+        if (response && response.status === 'success') 
+        {
+          if (typeof response.data === 'object' && !Array.isArray(response.data) && response.data.price) {
+            // finds a valid best offer
+            allProducts[index].price = parseFloat(response.data.price);
+            allProducts[index].currency = response.data.currency || 'ZAR';
+            allProducts[index].hasStock = true;
+          } 
+          
+          else if (typeof response.data === 'string') 
+          {
+            // dispkay No stock available message
+            allProducts[index].price = null;
+            allProducts[index].hasStock = false;
+          } 
+          
+          else 
+          {
+            // Unexpected response format throw a warn in console (debug)
+            allProducts[index].price = null;
+            allProducts[index].hasStock = false;
+            console.warn('Unexpected response format for product', allProducts[index].id, response);
+          }
+        } 
+        
+        else 
+        {
+          // eror case or no response
+          allProducts[index].price = null;
+          allProducts[index].hasStock = false;
+
+          if (response) 
+          {
+            console.warn('Error response for product', allProducts[index].id, response);
+          }
+        }
+      });
+
+      displayedProducts = [...allProducts];
+      renderProducts();
+    } catch (error) {
+      console.error('Error in fetchPrices:', error);
+      // render regardless
+      renderProducts();
+    }
+  }
+
+  function showErrorState(error) {
+    productsItems.innerHTML = `
+      <div class="error-products">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Failed to load products</p>
+        <p>${error.message}</p>
+        <button class="retry-btn" id="retryFetch">Try Again</button>
+      </div>
+    `;
+    
+    document.getElementById("retryFetch").addEventListener("click", fetchProducts);
   }
 
   // Set up event listeners
@@ -123,43 +209,30 @@ document.addEventListener("DOMContentLoaded", function () {
     // Search functionality
     searchInput.addEventListener("input", function () {
       const searchTerm = searchInput.value.trim().toLowerCase();
-      let filteredProducts = [...mockProducts];
+      let filteredProducts = [...allProducts];
 
       if (searchTerm) {
         filteredProducts = filteredProducts.filter((product) =>
-          product.name.toLowerCase().includes(searchTerm)
+          product.name.toLowerCase().includes(searchTerm) ||
+          product.description.toLowerCase().includes(searchTerm) ||
+          product.brand.toLowerCase().includes(searchTerm)
         );
       }
 
-      // Apply current filter and sort to the filtered results
+      //  appky curr filter to the filtered results
       if (currentFilter !== "all") {
         filteredProducts = filteredProducts.filter(
-          (product) => product.category === currentFilter
+          (product) => product.brand === currentFilter
         );
-      }
-
-      switch (currentSort) {
-        case "name-asc":
-          filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case "name-desc":
-          filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case "price-asc":
-          filteredProducts.sort((a, b) => a.price - b.price);
-          break;
-        case "price-desc":
-          filteredProducts.sort((a, b) => b.price - a.price);
-          break;
-        // Default: no sorting
       }
 
       displayedProducts = filteredProducts;
+      applySort();
       renderProducts();
     });
   }
 
-  // Show sort dropdown
+  // sort dropdown
   function showSortDropdown() {
     closeDropdowns();
 
@@ -178,40 +251,48 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sortBtn.appendChild(dropdown);
 
-    // Add click handlers for dropdown items
+    // click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentSort = this.getAttribute("data-value");
-        applySortAndFilter();
+        applySort();
         closeDropdowns();
       });
     });
   }
 
-  // Show filter dropdown
+  // display filter dropdown
   function showFilterDropdown() {
     closeDropdowns();
 
     const dropdown = document.createElement("div");
     dropdown.className = "filter-dropdown dropdown";
-    dropdown.innerHTML = Object.entries(filterOptions)
-      .map(
-        ([value, text]) => `
-        <div class="dropdown-item ${value === currentFilter ? "active" : ""}" 
-             data-value="${value}">
-          ${text}
+    
+    // filter options from brands
+    let filterOptionsHTML = `
+      <div class="dropdown-item ${"all" === currentFilter ? "active" : ""}" 
+           data-value="all">
+        All Brands
+      </div>
+    `;
+    
+    Array.from(productBrands).forEach(brand => {
+      filterOptionsHTML += `
+        <div class="dropdown-item ${brand === currentFilter ? "active" : ""}" 
+             data-value="${brand}">
+          ${brand}
         </div>
-      `
-      )
-      .join("");
+      `;
+    });
 
+    dropdown.innerHTML = filterOptionsHTML;
     filterBtn.appendChild(dropdown);
 
-    // Add click handlers for dropdown items
+    // click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentFilter = this.getAttribute("data-value");
-        applySortAndFilter();
+        applyFilter();
         closeDropdowns();
       });
     });
@@ -224,38 +305,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Apply current sort and filter
-  function applySortAndFilter() {
-    // Filter first
-    let products = [...mockProducts];
-    if (currentFilter !== "all") {
-      products = products.filter(
-        (product) => product.category === currentFilter
+  // current filter
+  function applyFilter() {
+    if (currentFilter === "all") {
+      displayedProducts = [...allProducts];
+    } else {
+      displayedProducts = allProducts.filter(
+        (product) => product.brand === currentFilter
       );
     }
-
-    // Then sort
-    switch (currentSort) {
-      case "name-asc":
-        products.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        products.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case "price-asc":
-        products.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        products.sort((a, b) => b.price - a.price);
-        break;
-      // Default case keeps original order
-    }
-
-    displayedProducts = products;
+    applySort();
     renderProducts();
   }
 
-  // Render products with new flip-on-image-hover design
+  function applySort() {
+    switch (currentSort) {
+      case "name-asc":
+        displayedProducts.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      // Default: no sorting, no sort is by default so can leave default case commented out
+    }
+  }
+
+  // Render products
   function renderProducts() {
     productsItems.innerHTML = "";
 
@@ -274,7 +349,8 @@ document.addEventListener("DOMContentLoaded", function () {
           currentFilter = "all";
           currentSort = "default";
           searchInput.value = "";
-          applySortAndFilter();
+          displayedProducts = [...allProducts];
+          renderProducts();
         });
 
       itemCountElement.textContent = "0 items";
@@ -289,27 +365,50 @@ document.addEventListener("DOMContentLoaded", function () {
     displayedProducts.forEach((product) => {
       const item = document.createElement("div");
       item.className = "product-card";
+      
+      // Price display logic, can alter for frontend llook 
+      let priceDisplay = '';
+      if (product.price !== null) 
+      {
+        priceDisplay = `
+          <div class="product-price">
+            <span class="price-amount">${product.price.toFixed(2)}</span>
+            <span class="price-currency">${product.currency || 'ZAR'}</span>
+          </div>
+        `;
+      } 
+      
+      else 
+      {
+        priceDisplay = `
+          <div class="product-price out-of-stock">
+            Out of stock
+          </div>
+        `;
+      }
+      
       item.innerHTML = `
         <div class="product-content">
           <div class="product-image-container">
             <div class="product-image-wrapper">
               <div class="product-image-front">
-                <img src="${product.image}" alt="${
+                <img src="${product.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${
         product.name
       }" class="product-image">
               </div>
               <div class="product-image-back">
-                <p>${product.description}</p>
+                <p class="description">${product.description}</p>
               </div>
             </div>
           </div>
           <div class="product-details">
             <h3 class="product-title">${product.name}</h3>
-            <div class="product-price">$${product.price.toFixed(2)}</div>
+            ${product.brand ? `<p class="product-brand">${product.brand}</p>` : ''}
+            ${priceDisplay}
           </div>
         </div>
         <div class="product-actions">
-          <button class="add-to-view">Compare</button>
+          <button class="add-to-view">View Details</button>
           <button class="add-to-wishlist" data-id="${product.id}">
             <i class="fas fa-heart"></i>
           </button>
@@ -318,7 +417,7 @@ document.addEventListener("DOMContentLoaded", function () {
       productsItems.appendChild(item);
     });
 
-    // Add event listeners to wishlist buttons
+    // wishlist listener
     document.querySelectorAll(".add-to-wishlist").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
@@ -327,10 +426,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // Add event listeners to add to view buttons
+    // view listener
     document.querySelectorAll(".add-to-view").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
+        // view page sutff to add
       });
     });
   }
