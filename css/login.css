@@ -1,75 +1,57 @@
-/* THE BASICS */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 body {
   overflow-x: hidden;
-  height: 100vh;
+  color: white;
+  background-attachment: fixed;
 }
 
-/* BACKGROUND STUFF */
-.background-image {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("../img/background.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
-}
 
-.content {
-  position: relative;
-  z-index: 1;
-}
 
-/* NAVBAR STYLES */
-.navbar {
+/* Reuse navigation styles from wishlist.css */
+.top-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 50px;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
+  padding: 15px 50px;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.brand {
+.top-navbar .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 24px;
+  gap: 12px;
+  font-size: 1.5rem;
   font-weight: bold;
   color: white;
   text-transform: uppercase;
 }
 
-.logo {
-  height: 60px;
+.top-navbar .logo {
+  height: 50px;
   width: auto;
 }
 
-.navbar ul {
-  list-style: none;
+.top-navbar .nav-links {
   display: flex;
-  gap: 30px;
+  list-style: none;
+  gap: 25px;
 }
 
-.navbar ul li {
-  display: inline-block;
-}
-
-.navbar ul li a {
-  color: #ffffff;
+.top-navbar .nav-links li a {
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: 0.9rem;
   letter-spacing: 1px;
   padding: 5px 10px;
   transition: all 0.3s ease;
@@ -77,15 +59,15 @@ body {
   display: inline-block;
 }
 
-.navbar ul li a:hover {
-  color: #ffffff;
+.top-navbar .nav-links li a:hover {
+  color: white;
   text-shadow: 0 0 15px rgba(255, 255, 255, 1),
     0 0 25px rgba(255, 255, 255, 0.8);
   transform: translateY(-3px);
 }
 
-.navbar ul li a.active {
-  color: #ffffff;
+.top-navbar .nav-links li a.active {
+  color: white;
   background-color: rgb(22, 46, 90);
   border-radius: 3px;
   text-shadow: 0 0 15px rgba(255, 255, 255, 1),
@@ -93,8 +75,7 @@ body {
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.4),
     0 0 25px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(255, 255, 255, 0.3);
 }
-
-.navbar ul li a::after {
+.top-navbar .nav-links li a::after {
   content: "";
   position: absolute;
   width: 100%;
@@ -105,8 +86,7 @@ body {
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
-
-.navbar ul li a:hover::after {
+.top-navbar .nav-links li a:hover::after {
   transform: scaleX(1);
 }
 
@@ -156,36 +136,6 @@ body {
   font-size: 1rem;
 }
 
-.user-type {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.user-option {
-  flex: 1;
-  text-align: center;
-  margin: 0 5px;
-}
-
-.user-option input {
-  display: none;
-}
-
-.user-option label {
-  display: block;
-  padding: 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.user-option input:checked + label {
-  background-color: rgba(255, 255, 255, 0.3);
-  font-weight: bold;
-}
 
 .login-btn {
   width: 100%;
@@ -230,3 +180,25 @@ body {
 .login-btn:active::after {
   opacity: 1;
 }
+
+
+/* Login page specific styles */
+.login-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.login-container {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+
+
