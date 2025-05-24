@@ -11,7 +11,7 @@ register test
 "surname": "Stark",
 "email": "tony@starkindustries1.com",
 "password": "@LoveYou3000",
-"user_type": "customer"
+"user_type": "admin"
 }
 
 {
@@ -99,3 +99,94 @@ update offer
     "discount": 0
 }
 
+==================================================
+delete offer (need to test)
+==================================================
+
+{
+    "type": "DeleteOffer",
+    "api_key": "your_admin_api_key",
+    "product_id": 123,
+    "retailer_id": 456
+}
+
+==================================================
+update retailer 
+==================================================
+
+{
+    "type": "UpdateRetailer",
+    "api_key": "0tZOxmlbCubxz194SxuKfDV1DOFkCGJ3",
+    "retailer_id": 2,
+    "name": "ayush's store",
+    "address": "123 Tech Street",
+    "opening_time": "09:00:00",
+    "closing_time": "17:00:00"
+}
+
+==================================================
+delete retailer (need to test)
+==================================================
+
+{
+    "type": "DeleteRetailer",
+    "api_key": "your_admin_api_key",
+    "retailer_id": 123
+}
+
+==================================================
+get all retailer 
+==================================================
+
+{
+    "type": "GetAllRetailers"
+}
+
+{
+    "type": "GetAllRetailers",
+    "return": ["retailer_id", "name", "retailer_type"]
+}
+
+{
+    "type": "GetAllRetailers",
+    "filters": {
+        "retailer_type": "physical",
+        "country": "South Africa"
+    }
+}
+
+{
+    "type": "GetAllRetailers",
+    "sort": "name",
+    "order": "ASC",
+    "limit": 20
+}
+
+==================================================
+add to wishlist test
+==================================================
+
+{
+  "type": "AddToWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl",
+  "product_id":1
+}
+
+==================================================
+get wishlist test
+==================================================
+
+{
+  "type": "GetWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl"
+}
+
+==================================================
+delete from wishlist test
+==================================================
+
+{
+  "type": "DeleteFromWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl",
+  "product_id":1
+}
