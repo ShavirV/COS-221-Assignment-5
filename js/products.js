@@ -5,15 +5,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const filterBtn = document.querySelector(".filter-btn");
   const searchInput = document.getElementById("search-input");
 
-  // ***this is ES6 JS since no restrictions in spec***
-  // Product data from API
+  const apiKey = getCookie('api_key');
+  
+  // validation check for api key -> debug stuff, can keep tho
+  if (!apiKey) 
+  {
+    console.warn('No API key found - some features will be disabled');
+  }
+
+  // data pulled from api
   let allProducts = [];
   let displayedProducts = [];
   let productBrands = new Set(); 
-  // store prod prices
   let productPrices = {};
+  // dont uncomment, doesnt work this way
+  //let apiKey = getCookie('api_key'); 
 
-  // curr filtered/sorted products
   let currentSort = "default";
   let currentFilter = "all";
 
@@ -24,17 +31,16 @@ document.addEventListener("DOMContentLoaded", function () {
     "name-desc": "Name (Z-A)",
   };
 
-  // Initialize the page
+  // init  page
   async function init() {
     await fetchProducts();
-    await fetchPrices(); // Fetch prices after products
+    await fetchPrices();
     setupEventListeners();
   }
 
-  // Fetch products from API
+  // fetch goodies from API
   async function fetchProducts() {
     try {
-      // show loading state, optional can remove 
       productsItems.innerHTML = `
         <div class="loading-products">
           <div class="spinner"></div>
@@ -42,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
       `;
 
-      // path must be chnaged if your api.php is not located in the root directory
       const response = await fetch('../api.php', {
         method: 'POST',
         headers: {
@@ -55,25 +60,27 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       });
 
-      if (!response.ok) {
+      if (!response.ok) 
+      {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       
-      if (data.status === 'success') {
+      if (data.status === 'success') 
+      {
         allProducts = data.data.map(product => ({
           id: product.product_id,
           name: product.name,
           description: product.description,
           brand: product.brand,
           image: product.image_url,
-          price: null
+          price: null,
+          // set all to false, cookie will store boolean after
+          inWishlist: false 
         }));
         
-        // note the filtering and sorting doesnt seem to be working yet
-        // focusing on main endpoints first
-        // gets unique brands for filtering
+        // Get unique brands for filtering
         allProducts.forEach(product => {
           if (product.brand) {
             productBrands.add(product.brand);
@@ -81,8 +88,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         
         displayedProducts = [...allProducts];
-        renderProducts();
-      } else {
+        
+        // login apikey debuggin, validation -> keep these types of checks!
+        if (apiKey) 
+        {
+          await checkWishlistStatus();
+        } 
+        
+        else 
+        {
+          renderProducts();
+        }
+      } 
+      
+      else 
+      {
         throw new Error(data.message || 'Unknown API error');
       }
     } catch (error) {
@@ -91,18 +111,58 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // cehck which products in whislist
+  async function checkWishlistStatus() {
+    try {
+      const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'GetWishlist',
+          api_key: apiKey
+        })
+      });
+
+      if (!response.ok) 
+      {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success') 
+      {
+        const wishlistProductIds = data.data.map(item => item.product_id);
+        
+        // update inWishlist T/F for each product
+        allProducts.forEach(product => {
+          product.inWishlist = wishlistProductIds.includes(product.id);
+        });
+        
+        displayedProducts = [...allProducts];
+        renderProducts();
+      } 
+      
+      else 
+      {
+        throw new Error(data.message || 'Failed to fetch wishlist');
+      }
+    } catch (error) {
+      console.error('Error checking wishlist:', error);
+      renderProducts(); // Render anyway
+    }
+  }
+
   async function fetchPrices() {
     try {
-      // create an array of promises for all price requests
-      // my promises are being fulfilled 
       const pricePromises = allProducts.map(product => {
         const requestBody = {
           type: 'GetBestOffer',
-          // id gives error when not specified as string, tried clamping to integer and it freaked out
           product_id: String(product.id) 
         };
 
-        // remember file pathing!!!
         return fetch('../api.php', {
           method: 'POST',
           headers: {
@@ -113,7 +173,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => {
           if (!response.ok) {
             console.error(`Failed to fetch price for product ${product.id}`, response.status);
-            // null if failed 
             return null; 
           }
           return response.json();
@@ -124,15 +183,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
 
-      // wait for all price requests to finish
       const priceResponses = await Promise.all(pricePromises);
 
-      // process prices responses here
       priceResponses.forEach((response, index) => {
         if (response && response.status === 'success') 
         {
-          if (typeof response.data === 'object' && !Array.isArray(response.data) && response.data.price) {
-            // finds a valid best offer
+          if (typeof response.data === 'object' && !Array.isArray(response.data) && response.data.price)
+          {
             allProducts[index].price = parseFloat(response.data.price);
             allProducts[index].currency = response.data.currency || 'ZAR';
             allProducts[index].hasStock = true;
@@ -140,14 +197,12 @@ document.addEventListener("DOMContentLoaded", function () {
           
           else if (typeof response.data === 'string') 
           {
-            // dispkay No stock available message
             allProducts[index].price = null;
             allProducts[index].hasStock = false;
           } 
           
           else 
           {
-            // Unexpected response format throw a warn in console (debug)
             allProducts[index].price = null;
             allProducts[index].hasStock = false;
             console.warn('Unexpected response format for product', allProducts[index].id, response);
@@ -156,10 +211,8 @@ document.addEventListener("DOMContentLoaded", function () {
         
         else 
         {
-          // eror case or no response
           allProducts[index].price = null;
           allProducts[index].hasStock = false;
-
           if (response) 
           {
             console.warn('Error response for product', allProducts[index].id, response);
@@ -171,7 +224,6 @@ document.addEventListener("DOMContentLoaded", function () {
       renderProducts();
     } catch (error) {
       console.error('Error in fetchPrices:', error);
-      // render regardless
       renderProducts();
     }
   }
@@ -191,27 +243,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Set up event listeners
   function setupEventListeners() {
-    // Sort button click
     sortBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       showSortDropdown();
     });
 
-    // Filter button click
     filterBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       showFilterDropdown();
     });
 
-    // Close dropdowns when clicking elsewhere
     document.addEventListener("click", closeDropdowns);
 
-    // Search functionality
     searchInput.addEventListener("input", function () {
       const searchTerm = searchInput.value.trim().toLowerCase();
       let filteredProducts = [...allProducts];
 
-      if (searchTerm) {
+      if (searchTerm) 
+      {
         filteredProducts = filteredProducts.filter((product) =>
           product.name.toLowerCase().includes(searchTerm) ||
           product.description.toLowerCase().includes(searchTerm) ||
@@ -219,8 +268,8 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      //  appky curr filter to the filtered results
-      if (currentFilter !== "all") {
+      if (currentFilter !== "all") 
+      {
         filteredProducts = filteredProducts.filter(
           (product) => product.brand === currentFilter
         );
@@ -232,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // sort dropdown
   function showSortDropdown() {
     closeDropdowns();
 
@@ -251,7 +299,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sortBtn.appendChild(dropdown);
 
-    // click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentSort = this.getAttribute("data-value");
@@ -261,14 +308,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // display filter dropdown
   function showFilterDropdown() {
     closeDropdowns();
 
     const dropdown = document.createElement("div");
     dropdown.className = "filter-dropdown dropdown";
     
-    // filter options from brands
     let filterOptionsHTML = `
       <div class="dropdown-item ${"all" === currentFilter ? "active" : ""}" 
            data-value="all">
@@ -288,7 +333,6 @@ document.addEventListener("DOMContentLoaded", function () {
     dropdown.innerHTML = filterOptionsHTML;
     filterBtn.appendChild(dropdown);
 
-    // click handlers for dropdown items
     dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", function () {
         currentFilter = this.getAttribute("data-value");
@@ -298,14 +342,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Close all dropdowns
   function closeDropdowns() {
     document.querySelectorAll(".dropdown").forEach((dropdown) => {
       dropdown.remove();
     });
   }
 
-  // current filter
   function applyFilter() {
     if (currentFilter === "all") {
       displayedProducts = [...allProducts];
@@ -326,7 +368,50 @@ document.addEventListener("DOMContentLoaded", function () {
       case "name-desc":
         displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
         break;
-      // Default: no sorting, no sort is by default so can leave default case commented out
+    }
+  }
+
+  // Toggle product in wishlist
+  async function toggleWishlist(productId) {
+    if (!apiKey) {
+      alert('Please log in to manage your wishlist');
+      return;
+    }
+
+    const product = allProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    try {
+      const endpoint = product.inWishlist ? 'DeleteFromWishlist' : 'AddToWishlist';
+      
+      const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: endpoint,
+          api_key: apiKey,
+          product_id: productId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Update local state
+        product.inWishlist = !product.inWishlist;
+        renderProducts();
+      } else {
+        throw new Error(data.message || 'Failed to update wishlist');
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      alert('Failed to update wishlist. Please try again.');
     }
   }
 
@@ -357,7 +442,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Update item count
     itemCountElement.textContent = `${displayedProducts.length} ${
       displayedProducts.length === 1 ? "item" : "items"
     }`;
@@ -366,26 +450,26 @@ document.addEventListener("DOMContentLoaded", function () {
       const item = document.createElement("div");
       item.className = "product-card";
       
-      // Price display logic, can alter for frontend llook 
       let priceDisplay = '';
-      if (product.price !== null) 
-      {
+      if (product.price !== null) {
         priceDisplay = `
           <div class="product-price">
             <span class="price-amount">${product.price.toFixed(2)}</span>
             <span class="price-currency">${product.currency || 'ZAR'}</span>
           </div>
         `;
-      } 
-      
-      else 
-      {
+      } else {
         priceDisplay = `
           <div class="product-price out-of-stock">
             Out of stock
           </div>
         `;
       }
+      
+      // Heart icon based on wishlist status
+      const heartIcon = product.inWishlist 
+        ? '<i class="fas fa-heart" style="color: #ff6b6b;"></i>'
+        : '<i class="fas fa-heart"></i>';
       
       item.innerHTML = `
         <div class="product-content">
@@ -408,40 +492,31 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
         <div class="product-actions">
-          <button class="add-to-view" data-id = "${product.id}">View Details</button>
+          <button class="add-to-view" data-id="${product.id}">View Details</button>
           <button class="add-to-wishlist" data-id="${product.id}">
-            <i class="fas fa-heart"></i>
+            ${heartIcon}
           </button>
         </div>
       `;
       productsItems.appendChild(item);
     });
 
-    // wishlist listener
+    // Add event listeners to wishlist buttons
     document.querySelectorAll(".add-to-wishlist").forEach((button) => {
-      button.addEventListener("click", function (e) {
+      button.addEventListener("click", async function (e) {
         e.stopPropagation();
         const productId = parseInt(this.getAttribute("data-id"));
-
-        console.log(productId);
-
-        this.innerHTML = '<i class="fas fa-heart" style="color: #ff6b6b;"></i>';
+        await toggleWishlist(productId);
       });
     });
 
-    // view listener
+    // Add event listeners to view buttons
     document.querySelectorAll(".add-to-view").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-
         const productId = parseInt(this.getAttribute("data-id"));
-        console.log(productId);
-
         setCookie("productId", productId, 2);
-
-        window.location.href = '../php/view.php'; 
-
-        // view page sutff to add
+        window.location.href = '../php/view.php';
       });
     });
   }
@@ -452,10 +527,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function setCookie(name, value, time) {
   let expires = "";
-  if (time) {
+  if (time) 
+  {
     const date = new Date();
     date.setTime(date.getTime() + time * 60 * 60 * 1000);
     expires = "; expires=" + date.toUTCString();
   }
   document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i=0; i < ca.length; i++) 
+  {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1);
+    if (c.indexOf(nameEQ) === 0) 
+    {
+      return decodeURIComponent(c.substring(nameEQ.length));
+    }
+  }
+  return null;
 }
