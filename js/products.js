@@ -397,10 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }" class="product-image">
               </div>
               <div class="product-image-back">
-                <h4>${product.name}</h4>
                 <p class="description">${product.description}</p>
-                ${product.brand ? `<p class="brand"><strong>Brand:</strong> ${product.brand}</p>` : ''}
-                ${priceDisplay}
               </div>
             </div>
           </div>
