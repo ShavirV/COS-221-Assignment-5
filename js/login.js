@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = '../php/admin.php';
                 } else {
                     setCookie("isAdmin",'false',2);
-                    //window.location.href = '../php/home.php'; 
+                    window.location.href = '../php/home.php'; 
                 }
             } else {
                 errorElement.textContent = data.message;
