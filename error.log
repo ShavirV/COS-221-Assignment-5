@@ -1,2 +1,84 @@
 [22-May-2025 15:20:19 Europe/Berlin] PHP Warning:  mysqli::__construct(): (HY000/1045): Access denied for user 'u23718146'@'10.32.38.109' (using password: NO) in C:\xampp\htdocs\COS-221-Assignment-5\config.php on line 23
 [22-May-2025 15:20:19 Europe/Berlin] DB connection failed: Access denied for user 'u23718146'@'10.32.38.109' (using password: NO)
+[24-May-2025 14:44:34 Europe/Berlin] Login attempt for email: log@in.com
+[24-May-2025 14:44:34 Europe/Berlin] Stored hash: f3b072952866e28468d03c6dda283bac606cc2fd55c9ee36aba1424570eadc38
+[24-May-2025 14:44:34 Europe/Berlin] Computed hash: a241aedb6dcf353fec3717b968783bc73b19dbcc00b6d2b97dedfcef6cec9e2a
+[24-May-2025 14:44:34 Europe/Berlin] Salt used: 88834cb65cf567d4e6454ad1658e3c42
+[24-May-2025 15:02:10 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:02:10 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:02:10 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:02:10 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:07:25 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:07:25 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:07:25 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:07:25 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:17:44 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:17:44 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:17:44 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:17:44 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:18:44 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:18:44 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:18:44 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:18:44 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:23:30 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:23:30 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:23:30 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:23:30 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:24:45 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:24:45 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:24:45 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:24:45 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:25:46 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:25:46 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:25:46 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:25:46 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:25:53 Europe/Berlin] PHP Warning:  Undefined variable $COOKIE in C:\xampp\htdocs\COS-221-Assignment-5\php\admin.php on line 11
+[24-May-2025 15:25:53 Europe/Berlin] PHP Warning:  Trying to access array offset on value of type null in C:\xampp\htdocs\COS-221-Assignment-5\php\admin.php on line 11
+[24-May-2025 15:25:53 Europe/Berlin] PHP Deprecated:  error_log(): Passing null to parameter #1 ($message) of type string is deprecated in C:\xampp\htdocs\COS-221-Assignment-5\php\admin.php on line 11
+[24-May-2025 15:25:53 Europe/Berlin] 
+[24-May-2025 15:28:52 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:28:52 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:28:52 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:28:52 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:28:58 Europe/Berlin] Unauthorized attempt to access admin page by gb4DSoXDWdovVRNwPRs0AzufgZOtkIPP
+[24-May-2025 15:29:09 Europe/Berlin] Unauthorized attempt to access admin page by unknown key
+[24-May-2025 15:31:19 Europe/Berlin] Login attempt for email: log@in.com
+[24-May-2025 15:31:19 Europe/Berlin] Stored hash: f3b072952866e28468d03c6dda283bac606cc2fd55c9ee36aba1424570eadc38
+[24-May-2025 15:31:19 Europe/Berlin] Computed hash: a241aedb6dcf353fec3717b968783bc73b19dbcc00b6d2b97dedfcef6cec9e2a
+[24-May-2025 15:31:19 Europe/Berlin] Salt used: 88834cb65cf567d4e6454ad1658e3c42
+[24-May-2025 15:31:19 Europe/Berlin] Unauthorized attempt to access admin page by hznT1dYDBALsCuMN9ycmCJOufM98DDLm
+[24-May-2025 15:33:29 Europe/Berlin] Login attempt for email: log@in.com
+[24-May-2025 15:33:29 Europe/Berlin] Stored hash: f3b072952866e28468d03c6dda283bac606cc2fd55c9ee36aba1424570eadc38
+[24-May-2025 15:33:29 Europe/Berlin] Computed hash: a241aedb6dcf353fec3717b968783bc73b19dbcc00b6d2b97dedfcef6cec9e2a
+[24-May-2025 15:33:29 Europe/Berlin] Salt used: 88834cb65cf567d4e6454ad1658e3c42
+[24-May-2025 15:33:29 Europe/Berlin] Unauthorized attempt to access admin page by hznT1dYDBALsCuMN9ycmCJOufM98DDLm
+[24-May-2025 15:33:42 Europe/Berlin] Login attempt for email: log@in.com
+[24-May-2025 15:33:42 Europe/Berlin] Stored hash: f3b072952866e28468d03c6dda283bac606cc2fd55c9ee36aba1424570eadc38
+[24-May-2025 15:33:42 Europe/Berlin] Computed hash: a241aedb6dcf353fec3717b968783bc73b19dbcc00b6d2b97dedfcef6cec9e2a
+[24-May-2025 15:33:42 Europe/Berlin] Salt used: 88834cb65cf567d4e6454ad1658e3c42
+[24-May-2025 15:33:42 Europe/Berlin] Unauthorized attempt to access admin page by hznT1dYDBALsCuMN9ycmCJOufM98DDLm
+[24-May-2025 15:36:20 Europe/Berlin] Login attempt for email: log@in.com
+[24-May-2025 15:36:20 Europe/Berlin] Stored hash: f3b072952866e28468d03c6dda283bac606cc2fd55c9ee36aba1424570eadc38
+[24-May-2025 15:36:20 Europe/Berlin] Computed hash: a241aedb6dcf353fec3717b968783bc73b19dbcc00b6d2b97dedfcef6cec9e2a
+[24-May-2025 15:36:20 Europe/Berlin] Salt used: 88834cb65cf567d4e6454ad1658e3c42
+[24-May-2025 15:42:59 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:42:59 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:42:59 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:42:59 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:43:02 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:43:02 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:43:02 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:43:02 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:43:02 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:43:02 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:43:02 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:43:02 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:43:16 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:43:16 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:43:16 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:43:16 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:43:21 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 15:43:21 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 15:43:21 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 15:43:21 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 15:43:33 Europe/Berlin] Unauthorized attempt to access admin page by gb4DSoXDWdovVRNwPRs0AzufgZOtkIPP
