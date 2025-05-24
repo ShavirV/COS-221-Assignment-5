@@ -1893,6 +1893,37 @@ class User
         }
     }
 
+    public function averageRating($data){
+        //just need a valid product_id
+        if (empty($data["product_id"])){
+            $this->respond("error", "malformed or omitted product_id", 400);
+        }
+
+        //im lazy so bullshit this
+        $stmt = $this->conn->prepare("SELECT rating FROM review WHERE product_id = ?");
+        $stmt->bind_param('i', $data["product_id"]);
+
+        if (!$stmt->execute()){
+            $this->respond("error", "database query failed", 500);
+        }
+
+        $result = $stmt->get_result();
+        if ($result->num_rows <= 0){
+            $this->respond("success", "No reviews found", 204); //empty
+        }
+
+        //passed checks, has stuff to return
+        $sum = 0;
+        $count = 0;
+        while ($row = $result->fetch_assoc()){
+            $sum += $row["rating"];
+            $count++;
+        }
+        //avoid div by 0 and round to 2 decimal places
+        $avg = $count > 0 ? round($sum / $count, 2) : 0;
+        $this->respond("success", ["average"=> $avg, "count"=> $count], 200);
+    }
+
 }
 
 
@@ -2037,6 +2068,9 @@ if (isset($decodeObj['type']))
             case "CreateOfferOld": //just keeping it here in case of catastrophic failure 
                 $user->createOffer($decodeObj);
             break;
+
+            case "AverageRating":
+                $user->averageRating($decodeObj);
             
             case "Debug":
             $success = sendWishlistEmail("shavirvallabh.exe@gmail.com", "debugging the email thing", "
