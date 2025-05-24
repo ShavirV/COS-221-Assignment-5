@@ -162,3 +162,31 @@ get all retailer
     "limit": 20
 }
 
+==================================================
+add to wishlist test
+==================================================
+
+{
+  "type": "AddToWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl",
+  "product_id":1
+}
+
+==================================================
+get wishlist test
+==================================================
+
+{
+  "type": "GetWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl"
+}
+
+==================================================
+delete from wishlist test
+==================================================
+
+{
+  "type": "DeleteFromWishlist",
+  "api_key": "T92BF5ttZG6e2ev05ImgpHNjKZyHMKzl",
+  "product_id":1
+}
