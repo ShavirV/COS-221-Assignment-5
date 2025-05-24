@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
 
       // path must be chnaged if your api.php is not located in the root directory
-      const response = await fetch('http://localhost/api.php', {
+      const response = await fetch('../api.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         // remember file pathing!!!
-        return fetch('http://localhost/api.php', {
+        return fetch('../api.php', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
         <div class="product-actions">
-          <button class="add-to-view">View Details</button>
+          <button class="add-to-view" onclick = "viewProduct(${product.id})">View Details</button>
           <button class="add-to-wishlist" data-id="${product.id}">
             <i class="fas fa-heart"></i>
           </button>
@@ -430,7 +430,10 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".add-to-view").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-        // view page sutff to add
+        
+        
+
+
       });
     });
   }
@@ -438,3 +441,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize the page
   init();
 });
+
+function setCookie(name, value, time) {
+  let expires = "";
+  if (time) {
+    const date = new Date();
+    date.setTime(date.getTime() + time * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function viewProduct(product)
+{
+    console.log(product);
+}

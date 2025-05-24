@@ -618,7 +618,7 @@ class User
 
     //for the passed in id, gets the lowest price where there is stock
     public function getBestOffer($data){
-        $this->validateKey($data["api_key"]);
+        //$this->validateKey($data["api_key"]);
 
         $prodId = $data["product_id"];
         if(!$prodId || !is_string($prodId)){
