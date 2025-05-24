@@ -169,7 +169,7 @@ function loadOffers() {
         
                         let offerHTML = `
                         <div class="offer-retailer">${offer.name}</div>
-                        <div class="offer-price">$${offer.price.toFixed(2)}</div>
+                        <div class="offer-price">R${offer.price.toFixed(2)}</div>
                         <div class="offer-actions">
                         <a href="${offer.link}">View Deal</a>
                         `;
