@@ -227,7 +227,7 @@ leaveReviewBtn.addEventListener('click', () => {
     if (!isLoggedIn) {
         alert('Please log in to leave a review. You will be redirected to the login page.');
         // In a real application, you would redirect to the login page
-        // window.location.href = '/login';
+         window.location.href = '../php/login.php';
         return;
     }
     
@@ -238,35 +238,47 @@ leaveReviewBtn.addEventListener('click', () => {
 // Handle review form submission
 reviewForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const rating = document.getElementById('review-rating').value;
     const text = document.getElementById('review-text').value;
+
+
+    const apiKey = getCookie("apiKey");
+    console.log(apiKey);
     
-    // Create new review
-    const newReview = {
-        author: "You", // In a real app, this would be the user's name
-        rating: parseInt(rating),
-        text: text
+    request = {
+        type: 'CreateReview',
+        api_key: apiKey,
+        rating: rating,
+        product_id: productId,
+        comment: text
     };
-    
-    // Add to reviews array
-    reviewsData.unshift(newReview);
-    
-    // Reload reviews
-    reviewsContainer.innerHTML = '';
-    loadReviews();
-    
-    // Reset form
-    reviewForm.reset();
-    reviewFormContainer.style.display = 'none';
-    leaveReviewBtn.style.display = 'block';
-    
-    // Update review count
-    productData.reviewCount++;
-    document.querySelector('.review-count').textContent = `(${productData.reviewCount} reviews)`;
-    
-    // Show success message
-    alert('Thank you for your review!');
+
+    console.log(request);
+
+    apiRequest(request).then(result => {
+
+        console.log(result);
+
+        if (result.status === 'success')
+        {
+            reviewsContainer.innerHTML = '';
+            loadReviews();
+            loadProductData();
+
+            reviewForm.reset();
+            reviewFormContainer.style.display = 'none';
+            leaveReviewBtn.style.display = 'block';
+
+            // Show success message
+            alert('Thank you for your review!');
+        }
+        else
+        {
+            alert ("Oopsie\nSomthing went wrong")
+        }
+
+    });
 });
 
 // Initialize the page
