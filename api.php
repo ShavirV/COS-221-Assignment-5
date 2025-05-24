@@ -2067,6 +2067,7 @@ if (isset($decodeObj['type']))
 
             case "AverageRating":
                 $user->averageRating($decodeObj);
+            break;
             
             case "Debug":
             $success = sendWishlistEmail("shavirvallabh.exe@gmail.com", "debugging the email thing", "
