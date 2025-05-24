@@ -28,7 +28,7 @@ const reviewsData = [
 ];
 
 // Check if user is logged in (mock function - replace with actual auth check)
-const prodCookie = getCookie("apiKey");
+const prodCookie = getCookie("api_key");
 isLoggedIn = prodCookie !== null; //later come back and make an actual check if the key is valid (it may exist but be an invalid key)
 
 //product id
@@ -138,7 +138,7 @@ document.querySelectorAll(".add-to-wishlist").forEach(button => {
         if (isLoggedIn) {
             this.innerHTML = '<i class="fas fa-heart" style="color: #ff6b6b;"></i>';
 
-            const apiKey = getCookie("apiKey");
+            const apiKey = getCookie("api_key");
             request = {
                 type: 'AddToWishlist',
                 api_key: apiKey,
@@ -262,7 +262,7 @@ reviewForm.addEventListener('submit', (e) => {
     const text = document.getElementById('review-text').value;
 
 
-    const apiKey = getCookie("apiKey");
+    const apiKey = getCookie("api_key");
     console.log(apiKey);
     
     request = {
