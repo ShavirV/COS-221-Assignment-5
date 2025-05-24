@@ -2,30 +2,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        //BUG FOUND
-        //WHEN SUBMITTING FORM WITH ENTER KEY THE JS DOES NOT TRIGGER
-        
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const errorElement = document.getElementById('errorMessage');
 
-        //console.log(username + "login attempt");
-        
-        // Clear previous errors
+        // clear all previous errors (i think everything is working can add again tho)
         errorElement.textContent = '';
         
-        // Simple validation because signup will handle password strength
-        if (!username || !password) {
+        if (!username || !password) 
+        {
             errorElement.textContent = 'Please fill in all fields';
             return;
         }
-        
-        // Create form data
-        // const formData = new FormData();
-        // formData.append('username', username);
-        // formData.append('password', password);
-        // formData.append('userType', userType);
-
 
         const request = {
            type: 'Login',
@@ -34,36 +22,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }; 
 
         const jrequest = JSON.stringify(request);
-
-        //console.log(request);
         
-        // AJAX request
-        fetch('../api.php', { //FOR AYUSH: CHANGE THIS TO WHEATLY API URL
+        fetch('../api.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: jrequest
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Login response:', data);
 
-            console.log(data);
+            if (data.status === 'success')
+            {
+                // set cookie by login once success
+                setCookie("api_key", data.data.api_key, 2);
+                console.log('Cookie set:', {
+                    name: 'api_key',
+                    value: data.data.api_key,
+                    allCookies: document.cookie
+                });
 
-            
-
-            if (data.status === 'success') {
-                // Redirect based on user type
-
-                setCookie("apiKey", data.data.api_key,2);
-
-                //console.log(data.data.user_type);
-                if (data.data.user_type === 'admin') {
-                    setCookie("isAdmin",'true',2);
+                if (data.data.user_type === 'admin') 
+                {
+                    setCookie("isAdmin", 'true', 2);
                     window.location.href = '../php/admin.php';
-                } else {
-                    setCookie("isAdmin",'false',2);
+                } 
+                
+                else
+                {
+                    setCookie("isAdmin", 'false', 2);
                     window.location.href = '../php/home.php'; 
                 }
-            } else {
+            } 
+            
+            else 
+            {
                 errorElement.textContent = data.message;
             }
         })
@@ -74,12 +67,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function setCookie(name, value, time) {
-  let expires = "";
-  if (time) {
-    const date = new Date();
-    date.setTime(date.getTime() + time * 60 * 60 * 1000);
-    expires = "; expires=" + date.toUTCString();
-  }
-  document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+// helper functions
+function setCookie(name, value, hours) {
+    let expires = "";
+    if (hours) {
+        const date = new Date();
+        date.setTime(date.getTime() + hours * 60 * 60 * 1000);
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+    console.log('Cookie set:', name, value);
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    }
+    return null;
 }
