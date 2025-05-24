@@ -92,7 +92,7 @@ function loadProductData() {
 
                 reviewRequest =
                 {
-                    "type": "GetReviews",
+                    "type": "AverageRating",
                     "product_id": productId
                 };
 
@@ -103,8 +103,8 @@ function loadProductData() {
                 // Load rating
                     const starsElement = document.querySelector('.stars');
                     const reviewCountElement = document.querySelector('.review-count');
-                    starsElement.textContent = '★★★★★'.slice(0, Math.floor(productData.rating)) + '☆☆☆☆☆'.slice(Math.floor(productData.rating));
-                    reviewCountElement.textContent = `(${productData.reviewCount} reviews)`;
+                    starsElement.textContent = '★★★★★'.slice(0, Math.floor(reviewData.data.average)) + '☆☆☆☆☆'.slice(Math.floor(reviewData.data.average));
+                    reviewCountElement.textContent = `(${reviewData.data.count} reviews)`;
                 });
                 
 
@@ -185,23 +185,41 @@ function loadOffers() {
 
 // Load reviews
 function loadReviews() {
-    if (reviewsData.length === 0) {
+
+    request = {
+        "type": "GetReviews",
+        "product_id": productId
+    };
+
+    apiRequest(request).then(reviewsData => {
+
+        console.log(reviewsData);
+
+        if (reviewsData.data.length === 0) {
         reviewsContainer.innerHTML = '<p>No reviews yet. Be the first to review!</p>';
         return;
     }
-    
-    reviewsData.forEach(review => {
+
+    reviewsData.data.forEach(review => {
         const reviewElement = document.createElement('div');
         reviewElement.className = 'review';
         
         reviewElement.innerHTML = `
-            <div class="review-author">${review.author}</div>
+            <div class="review-author">${review.name + " " + review.surname}</div>
             <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-            <div class="review-text">${review.text}</div>
+            <div class="review-text">${review.comment}</div>
         `;
         
         reviewsContainer.appendChild(reviewElement);
     });
+
+
+
+    });
+
+    
+    
+    
 }
 
 // Handle review button click

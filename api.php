@@ -1039,7 +1039,7 @@ class User
     public function getReviews($data){
         if (!$data["product_id"]) $this->respond("error", "product_id not set", 400);
 
-        $stmt = $this->conn->prepare("SELECT * FROM review WHERE product_id = ?");
+        $stmt = $this->conn->prepare("SELECT r.*, u.name, u.surname FROM review r JOIN user u ON u.user_id = r.user_id WHERE product_id = ? ORDER BY r.rating DESC");
         $stmt->bind_param("s", $data["product_id"]);
 
         if ($stmt->execute()){
