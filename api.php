@@ -1,6 +1,6 @@
 <?php
 require_once(__DIR__.'/config.php');
-//require_once(__DIR__.'/mail.php');
+require_once(__DIR__.'/mail.php');
 //require mail after env integration
 
 /* setting up composer (required for reading env files)
