@@ -1,7 +1,8 @@
 <?php
 
-setcookie('apiKey', '', time() - 3600, '/');
-setcookie('isAdmin', '', time() - 3600, '/');
+setcookie('apiKey', '', time() - 36000, '/');
+setcookie('isAdmin', '', time() - 36000, '/');
+setcookie('productId', '', time() - 36000, '/');
 
 
 header('Location: home.php');

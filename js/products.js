@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
         <div class="product-actions">
-          <button class="add-to-view" onclick = "viewProduct(${product.id})">View Details</button>
+          <button class="add-to-view" data-id = "${product.id}">View Details</button>
           <button class="add-to-wishlist" data-id="${product.id}">
             <i class="fas fa-heart"></i>
           </button>
@@ -422,6 +422,9 @@ document.addEventListener("DOMContentLoaded", function () {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
         const productId = parseInt(this.getAttribute("data-id"));
+
+        console.log(productId);
+
         this.innerHTML = '<i class="fas fa-heart" style="color: #ff6b6b;"></i>';
       });
     });
@@ -430,10 +433,15 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".add-to-view").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-        
-        
 
+        const productId = parseInt(this.getAttribute("data-id"));
+        console.log(productId);
 
+        setCookie("productId", productId, 2);
+
+        window.location.href = '../php/view.php'; 
+
+        // view page sutff to add
       });
     });
   }
@@ -450,9 +458,4 @@ function setCookie(name, value, time) {
     expires = "; expires=" + date.toUTCString();
   }
   document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
-}
-
-function viewProduct(product)
-{
-    console.log(product);
 }

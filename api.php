@@ -593,15 +593,22 @@ class User
     }
 
     //use this to get all offers for one specific product
-    public function getOffer($data){
-        $this->validateKey($data["api_key"]);
+     public function getOffer($data){
+        //$this->validateKey($data["api_key"]); dont need keys
         
         $prodId = $data["product_id"];
         if(!$prodId || !is_string($prodId)){
             $this->respond("error", "malformed or misssing product_id", 400);
         }
 
-        $stmt = $this->conn->prepare("SELECT * FROM offers WHERE product_id = ?");
+        //update: now returns retailer info as well
+        $stmt = $this->conn->prepare("
+        SELECT offers.*, r.name, r.website
+        FROM offers
+        INNER JOIN retailer as r ON offers.retailer_id = r.retailer_id
+        WHERE offers.product_id = ?
+        ORDER BY price
+        ");
         $stmt->bind_param("s", $prodId);
         
         if ($stmt->execute()){
@@ -618,7 +625,7 @@ class User
 
     //for the passed in id, gets the lowest price where there is stock
     public function getBestOffer($data){
-        $this->validateKey($data["api_key"]);
+        //$this->validateKey($data["api_key"]);
 
         $prodId = $data["product_id"];
         if(!$prodId || !is_string($prodId)){

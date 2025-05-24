@@ -3,6 +3,12 @@
 $pageTitle = "Product View - Compare IT";
 $cssFile = 'view.css'; // Array of CSS files needed for this page
 require_once("header.php");
+
+if (!isset($_COOKIE['productId']))
+{
+    header('Location: home.php');
+    exit;
+}
 ?>
 
 <!-- view page main content -->

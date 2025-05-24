@@ -28,7 +28,11 @@ const reviewsData = [
 ];
 
 // Check if user is logged in (mock function - replace with actual auth check)
-let isLoggedIn = false;
+const prodCookie = getCookie("apiKey");
+isLoggedIn = prodCookie !== null; //later come back and make an actual check if the key is valid (it may exist but be an invalid key)
+
+//product id
+const productId = getCookie("productId");
 
 // DOM elements
 const mainImage = document.getElementById('main-image');
@@ -44,27 +48,56 @@ const reviewForm = document.getElementById('review-form');
 
 // Load product data
 function loadProductData() {
-    productTitle.textContent = productData.title;
-    priceElement.textContent = `$${productData.price.toFixed(2)}`;
-    descriptionElement.textContent = productData.description;
     
-    // Set main image
-    if (productData.images.length > 0) {
-        mainImage.src = productData.images[0];
-        mainImage.alt = productData.title;
-    }
-    
-    // Create thumbnails
-    productData.images.forEach((image, index) => {
-        const thumbnail = document.createElement('img');
-        thumbnail.src = image;
-        thumbnail.alt = `${productData.title} - View ${index + 1}`;
-        thumbnail.className = 'thumbnail';
-        thumbnail.addEventListener('click', () => {
-            mainImage.src = image;
-        });
-        thumbnailContainer.appendChild(thumbnail);
+    request = {
+        "type": "GetAllProducts",
+        "return": "*",
+        "search": {"product_id":productId}
+    };
+
+
+    apiRequest(request).then(productData => {
+        console.log(productData);
+        if (productData.status === 'success')
+        {   
+            offerRequest = {
+                "type": "GetOffer",
+                "product_id": productId
+            };
+
+            apiRequest(offerRequest).then(offersData =>{
+
+                console.log(offersData);
+                productTitle.textContent = productData.data[0].name;
+                priceElement.textContent = `R${offersData.data[0].price.toFixed(2)}`;
+                descriptionElement.textContent = productData.data[0].description;
+
+                
+                mainImage.src = productData.data[0].image_url;
+                mainImage.alt = productData.data[0].name;
+
+                // Create thumbnails (USED FOR IMAGE CAROUSEL DID NOT IMPLEMENT)
+                // productData.images.forEach((image, index) => {
+                //         const thumbnail = document.createElement('img');
+                //         thumbnail.src = image;
+                //         thumbnail.alt = `${productData.title} - View ${index + 1}`;
+                //         thumbnail.className = 'thumbnail';
+                //         thumbnail.addEventListener('click', () => {
+                //         mainImage.src = image;
+                //     });
+                //     thumbnailContainer.appendChild(thumbnail);
+
+                // });
+                
+
+            });
+        }
     });
+
+    
+    
+   
+    
     
     // Load rating
     const starsElement = document.querySelector('.stars');
@@ -75,7 +108,7 @@ function loadProductData() {
     // Add wishlist button 
     const wishlistButton = document.createElement('button');
     wishlistButton.className = 'add-to-wishlist';
-    wishlistButton.setAttribute('data-id', productData.id);
+    wishlistButton.setAttribute('data-id', productId);
     wishlistButton.innerHTML = '<i class="fas fa-heart"></i>';
     
     // Find a suitable place to append the wishlist button in your product page
@@ -94,7 +127,7 @@ document.querySelectorAll(".add-to-wishlist").forEach(button => {
         } else {
             alert("Please log in to add items to your wishlist.");
             // Redirect to login page
-            window.location.href = "../html/login.html";
+            window.location.href = "../php/login.php";
         };
     });
 });
@@ -196,7 +229,34 @@ reviewForm.addEventListener('submit', (e) => {
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', () => {
+    //const productId = getCookie("productId");
     loadProductData();
     loadOffers();
     loadReviews();
 });
+
+function getCookie(name) {
+    
+  const cookies = document.cookie.split(';');
+  for (let cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.trim().split('=');
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return null; // Cookie not found
+}
+
+async function apiRequest (body)
+{
+    const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      
+    });
+
+    return await response.json();
+}
