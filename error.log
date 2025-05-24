@@ -1,0 +1,7 @@
+[24-May-2025 18:37:46 Europe/Berlin] Login attempt for email: customer@tester.com
+[24-May-2025 18:37:46 Europe/Berlin] Stored hash: 04061e5567cfaa0c1dd034b320bf1f470030a2d5af8ecb4f0aab1e81851c0bbe
+[24-May-2025 18:37:46 Europe/Berlin] Computed hash: 11ffec05d2ed26d5258acd9989b6b280db62531efbc30beda13bc8cc8ef2c5b9
+[24-May-2025 18:37:46 Europe/Berlin] Salt used: 9bbaaa3ec9588f4081ba1da17cadd7f1
+[24-May-2025 18:38:23 Europe/Berlin] PHP Warning:  Undefined array key "api_key" in C:\xampp\htdocs\COS-221-Assignment-5\api.php on line 621
+[24-May-2025 18:38:23 Europe/Berlin] PHP Warning:  Undefined array key "api_key" in C:\xampp\htdocs\COS-221-Assignment-5\api.php on line 621
+[24-May-2025 18:38:23 Europe/Berlin] PHP Warning:  Undefined array key "api_key" in C:\xampp\htdocs\COS-221-Assignment-5\api.php on line 621

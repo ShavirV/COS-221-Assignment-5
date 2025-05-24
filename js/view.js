@@ -61,7 +61,7 @@ function loadProductData() {
         if (productData.status === 'success')
         {   
             offerRequest = {
-                "type": "GetOffer",
+                "type": "GetBestOffer",
                 "product_id": productId
             };
 
@@ -69,7 +69,7 @@ function loadProductData() {
 
                 console.log(offersData);
                 productTitle.textContent = productData.data[0].name;
-                priceElement.textContent = `R${offersData.data[0].price.toFixed(2)}`;
+                priceElement.textContent = `R${offersData.data.price.toFixed(2)}`;
                 descriptionElement.textContent = productData.data[0].description;
 
                 
@@ -88,6 +88,24 @@ function loadProductData() {
                 //     thumbnailContainer.appendChild(thumbnail);
 
                 // });
+
+
+                reviewRequest =
+                {
+                    "type": "GetReviews",
+                    "product_id": productId
+                };
+
+                apiRequest(reviewRequest).then(reviewData => {
+
+                    console.log(reviewData);
+
+                // Load rating
+                    const starsElement = document.querySelector('.stars');
+                    const reviewCountElement = document.querySelector('.review-count');
+                    starsElement.textContent = '★★★★★'.slice(0, Math.floor(productData.rating)) + '☆☆☆☆☆'.slice(Math.floor(productData.rating));
+                    reviewCountElement.textContent = `(${productData.reviewCount} reviews)`;
+                });
                 
 
             });
@@ -99,11 +117,7 @@ function loadProductData() {
    
     
     
-    // Load rating
-    const starsElement = document.querySelector('.stars');
-    const reviewCountElement = document.querySelector('.review-count');
-    starsElement.textContent = '★★★★★'.slice(0, Math.floor(productData.rating)) + '☆☆☆☆☆'.slice(Math.floor(productData.rating));
-    reviewCountElement.textContent = `(${productData.reviewCount} reviews)`;
+    
     
     // Add wishlist button 
     const wishlistButton = document.createElement('button');
@@ -134,29 +148,39 @@ document.querySelectorAll(".add-to-wishlist").forEach(button => {
 
 // Load offers
 function loadOffers() {
-    offersData.forEach(offer => {
-        const offerElement = document.createElement('div');
-        offerElement.className = 'offer';
+
+    offerRequest = {
+                "type": "GetOffer",
+                "product_id": productId
+            };
+
+            apiRequest(offerRequest).then(offersData =>{
+
+                console.log(offersData);
+                
+                if (offersData.status === 'success')
+                {
+                    offersData.data.forEach(offer => {
+
+                        console.log(offer);
+
+                        const offerElement = document.createElement('div');
+                        offerElement.className = 'offer';
         
-        let offerHTML = `
-            <div class="offer-retailer">${offer.retailer}</div>
-            <div class="offer-price">$${offer.price.toFixed(2)}</div>
-            <div class="offer-actions">
-                <a href="${offer.link}">View Deal</a>
-        `;
-        
-        if (offer.limitedTime) {
-            offerHTML += `<span class="offer-badge">Limited Time</span>`;
-        }
-        
-        if (offer.isMain) {
-            offerHTML += `<span class="offer-badge">Our Store</span>`;
-        }
-        
-        offerHTML += `</div>`;
-        offerElement.innerHTML = offerHTML;
-        offersContainer.appendChild(offerElement);
-    });
+                        let offerHTML = `
+                        <div class="offer-retailer">${offer.name}</div>
+                        <div class="offer-price">$${offer.price.toFixed(2)}</div>
+                        <div class="offer-actions">
+                        <a href="${offer.link}">View Deal</a>
+                        `;
+
+                        offerHTML += `</div>`;
+                        offerElement.innerHTML = offerHTML;
+                        offersContainer.appendChild(offerElement);
+
+                    });
+                }
+            });
 }
 
 // Load reviews
