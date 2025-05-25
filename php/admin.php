@@ -36,14 +36,17 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
             <span>Admin Dashboard</span>
         </div>
         <ul class="nav-links">
-            <li><a href="products.php">PRODUCTS</a></li>
+            <li><a href="admin.php">PRODUCTS</a></li>
+            <li><a href="retailers.php">RETAILERS</a></li>
+            <li><a href="products.php">CUSTOMER STOREFRONT</a></li>
+
         </ul>
         <div class="admin-controls">
             <button class="admin-btn" id="addProductBtn">
                 <i class="fas fa-plus-circle"></i> Add Product
             </button>
-            <button class="admin-btn" id="editOfferBtn">
-                <i class="fas fa-tag"></i> Edit Offers
+            <button class="admin-btn" id="addRetailerBtn">
+                <i class="fas fa-tag"></i> Add Retailer
             </button>
             <button class="admin-btn" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i> Logout

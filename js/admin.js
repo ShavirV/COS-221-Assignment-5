@@ -15,8 +15,40 @@ document.addEventListener("DOMContentLoaded", function () {
   const productForm = document.getElementById("productForm");
   const retailerForm = document.getElementById("retailerForm");
   const modalTitle = document.getElementById("modalTitle");
+  //shav nonsense
+  const apiKey = getCookie('api_key');
 
-  // Mock database
+
+  //make the api request and return the response
+function fetchData(request) {
+  return new Promise((resolve, reject) => {
+    const httpReq = new XMLHttpRequest();
+    httpReq.open("POST", "../api.php", true);
+    httpReq.setRequestHeader("Content-Type", "application/json");
+    
+    httpReq.onload = function () {
+      if (httpReq.status >= 200 && httpReq.status < 300) {
+        try {
+          const result = JSON.parse(httpReq.responseText);
+          resolve(result);
+        } catch (error) {
+          reject("Failed to parse response: " + error.message);
+        }
+      } else {
+        reject("API request failed: " + httpReq.statusText);
+      }
+    };
+
+    httpReq.onerror = function () {
+      reject("Network error");
+    };
+
+    httpReq.send(JSON.stringify(request));
+  });
+}
+
+
+  //Mock database
   let mockProducts = [
     {
       id: 1,
@@ -109,12 +141,12 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentSort = "default";
   let currentFilter = "all";
 
-  function init() {
+  async function init() {
     renderProducts();
     setupEventListeners();
   }
 
-  function setupEventListeners() {
+  async function setupEventListeners() {
     sortBtn.addEventListener("click", function (e) {
       e.stopPropagation();
       showSortDropdown();
@@ -268,19 +300,27 @@ document.addEventListener("DOMContentLoaded", function () {
     renderProducts();
   }
 
-  function renderProducts() {
+  async function renderProducts() {
     productsItems.innerHTML = "";
 
-    if (displayedProducts.length === 0) {
-      productsItems.innerHTML = `
-        <div class="empty-products">
-          <i class="fas fa-box-open"></i>
-          <p>No products are matching your filters</p>
-          <button class="browse-btn" id="resetFilters">Reset Filters</button>
-        </div>
-      `;
+    //make the request
+    const request = {
+      type: "GetAllProducts",
+      return:"*"
+    }
 
-      document
+      const result = await fetchData(request);
+      //display error if no products are found
+      if (!result || result.status !== "success" || !Array.isArray(result.data)) {
+        productsItems.innerHTML = `
+        <div class="empty-products">
+        <i class="fas fa-box-open"></i>
+        <p>No products are matching your filters</p>
+        <button class="browse-btn" id="resetFilters">Reset Filters</button>
+        </div>
+        `;
+        
+        document
         .getElementById("resetFilters")
         .addEventListener("click", function () {
           currentFilter = "all";
@@ -288,82 +328,90 @@ document.addEventListener("DOMContentLoaded", function () {
           searchInput.value = "";
           applySortAndFilter();
         });
+        
+        itemCountElement.textContent = "0 items";
+        return;
+      }
+      itemCountElement.textContent = `${result.data.length} ${
+        result.length === 1 ? "item" : "items"
+      }`;
+      
+      //populate the page 
+      for (const product of result.data) { //changed to for because async
+        //get the best offer as well and store as data
+        //console.log(product);
+        const response = await fetch('../api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'GetBestOffer',
+            product_id: product.product_id
+          })
+        });
 
-      itemCountElement.textContent = "0 items";
-      return;
-    }
+        if (response.ok){
+          const priceRes = await response.json();
+          price = (priceRes.data.price) ? 'R ' + priceRes.data.price.toFixed(2) : "No offers yet";
+        }
+        
 
-    itemCountElement.textContent = `${displayedProducts.length} ${
-      displayedProducts.length === 1 ? "item" : "items"
-    }`;
-
-    displayedProducts.forEach((product) => {
-      const item = document.createElement("div");
-      item.className = "product-card";
-      item.innerHTML = `
+        const item = document.createElement("div");
+        item.className = "product-card";
+        item.innerHTML = `
         <div class="product-content">
-          <div class="product-image-container">
-            <img src="${product.image}" alt="${
-        product.name
-      }" class="product-image">
-          </div>
-          <div class="product-details">
+        <div class="product-image-container">
+        <img src="${product.image_url}" alt="${
+          product.name
+        }" class="product-image">
+        </div>
+        <div class="product-details">
             <h3 class="product-title">${product.name}</h3>
             <div class="product-price-container">
-              ${
-                product.offerPrice
-                  ? `<span class="original-price">$${product.price.toFixed(
-                      2
-                    )}</span>
-                 <span class="offer-price">$${product.offerPrice.toFixed(
-                   2
-                 )}</span>`
-                  : `<span class="current-price">$${product.price.toFixed(
-                      2
-                    )}</span>`
-              }
+            <span class="current-price">${price}</span>
+            </div> 
+            <div class="product-category">${(product.category) ? product.category : "No category set"}</div>
             </div>
-            <div class="product-category">${product.category}</div>
-          </div>
-        </div>
-        <div class="product-actions">
-          <button class="offer-btn" data-id="${product.id}">
+            </div>
+            <div class="product-actions">
+            <button class="offer-btn" data-id="${product.product_id}">
             <i class="fas fa-tag"></i> Offer
-          </button>
-          <button class="edit-btn" data-id="${product.id}">
+            </button>
+            <button class="edit-btn" data-id="${product.product_id}">
             <i class="fas fa-edit"></i> Edit
-          </button>
-          <button class="delete-btn" data-id="${product.id}">
+            </button>
+            <button class="delete-btn" data-id="${product.product_id}">
             <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      `;
-      productsItems.appendChild(item);
-    });
+            </button>
+            </div>
+            `;
+            productsItems.appendChild(item);
+      }
 
-    document.querySelectorAll(".edit-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.stopPropagation();
-        const productId = parseInt(this.getAttribute("data-id"));
-        openEditProductModal(productId);
+      document.querySelectorAll(".edit-btn").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const productId = parseInt(this.getAttribute("data-id"));
+          openEditProductModal(productId);
+        });
       });
-    });
-
-    document.querySelectorAll(".offer-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.stopPropagation();
-        const productId = parseInt(this.getAttribute("data-id"));
-        openEditProductModal(productId, true);
+  
+      document.querySelectorAll(".offer-btn").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const productId = parseInt(this.getAttribute("data-id"));
+          openEditProductModal(productId, true);
+        });
       });
-    });
-
-    document.querySelectorAll(".delete-btn").forEach((button) => {
-      button.addEventListener("click", function (e) {
-        e.stopPropagation();
-        const productId = parseInt(this.getAttribute("data-id"));
-        deleteProduct(productId);
+  
+      document.querySelectorAll(".delete-btn").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const productId = parseInt(this.getAttribute("data-id"));
+          deleteProduct(productId);
+        });
       });
-    });
   }
 
   function openAddProductModal() {
@@ -525,10 +573,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function deleteProduct(id) {
     if (confirm("Are you sure you want to delete this product?")) {
-      mockProducts = mockProducts.filter((p) => p.id !== id);
+        let request = {
+            "D": "Wishlist",
+            "apikey": apiKey,
+            "product_id": id
+        };
+        fetchNew(request, function (result) {
+            alert(result?.status === "success" ? "Product deleted from the database." : "Failed to delete.");
+        });
+      renderProducts();
       applySortAndFilter();
     }
   }
 
   init();
 });
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    }
+    return null;
+}

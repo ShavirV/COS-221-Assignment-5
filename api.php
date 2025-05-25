@@ -618,7 +618,7 @@ class User
     public function getBestOffer($data){
 
         $prodId = $data["product_id"];
-        if(!$prodId || !is_string($prodId)){
+        if(!$prodId){
             $this->respond("error", "malformed or misssing product_id", 400);
         }
 
