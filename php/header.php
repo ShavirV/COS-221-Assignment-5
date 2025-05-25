@@ -123,7 +123,40 @@ body {
 .top-navbar .nav-links li a:hover::after {
   transform: scaleX(1);
 }
+/* Light mode critical styles */
+    body.light-mode {
+        color: #333;
+        background-color: #f5f5f5;
+    }
+    
+    body.light-mode .background-overlay {
+        background-image: none;
+        background-color: #f5f5f5;
+    }
+    
+    body.light-mode .top-navbar {
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.light-mode .top-navbar .brand,
+    body.light-mode .top-navbar .nav-links li a {
+        color: #333;
+    }
+     body.light-mode .top-navbar .nav-links li a:hover {
+        color: #224da3;
+        text-shadow: none;
+    }
+    
+    body.light-mode .top-navbar .nav-links li a.active {
+        background-color: #224da3;
+        color: white;
+        text-shadow: none;
+        box-shadow: 0 0 10px rgba(34, 77, 163, 0.5);
+    }
+
     </style>
+    <script src="../js/theme.js" defer></script>
 </head>
 <body>
     <!-- Always show background -->
@@ -140,11 +173,17 @@ body {
             <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
             <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
             <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
+            
             <?php if (isset($_COOKIE['api_key'])): ?>
                 <li><a href="logout.php">LOGOUT</a></li>
             <?php else: ?>
                 <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
                 <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
             <?php endif; ?>
+            <li>
+              <button id="theme-toggle" class="theme-toggle">
+              <i class="fas fa-moon"></i>
+              </button>
+            </li>
         </ul>
     </nav>
