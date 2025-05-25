@@ -416,6 +416,16 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if (data.status === 'success') {
         // Update local state
+
+        if (product.inWishlist)
+        {
+          alert ("Removed product from wishlist");
+        }
+        else
+        {
+          alert ("Added product to wishlist");
+        }
+
         product.inWishlist = !product.inWishlist;
         renderProducts();
       } 

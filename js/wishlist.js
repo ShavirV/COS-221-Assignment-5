@@ -87,6 +87,11 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      if (response.status === 204) {
+        renderWishlist();
+        return;
+      }
+
       const data = await response.json();
       
       if (data.status === 'success') {
