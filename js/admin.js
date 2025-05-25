@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const retailerForm = document.getElementById("retailerForm");
   const modalTitle = document.getElementById("modalTitle");
   //shav nonsense
+  const editModal = document.getElementById('editProductModal');
+  const closeEditModal = document.getElementById('closeEditModal');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
   const apiKey = getCookie('api_key');
 
 
@@ -439,20 +442,28 @@ function fetchData(request) {
     retailerModal.classList.add("active");
   }
 
-  function openEditProductModal(productId, isOffer = false) {
-    const product = mockProducts.find((p) => p.id === productId);
-    if (!product) return;
+  async function openEditProductModal(productId) {
+  modalTitle.textContent = "Edit Product";
+  productForm.reset();
 
-    document.getElementById("productId").value = product.id;
-    document.getElementById("productName").value = product.name;
-    document.getElementById("productPrice").value = product.price;
-    document.getElementById("productOfferPrice").value =
-      product.offerPrice || "";
-    document.getElementById("productCategory").value = product.category;
-    document.getElementById("productImage").value = product.image;
-    document.getElementById("productDescription").value = product.description;
-    modalTitle.textContent = isOffer ? "Add/Edit Offer" : "Edit Product";
-    productModal.classList.add("active");
+      const request = {
+      type: "GetAllProducts",
+      search: {"product_id": productId},
+      return:"*"
+    }
+
+      const result = await fetchData(request);
+      const product = result.data;
+
+document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = product.price;
+            document.getElementById('editProductCategory').value = product.category;
+            document.getElementById('editProductImage').value = product.image;
+            document.getElementById('editProductDescription').value = product.description;
+
+            // Show the modal
+            editModal.style.display = 'block';
   }
 
   function closeModalHandler() {
@@ -574,15 +585,14 @@ function fetchData(request) {
   function deleteProduct(id) {
     if (confirm("Are you sure you want to delete this product?")) {
         let request = {
-            "D": "Wishlist",
-            "apikey": apiKey,
+            "type": "DeleteProduct",
+            "api_key": apiKey,
             "product_id": id
         };
-        fetchNew(request, function (result) {
-            alert(result?.status === "success" ? "Product deleted from the database." : "Failed to delete.");
-        });
-      renderProducts();
-      applySortAndFilter();
+        const result = fetchData(request);
+        alert(result?.status === "success" ? "Product deleted from the database." : "Failed to delete.");
+        renderProducts();
+        //applySortAndFilter();
     }
   }
 

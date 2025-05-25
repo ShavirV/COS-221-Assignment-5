@@ -126,6 +126,49 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
             </form>
         </div>
     </div>
+    
+    <div class="modal-overlay" id="editProductModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeEditModal">&times;</span>
+            <h2>Edit Product</h2>
+            <form id="editProductForm" action="process_product.php" method="POST">
+                <input type="hidden" id="editProductId" name="productId" />
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text" id="editProductName" name="productName" required />
+                </div>
+                <div class="form-group">
+                    <label for="editProductPrice">Price</label>
+                    <input type="number" id="editProductPrice" name="productPrice" step="0.01" required />
+                </div>
+                <div class="form-group">
+                    <label for="editProductCategory">Category</label>
+                <select id="editProductCategory" name="productCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="Television">Television</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Computers">Computers</option>
+                    <option value="Phones">Phones</option>
+                    <option value="Cameras">Cameras</option>
+                    <option value="Wearables">Wearables</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editProductImage">Image URL</label>
+                <input type="text" id="editProductImage" name="productImage" required />
+            </div>
+            <div class="form-group">
+                <label for="editProductDescription">Description</label>
+                <textarea id="editProductDescription" name="productDescription" rows="4" required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="save-btn">Save Changes</button>
+                <button type="button" class="cancel-btn" id="cancelEditBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <div class="modal-overlay" id="offerModal">
         <div class="modal-content">
