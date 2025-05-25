@@ -52,11 +52,11 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
     
     document.getElementById('loginRedirect').addEventListener('click', () => {
-      window.location.href = 'login.html';
+      window.location.href = 'login.php';
     });
     
     document.getElementById('continueShopping').addEventListener('click', () => {
-      window.location.href = 'products.html';
+      window.location.href = 'products.php';
     });
     
     itemCountElement.textContent = "0 items";
@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="empty-wishlist">
           <i class="fas fa-heart-broken"></i>
           <p>No items in your wishlist</p>
-          <button class="browse-btn" onclick="window.location.href='products.html'">Browse Products</button>
+          <button class="browse-btn" onclick="window.location.href='products.php'">Browse Products</button>
         </div>
       `;
 
