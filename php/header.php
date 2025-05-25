@@ -102,7 +102,7 @@ body {
 
 .top-navbar .nav-links li a.active {
   color: white;
-  background-color: rgb(22, 46, 90);
+  background-color: rgb(117, 155, 225);
   border-radius: 3px;
   text-shadow: 0 0 15px rgba(255, 255, 255, 1),
     0 0 25px rgba(255, 255, 255, 0.8);
@@ -126,16 +126,16 @@ body {
 /* Light mode critical styles */
     body.light-mode {
         color: #333;
-        background-color: #f5f5f5;
+        background: #f5f5f5;
     }
     
     body.light-mode .background-overlay {
-        background-image: none;
+        background-image: url("../img/glow.jpg");
         background-color: #f5f5f5;
     }
     
     body.light-mode .top-navbar {
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.2);
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     
@@ -144,15 +144,15 @@ body {
         color: #333;
     }
      body.light-mode .top-navbar .nav-links li a:hover {
-        color: #224da3;
+        color:rgb(104, 132, 188);
         text-shadow: none;
     }
     
     body.light-mode .top-navbar .nav-links li a.active {
-        background-color: #224da3;
+        background-color:rgb(100, 136, 214);
         color: white;
         text-shadow: none;
-        box-shadow: 0 0 10px rgba(34, 77, 163, 0.5);
+        box-shadow: 0 0 10px rgba(20, 45, 93, 0.95);
     }
 
     </style>
