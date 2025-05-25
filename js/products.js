@@ -130,6 +130,12 @@ document.addEventListener("DOMContentLoaded", function () {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      if (response.status === 204)
+      {
+        renderProducts(); // No wishlist items, just render products
+        return;
+      }
+
       const data = await response.json();
       
       if (data.status === 'success') 
@@ -400,7 +406,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
       });
 
-      if (!response.ok) {
+    
+      if (!response.ok)
+      {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -408,9 +416,21 @@ document.addEventListener("DOMContentLoaded", function () {
       
       if (data.status === 'success') {
         // Update local state
+
+        if (product.inWishlist)
+        {
+          alert ("Removed product from wishlist");
+        }
+        else
+        {
+          alert ("Added product to wishlist");
+        }
+
         product.inWishlist = !product.inWishlist;
         renderProducts();
-      } else {
+      } 
+      else 
+      {
         throw new Error(data.message || 'Failed to update wishlist');
       }
     } catch (error) {
