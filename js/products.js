@@ -357,7 +357,6 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     }
     applySort();
-    renderProducts();
   }
 
   function applySort() {
@@ -367,6 +366,9 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
       case "name-desc":
         displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        displayedProducts = [...allProducts];
         break;
     }
 
