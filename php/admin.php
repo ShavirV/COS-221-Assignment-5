@@ -96,24 +96,8 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
             <input type="text" id="productName" required />
           </div>
           <div class="form-group">
-            <label for="productPrice">Price</label>
-            <input type="number" id="productPrice" step="0.01" required />
-          </div>
-          <div class="form-group">
-            <label for="productOfferPrice">Offer Price (optional)</label>
-            <input type="number" id="productOfferPrice" step="0.01" />
-          </div>
-          <div class="form-group">
             <label for="productCategory">Category</label>
-            <select id="productCategory" required>
-              <option value="">Select Category</option>
-              <option value="Television">Television</option>
-              <option value="Audio">Audio</option>
-              <option value="Computers">Computers</option>
-              <option value="Phones">Phones</option>
-              <option value="Cameras">Cameras</option>
-              <option value="Wearables">Wearables</option>
-            </select>
+            <input type="text" id="productCategory" required />
           </div>
           <div class="form-group">
             <label for="productImage">Image URL</label>
@@ -123,8 +107,12 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
             <label for="productDescription">Description</label>
             <textarea id="productDescription" rows="4" required></textarea>
           </div>
+          <div class="form-group">
+            <label for="productBrand">Brand</label>
+            <input type="text" id="productBrand" required />
+          </div>
           <div class="form-actions">
-            <button type="submit" class="save-btn">Save</button>
+            <button type="submit" class="save-btn" id="edit-save">Save</button>
             <button type="button" class="cancel-btn">Cancel</button>
           </div>
         </form>

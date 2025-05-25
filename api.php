@@ -714,6 +714,10 @@ class User
                 'max_length' => 100,
                 'required' => false,
                 'filter' => FILTER_VALIDATE_URL
+            ],
+            'category' => [
+                'max_length' => 100,
+                'required' => false,
             ]
         ];
     

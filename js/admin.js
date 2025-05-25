@@ -439,17 +439,22 @@ function fetchData(request) {
     retailerModal.classList.add("active");
   }
 
-  function openEditProductModal(productId, isOffer = false) {
-    const product = mockProducts.find((p) => p.id === productId);
-    if (!product) return;
+  async function openEditProductModal(productId, isOffer = false) {
+    //get product based on ID
+    const request = {
+      type: "GetAllProducts",
+      return: "*",
+      search: {product_id: productId}
+    };
+    
+    const response = await fetchData(request);
+    const product = response.data[0]; //this code is ass i know
 
-    document.getElementById("productId").value = product.id;
+    document.getElementById("productId").value = product.product_id;
     document.getElementById("productName").value = product.name;
-    document.getElementById("productPrice").value = product.price;
-    document.getElementById("productOfferPrice").value =
-      product.offerPrice || "";
+    document.getElementById("productBrand").value = product.brand;
     document.getElementById("productCategory").value = product.category;
-    document.getElementById("productImage").value = product.image;
+    document.getElementById("productImage").value = product.image_url;
     document.getElementById("productDescription").value = product.description;
     modalTitle.textContent = isOffer ? "Add/Edit Offer" : "Edit Product";
     productModal.classList.add("active");
@@ -462,40 +467,6 @@ function fetchData(request) {
 
   function handleProductFormSubmit(e) {
     e.preventDefault();
-
-    const id = document.getElementById("productId").value;
-    const name = document.getElementById("productName").value;
-    const price = parseFloat(document.getElementById("productPrice").value);
-    const offerPrice =
-      parseFloat(document.getElementById("productOfferPrice").value) || null;
-    const category = document.getElementById("productCategory").value;
-    const image = document.getElementById("productImage").value;
-    const description = document.getElementById("productDescription").value;
-
-    if (!name || isNaN(price) || !category || !image || !description) {
-      alert("Please fill in all required fields correctly");
-      return;
-    }
-
-    if (id) {
-      updateProduct(parseInt(id), {
-        name,
-        price,
-        offerPrice,
-        category,
-        image,
-        description,
-      });
-    } else {
-      addProduct({
-        name,
-        price,
-        offerPrice,
-        category,
-        image,
-        description,
-      });
-    }
 
     closeModalHandler();
   }
@@ -585,6 +556,36 @@ function fetchData(request) {
     }
   }
 
+  //buttons that didnt already have event handlers
+const editSaveBtn = document.getElementById("edit-save");
+editSaveBtn.addEventListener("click", async function(){
+  //just edit the product with the stuff from the thing
+   const id= document.getElementById("productId").value;
+   const title= document.getElementById("productName").value.trim();
+   const brand= document.getElementById("productBrand").value.trim();
+   const category = document.getElementById("productCategory").value.trim();
+   const image= document.getElementById("productImage").value.trim();
+   const description =  document.getElementById("productDescription").value.trim();
+
+   //create request
+   const request = {
+      type: "UpdateProduct",
+      api_key: apiKey,
+      product_id: id,
+      name: title,
+      brand: brand,
+      category: category,
+      image_url: image,
+      description: description
+   };
+
+   const response = await fetchData(request);
+
+   alert("Update made successfully!");
+   renderProducts();
+
+});
+
   init();
 });
 
@@ -598,3 +599,6 @@ function getCookie(name) {
     }
     return null;
 }
+
+
+
