@@ -2,38 +2,6 @@
 $title = "Home - Compare IT";
 $cssFile = "home.css";
 require_once 'header.php';
-
-// Mock product data
-$featuredProducts = [
-    [
-        'id' => 1,
-        'name' => 'Wireless Gaming Mouse',
-        'price' => 59.99,
-        'image' => 'img/products/mouse.jpg',
-        'brand' => 'Logitech'
-    ],
-    [
-        'id' => 2,
-        'name' => 'Mechanical Keyboard',
-        'price' => 89.99,
-        'image' => 'img/products/keyboard.jpg',
-        'brand' => 'Razer'
-    ],
-    [
-        'id' => 3,
-        'name' => 'Noise Cancelling Headphones',
-        'price' => 199.99,
-        'image' => 'img/products/headphones.jpg',
-        'brand' => 'Sony'
-    ],
-    [
-        'id' => 4,
-        'name' => '4K Webcam',
-        'price' => 129.99,
-        'image' => 'img/products/webcam.jpg',
-        'brand' => 'Logitech'
-    ]
-];
 ?>
 
 <!-- Hero Section -->
@@ -46,21 +14,11 @@ $featuredProducts = [
 </div>
 
 <!-- Featured Products -->
+
 <div class="featured-section">
     <h2>Featured Products</h2>
-    <div class="featured-grid">
-        <?php foreach ($featuredProducts as $product): ?>
-        <div class="product-card">
-            <img src="<?php echo $product['image']; ?>" alt="<?php echo $product['name']; ?>">
-            <div class="product-info">
-                <h3><?php echo $product['name']; ?></h3>
-                <div class="product-price">$<?php echo number_format($product['price'], 2); ?></div>
-                <div class="product-brand"><?php echo $product['brand']; ?></div>
-                <button class="view-btn" onclick="window.location.href='view.php?id=<?php echo $product['id']; ?>'">View Details</button>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
+    <div id="featuredProductContainer" class="featured-grid">
+      </div>
 </div>
 
 <!-- Why Choose Us -->
@@ -84,6 +42,10 @@ $featuredProducts = [
         </div>
     </div>
 </div>
+<script src="../js/home.js"></script>
+<?php require_once 'footer.php'; ?>
+</body>
+</html>
 
 <script src="../js/home.js"></script>
 <?php require_once 'footer.php'; ?>
