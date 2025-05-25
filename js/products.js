@@ -369,6 +369,8 @@ document.addEventListener("DOMContentLoaded", function () {
         displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
         break;
     }
+
+    renderProducts();
   }
 
   // Toggle product in wishlist
