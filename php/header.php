@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 $loggedIn = false;
 $isAdmin = false;
 
