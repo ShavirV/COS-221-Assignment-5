@@ -498,7 +498,7 @@ body {
 .modal-content h2 {
   margin-bottom: 25px;
   font-size: 1.8rem;
-  color: #4caf50;
+  color: #2c74e0;
 }
 
 .form-group {
@@ -537,7 +537,7 @@ select:focus option:checked {
   color: white;
 }
 .form-group textarea:focus {
-  border-color: #4caf50;
+  border-color: #2c74e0;
   background-color: rgba(255, 255, 255, 0.2);
   outline: none;
 }
