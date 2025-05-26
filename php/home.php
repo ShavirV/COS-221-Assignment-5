@@ -46,8 +46,3 @@ require_once 'header.php';
 <?php require_once 'footer.php'; ?>
 </body>
 </html>
-
-<script src="../js/home.js"></script>
-<?php require_once 'footer.php'; ?>
-</body>
-</html>
