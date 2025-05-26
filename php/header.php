@@ -113,7 +113,7 @@ body {
 
 .top-navbar .nav-links li a.active {
   color: white;
-  background-color: rgb(22, 46, 90);
+  background-color: rgb(117, 155, 225);
   border-radius: 3px;
   text-shadow: 0 0 15px rgba(255, 255, 255, 1),
     0 0 25px rgba(255, 255, 255, 0.8);
@@ -158,7 +158,40 @@ body {
 .nav-links li:has(+ .user-email) a {
     margin-right: 5px;
 }
+/* Light mode critical styles */
+    body.light-mode {
+        color: #333;
+        background: #f5f5f5;
+    }
+    
+    body.light-mode .background-overlay {
+        background-image: url("../img/glow.jpg");
+        background-color: #f5f5f5;
+    }
+    
+    body.light-mode .top-navbar {
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    body.light-mode .top-navbar .brand,
+    body.light-mode .top-navbar .nav-links li a {
+        color: #333;
+    }
+     body.light-mode .top-navbar .nav-links li a:hover {
+        color:rgb(104, 132, 188);
+        text-shadow: none;
+    }
+    
+    body.light-mode .top-navbar .nav-links li a.active {
+        background-color:rgb(100, 136, 214);
+        color: white;
+        text-shadow: none;
+        box-shadow: 0 0 10px rgba(20, 45, 93, 0.95);
+    }
+
     </style>
+    <script src="../js/theme.js" defer></script>
 </head>
 <body>
     <!-- Always show background -->
@@ -166,24 +199,26 @@ body {
     
     <!-- Always show navbar -->
     <nav class="top-navbar">
-    <div class="brand">
-        <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo">
-        <span>Compare IT</span>
-    </div>
-    <ul class="nav-links">
-        <li><a href="home.php" <?php echo basename($_SERVER['PHP_SELF']) == 'home.php' ? 'class="active"' : ''; ?>>HOME</a></li>
-        <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
-        <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
-        <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
-        <?php if (isset($_COOKIE['api_key'])): ?>
-            <li><a href="logout.php">LOGOUT</a></li>
-            <li class="user-email">
-                <i class="fas fa-user-circle"></i>
-                <span><?php echo !empty($userEmail) ? htmlspecialchars($userEmail) : 'User'; ?></span>
+        <div class="brand">
+            <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo">
+            <span>Compare IT</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="home.php" <?php echo basename($_SERVER['PHP_SELF']) == 'home.php' ? 'class="active"' : ''; ?>>HOME</a></li>
+            <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
+            <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
+            <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
+            
+            <?php if (isset($_COOKIE['api_key'])): ?>
+                <li><a href="logout.php">LOGOUT</a></li>
+            <?php else: ?>
+                <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
+                <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
+            <?php endif; ?>
+            <li>
+              <button id="theme-toggle" class="theme-toggle">
+              <i class="fas fa-moon"></i>
+              </button>
             </li>
-        <?php else: ?>
-            <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
-            <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
-        <?php endif; ?>
-    </ul>
-</nav>
+        </ul>
+    </nav>
