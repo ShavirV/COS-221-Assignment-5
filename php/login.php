@@ -5,7 +5,7 @@ $title = "Login - Compare IT";
 $cssFile = "login.css";
 require_once 'header.php';
 
-session_start();
+//session_start();
 
 // If alr logged in, redirect to home
 if (isset($_COOKIE['api_key']) && !empty($_COOKIE['api_key'])) 
