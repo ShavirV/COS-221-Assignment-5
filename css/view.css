@@ -419,7 +419,7 @@ body.light-mode .top-navbar .nav-links li a:hover {
 }
 
 body.light-mode .top-navbar .nav-links li a.active {
-  background-color: #224da3;
+  background-color: #011a4b;
   color: white;
   text-shadow: none;
   box-shadow: 0 0 10px rgba(34, 77, 163, 0.5);
@@ -473,7 +473,38 @@ body.light-mode .review-form-container {
   border-radius: 4px;
 }
 
+body.light-mode .product-container {
+  display: flex;
+  max-width: 1500px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: rgba(255, 255, 255, 0.815);
+  border-radius: 12px;
+  padding: 25px;
+  position: relative;
+}
 
+body.light-mode .product-info h1 {
+  margin-top: 0;
+  color: #000000;
+}
+
+body.light-mode .price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4c77b6;
+  margin: 15px 0;
+}
+
+body.light-mode .description {
+  line-height: 1.6;
+  color: #000000;
+  margin-bottom: 20px;
+}
 
 
 
