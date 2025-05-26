@@ -17,6 +17,8 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
     header('Location: logout.php');
     exit;
 }
+
+require_once 'header.php';
 ?>
 
     <div class="background-overlay"></div>
