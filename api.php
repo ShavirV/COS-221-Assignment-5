@@ -378,7 +378,8 @@ class User
                     'data' => [
                         'api_key' => $user['api_key'],
                         'user_id' => $user['user_id'],
-                        'user_type' => $user['user_type']
+                        'user_type' => $user['user_type'],
+                        'email' => $email
                     ]
                 ];
         
