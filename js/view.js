@@ -217,10 +217,11 @@ function loadReviews() {
         "type": "GetReviews",
         "product_id": productId
     };
+    console.log(request);
 
     apiRequest(request).then(reviewsData => {
 
-        console.log(reviewsData);
+        console.log("Reviews: "+reviewsData);
 
         if (reviewsData.data.length === 0) {
         reviewsContainer.innerHTML = '<p>No reviews yet. Be the first to review!</p>';
@@ -271,7 +272,6 @@ reviewForm.addEventListener('submit', (e) => {
 
 
     const apiKey = getCookie("api_key");
-    console.log(apiKey);
     
     request = {
         type: 'CreateReview',
