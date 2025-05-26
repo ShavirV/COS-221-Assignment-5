@@ -191,7 +191,7 @@ body {
     }
     /* Light mode styles for footer */
 body.light-mode .site-footer {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e9e9e9 100%);
+  background: linear-gradient(135deg,rgb(91, 108, 145) 0%, #e9e9e9 100%);
   color: #222;
 }
 
@@ -264,7 +264,7 @@ body.light-mode #scrollToTop {
 }
 
 body.light-mode .featured-section {
-  background: #fff;
+  background: linear-gradient(135deg,rgb(91, 108, 145) 0%, #e9e9e9 100%);
   opacity: 0.9;
   backdrop-filter: none;
 }
