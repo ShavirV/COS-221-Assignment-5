@@ -866,7 +866,7 @@ class User
 
     public function createRetailer($data){
         //check if all fields are filled and valid
-        $fields = ["api_key", "name", "retailer_type", "address", "postal_code", "website", "country"];
+        $fields = ["api_key", "name", "retailer_type", "address", "postal_code", "website", "country","closing_time","opening_time"];
         foreach ( $fields as $field ) {
             if (empty($data[$field])){
                 $this->respond("error","$field not set", 400);

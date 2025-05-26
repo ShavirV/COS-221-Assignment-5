@@ -563,9 +563,35 @@ function fetchData(request) {
       country,
     };
 
-    mockRetailers.push(newRetailer);
-    closeModalHandler();
-    alert("Retailer added successfully!");
+    request = {
+      type: "CreateRetailer",
+      api_key: apiKey,
+      name: newRetailer.name,
+      retailer_type: newRetailer.retailer_type,
+      opening_time: newRetailer.opening_time,
+      closing_time: newRetailer.closing_time,
+      address: newRetailer.address,
+      postal_code: newRetailer.postal_code,
+      website: newRetailer.website,
+      country: newRetailer.country
+     };
+
+     console.log(request);
+
+     apiRequest(request).then(response => {
+
+      console.log(response);
+
+      if (response.status === "success") {
+
+        alert("Retailer added successfully!");
+        mockRetailers.push(newRetailer);
+        closeModalHandler();
+      }
+     });
+
+    
+    
   }
 
   function addProduct(product) {
