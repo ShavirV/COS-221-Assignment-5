@@ -10,6 +10,11 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.add("light-mode");
     icon.classList.remove("fa-moon");
     icon.classList.add("fa-sun");
+    icon.style.color = "#000"; // sun = black
+  } else {
+    icon.classList.remove("fa-sun");
+    icon.classList.add("fa-moon");
+    icon.style.color = "#fff"; // moon = white
   }
 
   // Theme toggle button click handler
@@ -20,10 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("theme", "light");
       icon.classList.remove("fa-moon");
       icon.classList.add("fa-sun");
+      icon.style.color = "#000"; // sun = black
     } else {
       localStorage.setItem("theme", "dark");
       icon.classList.remove("fa-sun");
       icon.classList.add("fa-moon");
+      icon.style.color = "#fff"; // moon = white
     }
   });
 });
+
