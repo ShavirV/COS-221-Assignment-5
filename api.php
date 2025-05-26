@@ -886,7 +886,7 @@ class User
         if ($stmt->execute()){
             $this->respond("success", "Retailer added successfully", 200);
         } 
-        $this->respond("error", "database entry failed", 500);
+        $this->respond("error", "database entry failed: ".$stmt->error, 500);
         
     }
 
