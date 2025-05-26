@@ -79,6 +79,10 @@ next we install the dotenv package
 composer require vlucas/phpdotenv
 */
 
+ini_set('log_errors', 1); // Enable logging
+ini_set('error_log', __DIR__ . '/../error.log'); // Path to your log file
+error_reporting(E_ALL); // Report all types of errors
+
 header("Content-Type: application/json; charset=utf-8"); //guys this wasnt here before thats why the api tests were looking so yee yee 😔
 class User
 {
@@ -643,7 +647,7 @@ class User
     
     public function createProduct($data){
         //all fields need to be filled in
-        $fields = ["name", "description", "brand", "image_url"];
+        $fields = ["name", "description", "brand", "image_url", "category", "api_key"];
         foreach ( $fields as $field ) {
             if (empty($data[$field])){
                 $this->respond("error","$field not set", 400);
@@ -655,14 +659,15 @@ class User
             $this->respond("error", "you need to be an admin to add products", 403);
         }
         
-        $stmt = $this->conn->prepare("INSERT INTO product (name, description, brand, image_url) values (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $data["name"], $data["description"], $data["brand"], $data["image_url"]);
-        $stmt->execute();   
+        $stmt = $this->conn->prepare("INSERT INTO product (name, description, brand, image_url,category) values (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $data["name"], $data["description"], $data["brand"], $data["image_url"],$data['category']);
+           
         
         if ($stmt->execute()){
             $this->respond("success", "Product successfully added", 200);
         } else{
-            $this->respond("error", "database request failed", 500);
+            $this->respond("error", "database request failed: " .$stmt->error, 500);
+            error_log($stmt->error); // log the error for debugging
         }
     }
     

@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const modalTitle = document.getElementById("modalTitle");
   //shav nonsense
   const apiKey = getCookie('api_key');
+  let insert = false;
 
 
   //make the api request and return the response
@@ -194,8 +195,11 @@ function fetchData(request) {
       renderProducts();
     });
 
-    addProductBtn.addEventListener("click", openAddProductModal);
-    addRetailerBtn.addEventListener("click", openAddRetailerModal);
+  addProductBtn.addEventListener("click", function () {
+    insert = true; 
+    openAddProductModal();
+  });
+  addRetailerBtn.addEventListener("click", openAddRetailerModal);
 
     logoutBtn.addEventListener("click", function () {
       window.location.href = "login.html";
@@ -393,6 +397,7 @@ function fetchData(request) {
         button.addEventListener("click", function (e) {
           e.stopPropagation();
           const productId = parseInt(this.getAttribute("data-id"));
+          insert = false;
           openEditProductModal(productId);
         });
       });
@@ -417,11 +422,12 @@ function fetchData(request) {
   function openAddProductModal() {
     document.getElementById("productId").value = "";
     document.getElementById("productName").value = "";
-    document.getElementById("productPrice").value = "";
-    document.getElementById("productOfferPrice").value = "";
+    //document.getElementById("productPrice").value = "";
+    //document.getElementById("productOfferPrice").value = "";
     document.getElementById("productCategory").value = "";
     document.getElementById("productImage").value = "";
     document.getElementById("productDescription").value = "";
+    document.getElementById("productBrand").value = "";
     modalTitle.textContent = "Add New Product";
     productModal.classList.add("active");
   }
@@ -437,9 +443,11 @@ function fetchData(request) {
     document.getElementById("retailerWebsite").value = "";
     document.getElementById("retailerCountry").value = "";
     retailerModal.classList.add("active");
+    insert = true;
   }
 
   async function openEditProductModal(productId, isOffer = false) {
+    insert = false;
     //get product based on ID
     const request = {
       type: "GetAllProducts",
@@ -467,9 +475,52 @@ function fetchData(request) {
 
   function handleProductFormSubmit(e) {
     e.preventDefault();
+    request = {
+      type: insert? "CreateProduct":"UpdateProduct",
+      api_key: apiKey,
+      name: document.getElementById('productName').value,
+      description: document.getElementById('productDescription').value,
+      brand: document.getElementById('productBrand').value,
+      category: document.getElementById('productCategory').value,
+      product_id: document.getElementById('productId').value,
+      image_url: document.getElementById('productImage').value
+    };
 
+    console.log(request);
+    console.log(insert);
+
+    apiRequest(request).then(response => {
+      console.log(response);
+
+      if (response.status === "success") {
+        if (insert)
+        {
+          alert("Product added successfully!");
+        }
+        else
+        {
+          alert("Product updated successfully!");
+        }
+      }
+    });
+
+    renderProducts();
     closeModalHandler();
   }
+
+  async function apiRequest (body)
+{
+    const response = await fetch('../api.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      
+    });
+
+    return await response.json();
+}
 
   function handleRetailerFormSubmit(e) {
     e.preventDefault();
@@ -558,36 +609,36 @@ function fetchData(request) {
 
   //buttons that didnt already have event handlers
 const editSaveBtn = document.getElementById("edit-save");
-editSaveBtn.addEventListener("click", async function(){
-  //just edit the product with the stuff from the thing
-   const id= document.getElementById("productId").value;
-   const title= document.getElementById("productName").value.trim();
-   const brand= document.getElementById("productBrand").value.trim();
-   const category = document.getElementById("productCategory").value.trim();
-   const image= document.getElementById("productImage").value.trim();
-   const description =  document.getElementById("productDescription").value.trim();
+// editSaveBtn.addEventListener("click", async function(){
+//   //just edit the product with the stuff from the thing
+//    const id= document.getElementById("productId").value;
+//    const title= document.getElementById("productName").value.trim();
+//    const brand= document.getElementById("productBrand").value.trim();
+//    const category = document.getElementById("productCategory").value.trim();
+//    const image= document.getElementById("productImage").value.trim();
+//    const description =  document.getElementById("productDescription").value.trim();
 
-   //create request
-   const request = {
-      type: "UpdateProduct",
-      api_key: apiKey,
-      product_id: id,
-      name: title,
-      brand: brand,
-      category: category,
-      image_url: image,
-      description: description
-   };
+//    //create request
+//    const request = {
+//       type: "UpdateProduct",
+//       api_key: apiKey,
+//       product_id: id,
+//       name: title,
+//       brand: brand,
+//       category: category,
+//       image_url: image,
+//       description: description
+//    };
 
-   const response = await fetchData(request);
+//    const response = await fetchData(request);
 
-   alert("Update made successfully!");
-   renderProducts();
+//    alert("Update made successfully!");
+//    renderProducts();
 
-});
+// });
 
-  init();
-});
+   init();
+ });
 
 function getCookie(name) {
     const nameEQ = name + "=";
@@ -599,6 +650,7 @@ function getCookie(name) {
     }
     return null;
 }
+
 
 
 
