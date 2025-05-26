@@ -202,7 +202,7 @@ function fetchData(request) {
   addRetailerBtn.addEventListener("click", openAddRetailerModal);
 
     logoutBtn.addEventListener("click", function () {
-      window.location.href = "login.html";
+      window.location.href = "logout.php";
     });
 
     closeModals.forEach((modal) => {
