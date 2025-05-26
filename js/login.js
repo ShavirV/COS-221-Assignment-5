@@ -34,8 +34,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.status === 'success')
             {
+                const userEmail = data.data?.email;
                 // set cookie by login once success
                 setCookie("api_key", data.data.api_key, 2);
+                // cookie for displaying email after login
+                setCookie("user_email", userEmail, 2); 
+                // timeout to allow cookie to load, not needed but this ensures email will show
+                setTimeout(() => {
+                    if (data.data.user_type === 'admin') {
+                        setCookie("isAdmin", 'true', 2);
+                        window.location.href = '../php/admin.php';
+                    } else {
+                        setCookie("isAdmin", 'false', 2);
+                        window.location.href = '../php/home.php';
+                    }
+                }, 100);
                 console.log('Cookie set:', {
                     name: 'api_key',
                     value: data.data.api_key,
