@@ -263,6 +263,84 @@ body.light-mode #scrollToTop {
   color: #fff;
 }
 
+body.light-mode .featured-section {
+  background: #fff;
+  opacity: 0.9;
+  backdrop-filter: none;
+}
+
+body.light-mode .featured-section h2 {
+  color: #224da3;
+}
+
+body.light-mode .featured-section h2::after {
+  background: linear-gradient(to right, #6884bc, #2541b2);
+}
+
+body.light-mode .featured-grid {
+  background: #f5f5f5;
+}
+
+body.light-mode .product-card {
+  background: #fff;
+  color: #222;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+
+body.light-mode .product-title {
+  color: #224da3;
+}
+
+body.light-mode .product-brand {
+  color: #555;
+}
+
+body.light-mode .product-price {
+  color: #6884bc;
+}
+
+body.light-mode .product-description-box {
+  background: #fafbff;
+  border-left: 1px solid #e0e0e0;
+}
+
+body.light-mode .product-description {
+  color: #333;
+}
+
+body.light-mode .view-btn {
+  background: rgba(104, 132, 188, 0.08);
+  color: #224da3;
+  border: 1px solid #6884bc;
+}
+
+body.light-mode .view-btn:hover {
+  background: rgba(104, 132, 188, 0.18);
+  color: #2541b2;
+}
+/* ////////////////////////// */
+body.light-mode .benefits-section {
+  background:url("../img/wish.jpg");
+  color: #224da3;
+  box-shadow: 0 2px 10px rgba(104, 132, 188, 0.08);
+}
+
+body.light-mode .benefit-card {
+  background: #fff;
+  color: #224da3;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(104, 132, 188, 0.07);
+}
+
+body.light-mode .benefit-card h3 {
+  color: #2541b2;
+}
+
+body.light-mode .benefit-card p {
+  color: #333;
+}
+
     </style>
     <script src="../js/theme.js" defer></script>
 </head>
