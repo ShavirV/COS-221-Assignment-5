@@ -341,6 +341,49 @@ body.light-mode .benefit-card p {
   color: #333;
 }
 
+body.light-mode .about-container {
+  background: linear-gradient(90deg,rgb(87, 108, 149),rgb(28, 41, 93));
+  opague: 0.2;
+  color: #224da3;
+  box-shadow: 0 0 25px rgba(104, 132, 188, 0.08);
+}
+
+body.light-mode .about-section,
+body.light-mode .mission-section,
+body.light-mode .team-section {
+  background:rgb(208, 216, 238);
+  border: 1px solid #e0e0e0;
+  color: #224da3;
+}
+
+body.light-mode h2 {
+  color: #224da3;
+  text-shadow: none;
+}
+
+body.light-mode h2::after {
+  background: linear-gradient(90deg, #6884bc, #2541b2);
+}
+
+body.light-mode .team-member {
+  background: #fff;
+  color: #224da3;
+  border: 1px solid #e0e0e0;
+}
+
+body.light-mode .team-member:hover {
+  background: #f5faff;
+  box-shadow: 0 10px 20px rgba(104, 132, 188, 0.08);
+}
+
+body.light-mode .member-name {
+  color: #2541b2;
+}
+
+body.light-mode .member-bio {
+  color: #333;
+}
+
     </style>
     <script src="../js/theme.js" defer></script>
 </head>
