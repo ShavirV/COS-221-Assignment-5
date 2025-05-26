@@ -69,8 +69,16 @@ function loadProductData() {
 
                 console.log(offersData);
                 productTitle.textContent = productData.data[0].name;
-                priceElement.textContent = `R${offersData.data.price.toFixed(2)}`;
                 descriptionElement.textContent = productData.data[0].description;
+
+
+                if (offersData.data === "no offers found with stock for this product") {
+                    priceElement.textContent = "Out of Stock";
+                }
+                else
+                {
+                    priceElement.textContent = `R${offersData.data.price.toFixed(2)}`;
+                }
 
                 
                 mainImage.src = productData.data[0].image_url;
