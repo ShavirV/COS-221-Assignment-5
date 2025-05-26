@@ -1,12 +1,23 @@
 <?php
 //session_start();
+
+/*echo "<!-- COOKIE DEBUG START -->\n";
+echo "<!-- api_key exists: " . (isset($_COOKIE['api_key']) ? 'YES' : 'NO') . " -->\n";
+echo "<!-- user_email exists: " . (isset($_COOKIE['user_email']) ? 'YES (' . htmlspecialchars($_COOKIE['user_email']) . ')' : 'NO') . " -->\n";
+echo "<!-- All cookies: " . print_r($_COOKIE, true) . " -->\n";
+echo "<!-- COOKIE DEBUG END -->\n";
+*/
+
 $loggedIn = false;
 $isAdmin = false;
+$userEmail = '';
 
 // checks if api key cookie exists & is not empty
 if (isset($_COOKIE['api_key']) && !empty($_COOKIE['api_key'])) {
     $loggedIn = true;
     $isAdmin = (isset($_COOKIE['isAdmin']) && $_COOKIE['isAdmin'] === 'true');
+    $userEmail = $_COOKIE['user_email'] ?? 'User'; // Get the email if it exists
+    echo "<!-- DEBUG: Using email: " . htmlspecialchars($userEmail) . " -->";
 }
 ?>
 <!DOCTYPE html>
@@ -123,6 +134,30 @@ body {
 .top-navbar .nav-links li a:hover::after {
   transform: scaleX(1);
 }
+
+.user-email {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    margin-left: 10px;
+}
+
+.user-email i {
+    font-size: 1rem;
+}
+
+.user-email:hover {
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Adjust logout button spacing */
+.nav-links li:has(+ .user-email) a {
+    margin-right: 5px;
+}
     </style>
 </head>
 <body>
@@ -131,20 +166,24 @@ body {
     
     <!-- Always show navbar -->
     <nav class="top-navbar">
-        <div class="brand">
-            <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo">
-            <span>Compare IT</span>
-        </div>
-        <ul class="nav-links">
-            <li><a href="home.php" <?php echo basename($_SERVER['PHP_SELF']) == 'home.php' ? 'class="active"' : ''; ?>>HOME</a></li>
-            <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
-            <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
-            <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
-            <?php if (isset($_COOKIE['api_key'])): ?>
-                <li><a href="logout.php">LOGOUT</a></li>
-            <?php else: ?>
-                <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
-                <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
-            <?php endif; ?>
-        </ul>
-    </nav>
+    <div class="brand">
+        <img src="../img/logo.jpg" alt="Compare IT Logo" class="logo">
+        <span>Compare IT</span>
+    </div>
+    <ul class="nav-links">
+        <li><a href="home.php" <?php echo basename($_SERVER['PHP_SELF']) == 'home.php' ? 'class="active"' : ''; ?>>HOME</a></li>
+        <li><a href="products.php" <?php echo basename($_SERVER['PHP_SELF']) == 'products.php' ? 'class="active"' : ''; ?>>PRODUCTS</a></li>
+        <li><a href="wishlist.php" <?php echo basename($_SERVER['PHP_SELF']) == 'wishlist.php' ? 'class="active"' : ''; ?>>WISHLIST</a></li>
+        <li><a href="aboutUs.php" <?php echo basename($_SERVER['PHP_SELF']) == 'aboutUs.php' ? 'class="active"' : ''; ?>>ABOUT US</a></li>
+        <?php if (isset($_COOKIE['api_key'])): ?>
+            <li><a href="logout.php">LOGOUT</a></li>
+            <li class="user-email">
+                <i class="fas fa-user-circle"></i>
+                <span><?php echo !empty($userEmail) ? htmlspecialchars($userEmail) : 'User'; ?></span>
+            </li>
+        <?php else: ?>
+            <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
+            <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
+        <?php endif; ?>
+    </ul>
+</nav>
