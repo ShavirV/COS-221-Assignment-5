@@ -69,8 +69,16 @@ function loadProductData() {
 
                 console.log(offersData);
                 productTitle.textContent = productData.data[0].name;
-                priceElement.textContent = `R${offersData.data.price.toFixed(2)}`;
                 descriptionElement.textContent = productData.data[0].description;
+
+
+                if (offersData.data === "no offers found with stock for this product") {
+                    priceElement.textContent = "Out of Stock";
+                }
+                else
+                {
+                    priceElement.textContent = `R${offersData.data.price.toFixed(2)}`;
+                }
 
                 
                 mainImage.src = productData.data[0].image_url;
@@ -209,10 +217,11 @@ function loadReviews() {
         "type": "GetReviews",
         "product_id": productId
     };
+    console.log(request);
 
     apiRequest(request).then(reviewsData => {
 
-        console.log(reviewsData);
+        console.log("Reviews: "+reviewsData);
 
         if (reviewsData.data.length === 0) {
         reviewsContainer.innerHTML = '<p>No reviews yet. Be the first to review!</p>';
@@ -263,7 +272,6 @@ reviewForm.addEventListener('submit', (e) => {
 
 
     const apiKey = getCookie("api_key");
-    console.log(apiKey);
     
     request = {
         type: 'CreateReview',

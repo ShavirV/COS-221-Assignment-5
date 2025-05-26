@@ -202,7 +202,7 @@ function fetchData(request) {
   addRetailerBtn.addEventListener("click", openAddRetailerModal);
 
     logoutBtn.addEventListener("click", function () {
-      window.location.href = "login.html";
+      window.location.href = "logout.php";
     });
 
     closeModals.forEach((modal) => {
@@ -563,9 +563,35 @@ function fetchData(request) {
       country,
     };
 
-    mockRetailers.push(newRetailer);
-    closeModalHandler();
-    alert("Retailer added successfully!");
+    request = {
+      type: "CreateRetailer",
+      api_key: apiKey,
+      name: newRetailer.name,
+      retailer_type: newRetailer.retailer_type,
+      opening_time: newRetailer.opening_time,
+      closing_time: newRetailer.closing_time,
+      address: newRetailer.address,
+      postal_code: newRetailer.postal_code,
+      website: newRetailer.website,
+      country: newRetailer.country
+     };
+
+     console.log(request);
+
+     apiRequest(request).then(response => {
+
+      console.log(response);
+
+      if (response.status === "success") {
+
+        alert("Retailer added successfully!");
+        mockRetailers.push(newRetailer);
+        closeModalHandler();
+      }
+     });
+
+    
+    
   }
 
   function addProduct(product) {
@@ -601,7 +627,7 @@ function fetchData(request) {
             "product_id": id
         };
         const result = fetchData(request);
-        alert(result?.status === "success" ? "Product deleted from the database." : "Failed to delete.");
+        alert(result.status === "success" ? "Product deleted from the database." : "Failed to delete.");
         renderProducts();
         //applySortAndFilter();
     }

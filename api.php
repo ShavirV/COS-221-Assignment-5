@@ -866,7 +866,7 @@ class User
 
     public function createRetailer($data){
         //check if all fields are filled and valid
-        $fields = ["api_key", "name", "retailer_type", "address", "postal_code", "website", "country"];
+        $fields = ["api_key", "name", "retailer_type", "address", "postal_code", "website", "country","closing_time","opening_time"];
         foreach ( $fields as $field ) {
             if (empty($data[$field])){
                 $this->respond("error","$field not set", 400);
@@ -886,7 +886,7 @@ class User
         if ($stmt->execute()){
             $this->respond("success", "Retailer added successfully", 200);
         } 
-        $this->respond("error", "database entry failed", 500);
+        $this->respond("error", "database entry failed: ".$stmt->error, 500);
         
     }
 
