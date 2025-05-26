@@ -324,7 +324,7 @@ body {
 .review-form-container {
   margin-top: 20px;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 4px;
 }
 
@@ -465,3 +465,15 @@ body.light-mode .search-input:focus {
   background: white;
   border-color: #224da3;
 }
+
+body.light-mode .review-form-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+}
+
+
+
+
+
