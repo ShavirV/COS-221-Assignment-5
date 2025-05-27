@@ -407,8 +407,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".offer-btn").forEach((button) => {
       button.addEventListener("click", function (e) {
         e.stopPropagation();
-        const productId = parseInt(this.getAttribute("data-id"));
-        openEditProductModal(productId, true);
+        const productId = this.getAttribute("data-id");
+        openOfferModal(productId);
       });
     });
 
