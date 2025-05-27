@@ -52,7 +52,7 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
       </div>
     </nav>
 
-    <div class="search-container">
+    <div class="search-container" style="visibility: hidden;">
       <form id="search-form" class="search-form">
         <input
           type="text"
@@ -71,9 +71,9 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
         <h1><i class="fas fa-boxes"></i> Products Management</h1>
         <div class="products-controls">
           <span class="item-count">6 items</span>
-          <div class="sort-filter">
+          <div class="sort-filter" style="visibility: hidden;">
             <button class="sort-btn"><i class="fas fa-sort"></i> Sort</button>
-            <button class="filter-btn">
+            <button class="filter-btn" style="visibility: hidden;">
               <i class="fas fa-filter"></i> Filter
             </button>
           </div>
