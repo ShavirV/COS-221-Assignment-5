@@ -119,7 +119,7 @@ function fetchData(request) {
   let mockRetailers = [];
 
   // Current filtered/sorted products
-  let displayedProducts = [...mockProducts];
+  displayedProducts = [...mockProducts];
 
   const sortOptions = {
     default: "Default",
@@ -129,6 +129,7 @@ function fetchData(request) {
     "price-desc": "Price (High to Low)",
   };
 
+  //this needs to be brands and dynamically populated
   const filterOptions = {
     all: "All Categories",
     Television: "Television",
@@ -160,21 +161,52 @@ function fetchData(request) {
 
     document.addEventListener("click", closeDropdowns);
 
-    searchInput.addEventListener("input", function () {
+    //search for products on every keystroke
+    searchInput.addEventListener("input", async function () {
       const searchTerm = searchInput.value.trim().toLowerCase();
-      let filteredProducts = [...mockProducts];
+      //build the search param dynamically
+      let filteredProducts = [];
+      searchjs = {};
 
       if (searchTerm) {
-        filteredProducts = filteredProducts.filter((product) =>
-          product.name.toLowerCase().includes(searchTerm)
-        );
+        searchjs.name = searchTerm;
+      }
+      if (currentFilter !== "all") {
+        searchjs.brand = currentFilter;
       }
 
-      if (currentFilter !== "all") {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.category === currentFilter
-        );
-      }
+      //execute with search
+      const response = await fetch("../api.php", {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        type: "GetAllProducts",
+        search: searchjs,
+        return: ['product_id', 'name', 'description', 'brand', 'image_url'],
+        limit: 50
+      })
+    });
+    
+    if (!response.ok){
+      throw new Error(`http error, ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(data);
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Unknown API error');
+    }
+    
+    filteredProducts = data.data.map(product => ({
+      product_id: product.product_id,
+      name: product.name,
+      description: product.description,
+      brand: product.brand,
+      image: product.image_url,
+      price: null,
+      // set all to false, cookie will store boolean after
+      inWishlist: false 
+    }));
 
       switch (currentSort) {
         case "name-asc":
@@ -190,9 +222,8 @@ function fetchData(request) {
           filteredProducts.sort((a, b) => b.price - a.price);
           break;
       }
-
-      displayedProducts = filteredProducts;
-      renderProducts();
+      console.log(filteredProducts);
+      renderFilter(filteredProducts);
     });
 
   addProductBtn.addEventListener("click", function () {
@@ -300,8 +331,7 @@ function fetchData(request) {
         break;
     }
 
-    displayedProducts = products;
-    renderProducts();
+    renderFilter(products);
   }
 
   async function renderProducts() {
@@ -359,7 +389,6 @@ function fetchData(request) {
           const priceRes = await response.json();
           price = (priceRes.data.price) ? 'R ' + priceRes.data.price.toFixed(2) : "No offers yet";
         }
-        
 
         const item = document.createElement("div");
         item.className = "product-card";
@@ -662,6 +691,114 @@ const editSaveBtn = document.getElementById("edit-save");
 //    renderProducts();
 
 // });
+async function renderFilter(products){
+productsItems.innerHTML = "";
+if (products.length === 0) {
+  productsItems.innerHTML = `
+  <div class="empty-products">
+  <i class="fas fa-box-open"></i>
+  <p>No products are matching your filters</p>
+  <button class="browse-btn" id="resetFilters">Reset Filters</button>
+  </div>
+  `;
+  
+  document
+  .getElementById("resetFilters")
+  .addEventListener("click", function () {
+    currentFilter = "all";
+    currentSort = "default";
+    searchInput.value = "";
+    applySortAndFilter();
+  });
+  
+  itemCountElement.textContent = "0 items";
+  return;
+}
+
+//items in the array
+itemCountElement.textContent = `${products.length} ${
+  products.length === 1 ? "item" : "items"
+}`;
+
+//populate the page 
+for (const product of products) {
+  //get the best offer as well and store as data
+  //console.log(product);
+  const response = await fetch('../api.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      type: 'GetBestOffer',
+      product_id: product.product_id
+    })
+  });
+  
+  if (response.ok){
+    const priceRes = await response.json();
+    price = (priceRes.data.price) ? 'R ' + priceRes.data.price.toFixed(2) : "No offers yet";
+  }
+  
+  
+  const item = document.createElement("div");
+  item.className = "product-card";
+  item.innerHTML = `
+  <div class="product-content">
+  <div class="product-image-container">
+  <img src="${product.image_url}" alt="${
+    product.name
+  }" class="product-image">
+  </div>
+  <div class="product-details">
+  <h3 class="product-title">${product.name}</h3>
+  <div class="product-price-container">
+  <span class="current-price">${price}</span>
+  </div> 
+  <div class="product-category">${(product.category) ? product.category : "No category set"}</div>
+  </div>
+  </div>
+  <div class="product-actions">
+  <button class="offer-btn" data-id="${product.product_id}">
+  <i class="fas fa-tag"></i> Offer
+  </button>
+  <button class="edit-btn" data-id="${product.product_id}">
+  <i class="fas fa-edit"></i> Edit
+  </button>
+  <button class="delete-btn" data-id="${product.product_id}">
+  <i class="fas fa-trash"></i>
+  </button>
+  </div>
+  `;
+  productsItems.appendChild(item);
+}
+
+document.querySelectorAll(".edit-btn").forEach((button) => {
+  button.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const productId = parseInt(this.getAttribute("data-id"));
+    insert = false;
+    openEditProductModal(productId);
+  });
+});
+
+document.querySelectorAll(".offer-btn").forEach((button) => {
+  button.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const productId = parseInt(this.getAttribute("data-id"));
+    openEditProductModal(productId, true);
+  });
+});
+
+document.querySelectorAll(".delete-btn").forEach((button) => {
+  button.addEventListener("click", function (e) {
+    e.stopPropagation();
+    const productId = parseInt(this.getAttribute("data-id"));
+    deleteProduct(productId);
+  });
+});
+
+}
 
    init();
  });
