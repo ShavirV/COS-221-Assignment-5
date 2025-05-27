@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify({
           type: 'GetAllProducts',
+          sort: "title",
           return: ['product_id', 'name', 'description', 'brand', 'image_url'],
           limit: 50
         })
