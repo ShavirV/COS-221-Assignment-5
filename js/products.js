@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: 'GetAllProducts',
           sort: "name",
           return: ['product_id', 'name', 'description', 'brand', 'image_url'],
-          limit: 500
+          limit: 300
         })
       });
 
@@ -427,7 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     const data = await response.json();
-    //console.log(data);
+    console.log(data);
     displayedProducts.length = 0;
     if (data.status !== 'success') {
       throw new Error(data.message || 'Unknown API error');
@@ -522,20 +522,19 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Render products
-  async function renderProducts() {
-    
+  function renderProducts() {
     productsItems.innerHTML = "";
-    
+
     if (displayedProducts.length === 0) {
       productsItems.innerHTML = `
-      <div class="empty-products">
-      <i class="fas fa-box-open"></i>
-      <p>No products match your filters</p>
+        <div class="empty-products">
+          <i class="fas fa-box-open"></i>
+          <p>No products match your filters</p>
           <button class="browse-btn" id="resetFilters">Reset Filters</button>
         </div>
-        `;
-        
-        document
+      `;
+
+      document
         .getElementById("resetFilters")
         .addEventListener("click", function () {
           currentFilter = "all";
@@ -544,109 +543,90 @@ document.addEventListener("DOMContentLoaded", function () {
           displayedProducts = [...allProducts];
           renderProducts();
         });
-        
-        itemCountElement.textContent = "0 items";
-        return;
-      }
-      
-      itemCountElement.textContent = `${displayedProducts.length} ${
-        displayedProducts.length === 1 ? "item" : "items"
-      }`;
-      
-      for (product of displayedProducts) {
-        
-        //get the best price for each product
-        const response = await fetch("../api.php", {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            type: "GetBestOffer",
-            product_id: product.id,
-      })
-    });
-    
-    if (!response.ok){
-      throw new Error(`http error, ${response.status}`);
+
+      itemCountElement.textContent = "0 items";
+      return;
     }
-    
-    const data = await response.json();
-    
-    product.price = data.data.price;
-    
-    const item = document.createElement("div");
-    item.className = "product-card";
-    
-    let priceDisplay = '';
-    if (product.price !== null) {
+
+    itemCountElement.textContent = `${displayedProducts.length} ${
+      displayedProducts.length === 1 ? "item" : "items"
+    }`;
+
+    displayedProducts.forEach((product) => {
+      const item = document.createElement("div");
+      item.className = "product-card";
+      
+      let priceDisplay = '';
+      if (product.price !== null) {
         priceDisplay = `
-        <div class="product-price">
-        <span class="price-amount">${product.price.toFixed(2)}</span>
-        <span class="price-currency">${product.currency || 'ZAR'}</span>
-        </div>
+          <div class="product-price">
+            <span class="price-amount">${product.price.toFixed(2)}</span>
+            <span class="price-currency">${product.currency || 'ZAR'}</span>
+          </div>
         `;
       } else {
         priceDisplay = `
-        <div class="product-price out-of-stock">
-        Out of stock
-        </div>
+          <div class="product-price out-of-stock">
+            Out of stock
+          </div>
         `;
       }
       
       // Heart icon based on wishlist status
       const heartIcon = product.inWishlist 
-      ? '<i class="fas fa-heart" style="color: #ff6b6b;"></i>'
-      : '<i class="fas fa-heart"></i>';
+        ? '<i class="fas fa-heart" style="color: #ff6b6b;"></i>'
+        : '<i class="fas fa-heart"></i>';
       
       item.innerHTML = `
-      <div class="product-content">
-      <div class="product-image-container">
-      <div class="product-image-wrapper">
-      <div class="product-image-front">
-      <img src="${product.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${
+        <div class="product-content">
+          <div class="product-image-container">
+            <div class="product-image-wrapper">
+              <div class="product-image-front">
+                <img src="${product.image || 'https://via.placeholder.com/300?text=No+Image'}" alt="${
         product.name
       }" class="product-image">
-      </div>
-      <div class="product-image-back">
-      <p class="description">${product.description}</p>
-      </div>
-      </div>
-      </div>
-      <div class="product-details">
-      <h3 class="product-title">${product.name}</h3>
-      ${product.brand ? `<p class="product-brand">${product.brand}</p>` : ''}
-      ${priceDisplay}
-      </div>
-      </div>
-      <div class="product-actions">
-      <button class="add-to-view" data-id="${product.id}">View Details</button>
+              </div>
+              <div class="product-image-back">
+                <p class="description">${product.description}</p>
+              </div>
+            </div>
+          </div>
+          <div class="product-details">
+            <h3 class="product-title">${product.name}</h3>
+            ${product.brand ? `<p class="product-brand">${product.brand}</p>` : ''}
+            ${priceDisplay}
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="add-to-view" data-id="${product.id}">View Details</button>
           <button class="add-to-wishlist" data-id="${product.id}">
             ${heartIcon}
-            </button>
-            </div>
-            `;
-            productsItems.appendChild(item);
-          }
-          
-          // Add event listeners to wishlist buttons
-          document.querySelectorAll(".add-to-wishlist").forEach((button) => {
-            button.addEventListener("click", async function (e) {
-              e.stopPropagation();
-              const productId = parseInt(this.getAttribute("data-id"));
-              await toggleWishlist(productId);
-            });
-          });
-          
-          // Add event listeners to view buttons
-          document.querySelectorAll(".add-to-view").forEach((button) => {
-            button.addEventListener("click", function (e) {
-              e.stopPropagation();
-              const productId = parseInt(this.getAttribute("data-id"));
-              setCookie("productId", productId, 2);
-              window.location.href = '../php/view.php';
-            });
-          });
+          </button>
+        </div>
+      `;
+      productsItems.appendChild(item);
+    });
+
+    // Add event listeners to wishlist buttons
+    document.querySelectorAll(".add-to-wishlist").forEach((button) => {
+      button.addEventListener("click", async function (e) {
+        e.stopPropagation();
+        const productId = parseInt(this.getAttribute("data-id"));
+        await toggleWishlist(productId);
+      });
+    });
+
+    // Add event listeners to view buttons
+    document.querySelectorAll(".add-to-view").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const productId = parseInt(this.getAttribute("data-id"));
+        setCookie("productId", productId, 2);
+        window.location.href = '../php/view.php';
+      });
+    });
   }
-  
+
   // Initialize the page
   init();
 });
@@ -654,25 +634,25 @@ document.addEventListener("DOMContentLoaded", function () {
 function setCookie(name, value, time) {
   let expires = "";
   if (time) 
-    {
-      const date = new Date();
-      date.setTime(date.getTime() + time * 60 * 60 * 1000);
-      expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+  {
+    const date = new Date();
+    date.setTime(date.getTime() + time * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
   }
-  
-  function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) 
-      {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1);
-        if (c.indexOf(nameEQ) === 0) 
-          {
-            return decodeURIComponent(c.substring(nameEQ.length));
-          }
-        }
-        return null;
+  document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i=0; i < ca.length; i++) 
+  {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1);
+    if (c.indexOf(nameEQ) === 0) 
+    {
+      return decodeURIComponent(c.substring(nameEQ.length));
+    }
+  }
+  return null;
 }
