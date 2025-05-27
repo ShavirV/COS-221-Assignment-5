@@ -127,7 +127,7 @@ body {
 
 .product-container {
   display: flex;
-  max-width: 1500px;
+  max-width: 1300px;
   margin: 0 auto;
   background: white;
   border-radius: 8px;
@@ -475,7 +475,7 @@ body.light-mode .review-form-container {
 
 body.light-mode .product-container {
   display: flex;
-  max-width: 1500px;
+  max-width: 1300px;
   margin: 0 auto;
   background: white;
   border-radius: 8px;

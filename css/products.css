@@ -215,6 +215,9 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+
+
+
 /* Update the products grid to ensure 2 per row */
 .products-grid {
   display: grid;
@@ -418,6 +421,8 @@ body {
 /* Dropdown Styles - Reusing from wishlist */
 .dropdown {
   position: absolute;
+  max-height: 200px;
+  overflow-y: hidden;
   top: 100%;
   right: 0;
   background-color: rgba(0, 0, 0, 0.8);

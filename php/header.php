@@ -405,6 +405,10 @@ body.light-mode .member-bio {
             
             <?php if (isset($_COOKIE['api_key'])): ?>
                 <li><a href="logout.php">LOGOUT</a></li>
+                <li class="user-email">
+                <i class="fas fa-user-circle"></i>
+                <span><?php echo !empty($userEmail) ? htmlspecialchars($userEmail) : 'User'; ?></span>
+            </li>
             <?php else: ?>
                 <li><a href="login.php" <?php echo basename($_SERVER['PHP_SELF']) == 'login.php' ? 'class="active"' : ''; ?>>LOGIN</a></li>
                 <li><a href="signup.php" <?php echo basename($_SERVER['PHP_SELF']) == 'signup.php' ? 'class="active"' : ''; ?>>SIGN UP</a></li>
