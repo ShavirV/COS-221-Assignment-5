@@ -668,6 +668,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const newOfferForm = document.getElementById("newOfferForm");
   const stockInput = document.getElementById("stockInput");
   const priceInput = document.getElementById("priceInput");
+  const linkInput = document.getElementById("linkInput");
 
   document.addEventListener("click", function (event) {
     if (event.target.classList.contains("offer-btn")) {
@@ -732,6 +733,7 @@ document.addEventListener("DOMContentLoaded", function () {
             stockInput.value = offer.stock;
             priceInput.value = offer.price;
             retailerSelect.disabled = true;
+            linkInput.value = offer.link || "";
           }
 
         });
@@ -776,7 +778,7 @@ document.addEventListener("DOMContentLoaded", function () {
         retailer_id: retailerSelect.value,
         stock: stockInput.value,
         price: priceInput.value,
-        link: "not existing",
+        link: linkInput.value,
       };
 
       // const response = await fetchData(request);
