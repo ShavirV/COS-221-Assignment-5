@@ -719,6 +719,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stockInput.value = "";
         priceInput.value = "";
         retailerSelect.disabled = false;
+        linkInput.value = "";
       } 
       else
       {
@@ -733,7 +734,7 @@ document.addEventListener("DOMContentLoaded", function () {
             stockInput.value = offer.stock;
             priceInput.value = offer.price;
             retailerSelect.disabled = true;
-            linkInput.value = offer.link || "";
+            linkInput.value = offer.link;
           }
 
         });
