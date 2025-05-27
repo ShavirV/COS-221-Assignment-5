@@ -215,7 +215,10 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-
+.filter-dropdown.dropdown {
+  max-height: 200px;
+  overflow-y: auto;
+}
 
 
 /* Update the products grid to ensure 2 per row */
