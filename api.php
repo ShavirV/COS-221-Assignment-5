@@ -1295,10 +1295,10 @@ class User
                     $this->respond("error", "$field cannot be more than {$rules['max']}", 400);
                 }
                 
-                if ($field === 'link' && $rules['filter'] && !filter_var($value, $rules['filter'])) 
-                {
-                    $this->respond("error", "Invalid URL format for link", 400);
-                }
+                // if ($field === 'link' && $rules['filter'] && !filter_var($value, $rules['filter'])) 
+                // {
+                //     $this->respond("error", "Invalid URL format for link", 400);
+                // }
                 
                 if ($field === 'currency' && strlen($value) !== 3) 
                 {

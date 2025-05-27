@@ -662,7 +662,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const offersModal = document.getElementById("offersModal");
   const closeOffersModal = document.getElementById("closeOffersModal");
   const retailerSelect = document.getElementById("retailerSelect");
-  const offersList = document.getElementById("offersList");
+  const offersList = document.getElementById("offerSelect");
   const newOfferForm = document.getElementById("newOfferForm");
   const stockInput = document.getElementById("stockInput");
   const priceInput = document.getElementById("priceInput");
@@ -686,47 +686,124 @@ document.addEventListener("DOMContentLoaded", function () {
       type: "GetAllRetailers",
       return: "*",
     });
+
     retailerSelect.innerHTML = retailerReq.data
       .map((r) => `<option value="${r.retailer_id}">${r.name}</option>`)
       .join("");
 
     // Load existing offers
     const offerReq = await fetchData({
-      type: "GetOffersForProduct",
-      product_id: productId,
+        "type": "GetOffer",
+        "product_id": productId
     });
-    offersList.innerHTML = (offerReq.data || [])
+
+    console.log(offerReq);
+
+    offersList.innerHTML = `<option value="new">Add New Offer</option>`;
+    
+    offersList.innerHTML += (offerReq.data || [])
       .map(
         (o) =>
-          `<div>${o.retailer_name} – Stock: ${o.stock}, Price: R ${parseFloat(
+          `<option value = ${o.retailer_id}>${o.name} – Stock: ${o.stock}, Price: R ${parseFloat(
             o.price
-          ).toFixed(2)}</div>`
+          ).toFixed(2)}</option>`
       )
       .join("");
 
+      offersList.onchange = function () {
+
+      if (offersList.value === "new") {
+        stockInput.value = "";
+        priceInput.value = "";
+        retailerSelect.disabled = false;
+      } 
+      else
+      {
+        console.log(offersList.value);
+        console.log();
+
+        offerReq.data.forEach((offer) => {
+          console.log(offer.retailer_id);
+
+          if (offer.retailer_id == offersList.value) {
+            console.log("offer found");
+            stockInput.value = offer.stock;
+            priceInput.value = offer.price;
+            retailerSelect.disabled = true;
+          }
+
+        });
+        console.log();
+
+        // const selectedOffer = offerReq.data.find(
+        //   (o) => o.retailer_id === offersList.value
+        // );
+
+        // if (selectedOffer) {
+        //   console.log("offer found");
+        //    // Disable retailer select for existing offers
+        // }
+        // else
+        // {
+        //   console.log("no offer found");
+        // }
+      }
+
+    };
+
+      
+
     // Handle new offer submission
+
+    
+
+
     newOfferForm.onsubmit = async function (e) {
       e.preventDefault();
+      //console.log(offersList.value);
+
+      if (offersList.value === "new")
+      {
+        
+      }
 
       const request = {
-        type: "CreateOffer",
+        type: offersList.value === "new" ? "CreateOffer" : "UpdateOffer",
         api_key: apiKey,
         product_id: productId,
         retailer_id: retailerSelect.value,
         stock: stockInput.value,
         price: priceInput.value,
+        link: "not existing",
       };
 
-      const response = await fetchData(request);
-      if (response.status === "success") {
-        alert("Offer added successfully");
-        offersModal.classList.remove("active");
-        renderProducts(); // Optional: refresh product listing
-      } else {
-        alert("Failed to add offer");
-      }
+      // const response = await fetchData(request);
+      // if (response.status === "success") {
+      //   alert("Offer added successfully");
+      //   offersModal.classList.remove("active");
+      //   renderProducts(); // Optional: refresh product listing
+      // } else {
+      //   alert("Failed to add offer");
+      // }
+
+
+      apiRequest(request).then((response) => {
+
+        if (response.status === "success") {
+          alert(offersList.value === "new"? "Offer added successfully!": "Offer updated successfully!");
+          offersModal.classList.remove("active");
+          renderProducts(); // Refresh product listing
+        }
+        else {
+          alert("Failed to add/update offer");
+          console.log(response);
+        }
+
+      });
     };
   }
+
+  retailerList = document.getElementById("retailerList");
 
   init();
 });
