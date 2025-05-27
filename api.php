@@ -1000,7 +1000,7 @@ class User
             <body style='font-family: Arial, sans-serif; color: #333;'>
             <h2 style='color: #2c7;'>Price Drop Alert!</h2>
             <p>The product <strong>$productName</strong> in your wishlist is now available for <strong>R$newPrice</strong>.</p>
-            <p>Act quickly, this price is subject to change/p>
+            <p>Act quickly, this price is subject to change</p>
             <p>Thanks for using our store!<br><em>- Your E-Commerce Team</em></p>
             <p>Please give us extra marks for this it took a lot of effort :D</p>
             </body>

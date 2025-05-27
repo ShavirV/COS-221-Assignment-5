@@ -427,11 +427,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     const data = await response.json();
-    console.log(data);
+    //console.log(data);
     displayedProducts.length = 0;
     if (data.status !== 'success') {
       throw new Error(data.message || 'Unknown API error');
     }
+    //get the best offer for the products
+    // for (product of products){
+    //       const response = await fetch("../api.php", {
+    //         method: 'POST',
+    //         headers: {'Content-Type': 'application/json'},
+    //   body: JSON.stringify({
+    //     type: "GetBestOffer",
+    //     product_id: product.product_id
+    //   })
+    // });
+    
+    // if (!response.ok){
+    //   throw new Error(`http error, ${response.status}`);
+    // }
+    
+    // const data = await response.json();
+
+    // product.price = data.data.price;
+    
+    // }
     
     displayedProducts = data.data.map(product => ({
       id: product.product_id,
@@ -522,7 +542,27 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Render products
-  function renderProducts() {
+  async function renderProducts() {
+    // //get the best price for each product
+    for (product of displayedProducts){
+      const response = await fetch("../api.php", {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        type: "GetBestOffer",
+        product_id: product.id,
+      })
+    });
+    
+    if (!response.ok){
+      throw new Error(`http error, ${response.status}`);
+    }
+    
+    const data = await response.json();
+
+    product.price = data.data.price;
+    }
+
     productsItems.innerHTML = "";
 
     if (displayedProducts.length === 0) {
@@ -553,6 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }`;
 
     displayedProducts.forEach((product) => {
+      
       const item = document.createElement("div");
       item.className = "product-card";
       
