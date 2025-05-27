@@ -621,11 +621,11 @@ document.addEventListener("DOMContentLoaded", function () {
         product_id: id,
       };
       const result = fetchData(request);
-      alert(
-        result.status === "success"
-          ? "Product deleted from the database."
-          : "Failed to delete."
-      );
+      // alert(
+      //   result.status === "success"
+      //     ? "Product deleted from the database."
+      //     : "Failed to delete."
+      // );
       renderProducts();
       //applySortAndFilter();
     }
