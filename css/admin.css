@@ -721,3 +721,12 @@ body.light-mode .search-input:focus {
   background: white;
   border-color: #224da3;
 }
+#offerSelect {
+  width: 100%;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 6px;
+  font-size: 1rem;
+}

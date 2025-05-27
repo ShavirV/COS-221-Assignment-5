@@ -170,12 +170,16 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
     <h2>Offers</h2>
 
     <!-- All Offers Section -->
-    <div id="allOffersSection">
-      <h3>All Offers</h3>
-      <div id="offersList">
-        <!-- Offers will be populated dynamically -->
-      </div>
-    </div>
+<div id="allOffersSection">
+  <h3>All Offers</h3>
+  <div class="form-group">
+    <label for="offerSelect">Select Existing Offer:</label>
+    <select id="offerSelect">
+      <option value="">-- Choose an Offer --</option>
+    </select>
+  </div>
+</div>
+
 
     <!-- New Offer Section -->
     <div id="newOfferSection">
