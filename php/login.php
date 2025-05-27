@@ -32,6 +32,10 @@ if (isset($_COOKIE['api_key']) && !empty($_COOKIE['api_key']))
             </div>
 
             <button type="submit" class="login-btn">LOGIN</button>
+
+            <div class="signup-link">
+                    Don't have an account? <a href="singup.php">Sign up</a>
+                </div>
         </form>
     </div>
 </div>

@@ -147,6 +147,7 @@ body {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  margin-bottom: 16px;
 }
 
 .login-btn:hover {
@@ -195,6 +196,32 @@ body {
   max-width: 400px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
+
+.signup-link {
+  margin-top: 10px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.signup-link a {
+  color:#3549bb;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.signup-link a:hover {
+  color: #8587a3;
+  text-decoration: underline;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height:auto
+}
+ 
 /* Theme Toggle Button */
 .theme-toggle {
   background: transparent;
