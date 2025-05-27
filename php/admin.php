@@ -197,6 +197,12 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
           <label for="priceInput">Price:</label>
           <input type="number" id="priceInput" name="price" step="0.01" required>
         </div>
+
+        <div class="form-group">
+            <label for="link">link</label>
+            <input type="text" id="linkInput" required />
+          </div>
+
         <div class="form-actions">
           <button type="submit" class="save-btn">Add Offer</button>
         </div>
