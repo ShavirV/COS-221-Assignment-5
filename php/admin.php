@@ -163,6 +163,45 @@ if (!isset($_COOKIE['api_key']) || !isset($_COOKIE['isAdmin']) || $_COOKIE['isAd
       </div>
     </div>
 
+    <!-- Offers Modal -->
+<div id="offersModal" class="modal-overlay">
+  <div class="modal-content">
+    <span class="close-modal" id="closeOffersModal">&times;</span>
+    <h2>Offers</h2>
+
+    <!-- All Offers Section -->
+    <div id="allOffersSection">
+      <h3>All Offers</h3>
+      <div id="offersList">
+        <!-- Offers will be populated dynamically -->
+      </div>
+    </div>
+
+    <!-- New Offer Section -->
+    <div id="newOfferSection">
+      <h3>Add New Offer</h3>
+      <form id="newOfferForm">
+        <div class="form-group">
+          <label for="retailerSelect">Retailer:</label>
+          <select id="retailerSelect" name="retailer"></select>
+        </div>
+        <div class="form-group">
+          <label for="stockInput">Stock:</label>
+          <input type="number" id="stockInput" name="stock" required>
+        </div>
+        <div class="form-group">
+          <label for="priceInput">Price:</label>
+          <input type="number" id="priceInput" name="price" step="0.01" required>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="save-btn">Add Offer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
     <script src="../js/admin.js"></script>
 </body>
 </html>
