@@ -215,6 +215,17 @@ body {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+.filter-dropdown {
+  max-height: 200px;       /* Adjust height as needed */
+  overflow-y: auto;        /* Enables vertical scroll */
+  overflow-x: hidden;      /* Optional: Prevent horizontal scroll */
+  border: 1px solid #ccc;  /* Optional: For visibility */
+  background-color: white; /* Match your dropdown's style */
+  z-index: 1000;           /* Ensure it appears above other elements */
+  position: absolute;      /* If not already */
+}
+
+
 /* Update the products grid to ensure 2 per row */
 .products-grid {
   display: grid;
