@@ -308,6 +308,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //make the request
     const request = {
       type: "GetAllProducts",
+      limit: 500,
       return: "*",
     };
 
