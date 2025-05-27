@@ -993,15 +993,16 @@ class User
             $email = $row["email"];
             $productName = $row["name"];
 
-            $subject = "Price Drop: $productName! ✈️💥🏢🏢";
+            $subject = "Price Drop Alert: $productName!";
 
             //body needs to be in html (format myself later ch*t now)
             $bodyHtml = "<html>
             <body style='font-family: Arial, sans-serif; color: #333;'>
             <h2 style='color: #2c7;'>Price Drop Alert!</h2>
             <p>The product <strong>$productName</strong> in your wishlist is now available for <strong>R$newPrice</strong>.</p>
-            <p><a href='https://youtu.be/QnNttStV0KE?si=SsX_Lql3nV6Ut5Xo' style='background-color: #2c7; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>View Product</a></p>
+            <p>Act quickly, this price is subject to change/p>
             <p>Thanks for using our store!<br><em>- Your E-Commerce Team</em></p>
+            <p>Please give us extra marks for this it took a lot of effort :D</p>
             </body>
             </html>";
 

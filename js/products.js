@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
           type: 'GetAllProducts',
           sort: "name",
           return: ['product_id', 'name', 'description', 'brand', 'image_url'],
-          limit: 50
+          limit: 500
         })
       });
 
