@@ -16,38 +16,36 @@ document.addEventListener("DOMContentLoaded", function () {
   const retailerForm = document.getElementById("retailerForm");
   const modalTitle = document.getElementById("modalTitle");
   //shav nonsense
-  const apiKey = getCookie('api_key');
+  const apiKey = getCookie("api_key");
   let insert = false;
 
-
   //make the api request and return the response
-function fetchData(request) {
-  return new Promise((resolve, reject) => {
-    const httpReq = new XMLHttpRequest();
-    httpReq.open("POST", "../api.php", true);
-    httpReq.setRequestHeader("Content-Type", "application/json");
-    
-    httpReq.onload = function () {
-      if (httpReq.status >= 200 && httpReq.status < 300) {
-        try {
-          const result = JSON.parse(httpReq.responseText);
-          resolve(result);
-        } catch (error) {
-          reject("Failed to parse response: " + error.message);
+  function fetchData(request) {
+    return new Promise((resolve, reject) => {
+      const httpReq = new XMLHttpRequest();
+      httpReq.open("POST", "../api.php", true);
+      httpReq.setRequestHeader("Content-Type", "application/json");
+
+      httpReq.onload = function () {
+        if (httpReq.status >= 200 && httpReq.status < 300) {
+          try {
+            const result = JSON.parse(httpReq.responseText);
+            resolve(result);
+          } catch (error) {
+            reject("Failed to parse response: " + error.message);
+          }
+        } else {
+          reject("API request failed: " + httpReq.statusText);
         }
-      } else {
-        reject("API request failed: " + httpReq.statusText);
-      }
-    };
+      };
 
-    httpReq.onerror = function () {
-      reject("Network error");
-    };
+      httpReq.onerror = function () {
+        reject("Network error");
+      };
 
-    httpReq.send(JSON.stringify(request));
-  });
-}
-
+      httpReq.send(JSON.stringify(request));
+    });
+  }
 
   //Mock database
   let mockProducts = [
@@ -195,11 +193,11 @@ function fetchData(request) {
       renderProducts();
     });
 
-  addProductBtn.addEventListener("click", function () {
-    insert = true; 
-    openAddProductModal();
-  });
-  addRetailerBtn.addEventListener("click", openAddRetailerModal);
+    addProductBtn.addEventListener("click", function () {
+      insert = true;
+      openAddProductModal();
+    });
+    addRetailerBtn.addEventListener("click", openAddRetailerModal);
 
     logoutBtn.addEventListener("click", function () {
       window.location.href = "logout.php";
@@ -310,21 +308,21 @@ function fetchData(request) {
     //make the request
     const request = {
       type: "GetAllProducts",
-      return:"*"
-    }
+      return: "*",
+    };
 
-      const result = await fetchData(request);
-      //display error if no products are found
-      if (!result || result.status !== "success" || !Array.isArray(result.data)) {
-        productsItems.innerHTML = `
+    const result = await fetchData(request);
+    //display error if no products are found
+    if (!result || result.status !== "success" || !Array.isArray(result.data)) {
+      productsItems.innerHTML = `
         <div class="empty-products">
         <i class="fas fa-box-open"></i>
         <p>No products are matching your filters</p>
         <button class="browse-btn" id="resetFilters">Reset Filters</button>
         </div>
         `;
-        
-        document
+
+      document
         .getElementById("resetFilters")
         .addEventListener("click", function () {
           currentFilter = "all";
@@ -332,50 +330,54 @@ function fetchData(request) {
           searchInput.value = "";
           applySortAndFilter();
         });
-        
-        itemCountElement.textContent = "0 items";
-        return;
+
+      itemCountElement.textContent = "0 items";
+      return;
+    }
+    itemCountElement.textContent = `${result.data.length} ${
+      result.length === 1 ? "item" : "items"
+    }`;
+
+    //populate the page
+    for (const product of result.data) {
+      //changed to for because async
+      //get the best offer as well and store as data
+      //console.log(product);
+      const response = await fetch("../api.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type: "GetBestOffer",
+          product_id: product.product_id,
+        }),
+      });
+
+      if (response.ok) {
+        const priceRes = await response.json();
+        price = priceRes.data.price
+          ? "R " + priceRes.data.price.toFixed(2)
+          : "No offers yet";
       }
-      itemCountElement.textContent = `${result.data.length} ${
-        result.length === 1 ? "item" : "items"
-      }`;
-      
-      //populate the page 
-      for (const product of result.data) { //changed to for because async
-        //get the best offer as well and store as data
-        //console.log(product);
-        const response = await fetch('../api.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            type: 'GetBestOffer',
-            product_id: product.product_id
-          })
-        });
 
-        if (response.ok){
-          const priceRes = await response.json();
-          price = (priceRes.data.price) ? 'R ' + priceRes.data.price.toFixed(2) : "No offers yet";
-        }
-        
-
-        const item = document.createElement("div");
-        item.className = "product-card";
-        item.innerHTML = `
+      const item = document.createElement("div");
+      item.className = "product-card";
+      item.innerHTML = `
         <div class="product-content">
         <div class="product-image-container">
         <img src="${product.image_url}" alt="${
-          product.name
-        }" class="product-image">
+        product.name
+      }" class="product-image">
         </div>
         <div class="product-details">
             <h3 class="product-title">${product.name}</h3>
             <div class="product-price-container">
             <span class="current-price">${price}</span>
             </div> 
-            <div class="product-category">${(product.category) ? product.category : "No category set"}</div>
+            <div class="product-category">${
+              product.category ? product.category : "No category set"
+            }</div>
             </div>
             </div>
             <div class="product-actions">
@@ -390,33 +392,33 @@ function fetchData(request) {
             </button>
             </div>
             `;
-            productsItems.appendChild(item);
-      }
+      productsItems.appendChild(item);
+    }
 
-      document.querySelectorAll(".edit-btn").forEach((button) => {
-        button.addEventListener("click", function (e) {
-          e.stopPropagation();
-          const productId = parseInt(this.getAttribute("data-id"));
-          insert = false;
-          openEditProductModal(productId);
-        });
+    document.querySelectorAll(".edit-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const productId = parseInt(this.getAttribute("data-id"));
+        insert = false;
+        openEditProductModal(productId);
       });
-  
-      document.querySelectorAll(".offer-btn").forEach((button) => {
-        button.addEventListener("click", function (e) {
-          e.stopPropagation();
-          const productId = parseInt(this.getAttribute("data-id"));
-          openEditProductModal(productId, true);
-        });
+    });
+
+    document.querySelectorAll(".offer-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const productId = this.getAttribute("data-id");
+        openOfferModal(productId);
       });
-  
-      document.querySelectorAll(".delete-btn").forEach((button) => {
-        button.addEventListener("click", function (e) {
-          e.stopPropagation();
-          const productId = parseInt(this.getAttribute("data-id"));
-          deleteProduct(productId);
-        });
+    });
+
+    document.querySelectorAll(".delete-btn").forEach((button) => {
+      button.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const productId = parseInt(this.getAttribute("data-id"));
+        deleteProduct(productId);
       });
+    });
   }
 
   function openAddProductModal() {
@@ -452,9 +454,9 @@ function fetchData(request) {
     const request = {
       type: "GetAllProducts",
       return: "*",
-      search: {product_id: productId}
+      search: { product_id: productId },
     };
-    
+
     const response = await fetchData(request);
     const product = response.data[0]; //this code is ass i know
 
@@ -476,29 +478,26 @@ function fetchData(request) {
   function handleProductFormSubmit(e) {
     e.preventDefault();
     request = {
-      type: insert? "CreateProduct":"UpdateProduct",
+      type: insert ? "CreateProduct" : "UpdateProduct",
       api_key: apiKey,
-      name: document.getElementById('productName').value,
-      description: document.getElementById('productDescription').value,
-      brand: document.getElementById('productBrand').value,
-      category: document.getElementById('productCategory').value,
-      product_id: document.getElementById('productId').value,
-      image_url: document.getElementById('productImage').value
+      name: document.getElementById("productName").value,
+      description: document.getElementById("productDescription").value,
+      brand: document.getElementById("productBrand").value,
+      category: document.getElementById("productCategory").value,
+      product_id: document.getElementById("productId").value,
+      image_url: document.getElementById("productImage").value,
     };
 
     console.log(request);
     console.log(insert);
 
-    apiRequest(request).then(response => {
+    apiRequest(request).then((response) => {
       console.log(response);
 
       if (response.status === "success") {
-        if (insert)
-        {
+        if (insert) {
           alert("Product added successfully!");
-        }
-        else
-        {
+        } else {
           alert("Product updated successfully!");
         }
       }
@@ -508,19 +507,17 @@ function fetchData(request) {
     closeModalHandler();
   }
 
-  async function apiRequest (body)
-{
-    const response = await fetch('../api.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-      
+  async function apiRequest(body) {
+    const response = await fetch("../api.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
     });
 
     return await response.json();
-}
+  }
 
   function handleRetailerFormSubmit(e) {
     e.preventDefault();
@@ -573,25 +570,20 @@ function fetchData(request) {
       address: newRetailer.address,
       postal_code: newRetailer.postal_code,
       website: newRetailer.website,
-      country: newRetailer.country
-     };
+      country: newRetailer.country,
+    };
 
-     console.log(request);
+    console.log(request);
 
-     apiRequest(request).then(response => {
-
+    apiRequest(request).then((response) => {
       console.log(response);
 
       if (response.status === "success") {
-
         alert("Retailer added successfully!");
         mockRetailers.push(newRetailer);
         closeModalHandler();
       }
-     });
-
-    
-    
+    });
   }
 
   function addProduct(product) {
@@ -621,62 +613,132 @@ function fetchData(request) {
 
   function deleteProduct(id) {
     if (confirm("Are you sure you want to delete this product?")) {
-        let request = {
-            "type": "DeleteProduct",
-            "api_key": apiKey,
-            "product_id": id
-        };
-        const result = fetchData(request);
-        alert(result.status === "success" ? "Product deleted from the database." : "Failed to delete.");
-        renderProducts();
-        //applySortAndFilter();
+      let request = {
+        type: "DeleteProduct",
+        api_key: apiKey,
+        product_id: id,
+      };
+      const result = fetchData(request);
+      alert(
+        result.status === "success"
+          ? "Product deleted from the database."
+          : "Failed to delete."
+      );
+      renderProducts();
+      //applySortAndFilter();
     }
   }
 
   //buttons that didnt already have event handlers
-const editSaveBtn = document.getElementById("edit-save");
-// editSaveBtn.addEventListener("click", async function(){
-//   //just edit the product with the stuff from the thing
-//    const id= document.getElementById("productId").value;
-//    const title= document.getElementById("productName").value.trim();
-//    const brand= document.getElementById("productBrand").value.trim();
-//    const category = document.getElementById("productCategory").value.trim();
-//    const image= document.getElementById("productImage").value.trim();
-//    const description =  document.getElementById("productDescription").value.trim();
+  const editSaveBtn = document.getElementById("edit-save");
+  // editSaveBtn.addEventListener("click", async function(){
+  //   //just edit the product with the stuff from the thing
+  //    const id= document.getElementById("productId").value;
+  //    const title= document.getElementById("productName").value.trim();
+  //    const brand= document.getElementById("productBrand").value.trim();
+  //    const category = document.getElementById("productCategory").value.trim();
+  //    const image= document.getElementById("productImage").value.trim();
+  //    const description =  document.getElementById("productDescription").value.trim();
 
-//    //create request
-//    const request = {
-//       type: "UpdateProduct",
-//       api_key: apiKey,
-//       product_id: id,
-//       name: title,
-//       brand: brand,
-//       category: category,
-//       image_url: image,
-//       description: description
-//    };
+  //    //create request
+  //    const request = {
+  //       type: "UpdateProduct",
+  //       api_key: apiKey,
+  //       product_id: id,
+  //       name: title,
+  //       brand: brand,
+  //       category: category,
+  //       image_url: image,
+  //       description: description
+  //    };
 
-//    const response = await fetchData(request);
+  //    const response = await fetchData(request);
 
-//    alert("Update made successfully!");
-//    renderProducts();
+  //    alert("Update made successfully!");
+  //    renderProducts();
 
-// });
+  // });
+  // Offers Modal Setup
+  const offersModal = document.getElementById("offersModal");
+  const closeOffersModal = document.getElementById("closeOffersModal");
+  const retailerSelect = document.getElementById("retailerSelect");
+  const offersList = document.getElementById("offersList");
+  const newOfferForm = document.getElementById("newOfferForm");
+  const stockInput = document.getElementById("stockInput");
+  const priceInput = document.getElementById("priceInput");
 
-   init();
- });
+  document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("offer-btn")) {
+      const productId = event.target.getAttribute("data-id");
+      openOfferModal(productId);
+    }
+  });
+
+  closeOffersModal.addEventListener("click", () => {
+    offersModal.classList.remove("active");
+  });
+
+  async function openOfferModal(productId) {
+    offersModal.classList.add("active");
+
+    // Load retailers
+    const retailerReq = await fetchData({
+      type: "GetAllRetailers",
+      return: "*",
+    });
+    retailerSelect.innerHTML = retailerReq.data
+      .map((r) => `<option value="${r.retailer_id}">${r.name}</option>`)
+      .join("");
+
+    // Load existing offers
+    const offerReq = await fetchData({
+      type: "GetOffersForProduct",
+      product_id: productId,
+    });
+    offersList.innerHTML = (offerReq.data || [])
+      .map(
+        (o) =>
+          `<div>${o.retailer_name} – Stock: ${o.stock}, Price: R ${parseFloat(
+            o.price
+          ).toFixed(2)}</div>`
+      )
+      .join("");
+
+    // Handle new offer submission
+    newOfferForm.onsubmit = async function (e) {
+      e.preventDefault();
+
+      const request = {
+        type: "CreateOffer",
+        api_key: apiKey,
+        product_id: productId,
+        retailer_id: retailerSelect.value,
+        stock: stockInput.value,
+        price: priceInput.value,
+      };
+
+      const response = await fetchData(request);
+      if (response.status === "success") {
+        alert("Offer added successfully");
+        offersModal.classList.remove("active");
+        renderProducts(); // Optional: refresh product listing
+      } else {
+        alert("Failed to add offer");
+      }
+    };
+  }
+
+  init();
+});
 
 function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1);
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
-    }
-    return null;
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") c = c.substring(1);
+    if (c.indexOf(nameEQ) === 0)
+      return decodeURIComponent(c.substring(nameEQ.length));
+  }
+  return null;
 }
-
-
-
-

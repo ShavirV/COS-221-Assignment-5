@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let productBrands = new Set(); 
   let productPrices = {};
   // dont uncomment, doesnt work this way
-  //let apiKey = getCookie('api_key'); 
+  //let apiKey = getCookie('api_key');
 
   let currentSort = "default";
   let currentFilter = "all";
@@ -261,27 +261,71 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.addEventListener("click", closeDropdowns);
 
-    searchInput.addEventListener("input", function () {
-      const searchTerm = searchInput.value.trim().toLowerCase();
-      let filteredProducts = [...allProducts];
+    searchInput.addEventListener("input", async function () {
+      const searchTerm = searchInput.value.trim();
+      //populate filtered products from api rather than frontend
+      let filteredProducts = [];
 
-      if (searchTerm) 
-      {
-        filteredProducts = filteredProducts.filter((product) =>
-          product.name.toLowerCase().includes(searchTerm) ||
-          product.description.toLowerCase().includes(searchTerm) ||
-          product.brand.toLowerCase().includes(searchTerm)
-        );
+
+
+      if (searchTerm && currentFilter != 'all'){
+        //currently only filter by brand so set that as the filter
+        request = {
+          type: "GetAllProducts",
+          search: {
+            name: searchTerm,
+            brand: currentFilter
+          },
+          return: ['product_id', 'name', 'description', 'brand', 'image_url'],
+          limit: 50
+        } 
+ 
+      } else if (searchTerm) {
+          request = {
+          type: "GetAllProducts",
+          search: {
+            name: searchTerm,
+          },
+          return: ['product_id', 'name', 'description', 'brand', 'image_url'],
+          limit: 50
+        } 
       }
 
-      if (currentFilter !== "all") 
-      {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.brand === currentFilter
-        );
+      const response = await fetch("../api.php", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(request)
+      });
+
+      if (!response.ok){
+        throw new Error(`http error, ${response.status}`);
       }
 
-      displayedProducts = filteredProducts;
+      const data = await response.json();
+      //console.log(data); //debug
+      //change the displayed products array?
+      //clear the displayed products each time we search or filter
+      displayedProducts.length = 0;
+      //this code looks efficient im yoinking
+      //but handle the error first so less braces 
+
+      if (data.status !== 'success') {
+        throw new Error(data.message || 'Unknown API error');
+      }
+      
+      displayedProducts = data.data.map(product => ({
+        id: product.product_id,
+        name: product.name,
+        description: product.description,
+        brand: product.brand,
+        image: product.image_url,
+        price: null,
+        // set all to false, cookie will store boolean after
+        inWishlist: false 
+      }));
+
+      console.log(displayedProducts);
+      
       applySort();
       renderProducts();
     });
@@ -354,17 +398,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function applyFilter() {
-    if (currentFilter === "all") {
-      displayedProducts = [...allProducts];
-    } else {
-      displayedProducts = allProducts.filter(
-        (product) => product.brand === currentFilter
-      );
+  async function applyFilter() {
+    //get the search box data so they work in any order (this is a bit spaghettified)
+    const searchTerm = searchInput.value.trim();
+    //build the search part dynamically (shouldve done this from the start its easier)
+    searchjson = {};
+    if (currentFilter !== "all") {
+      searchjson.brand = currentFilter;
+    } 
+    if (searchTerm){
+      searchjson.name = searchTerm;
     }
+    
+    const response = await fetch("../api.php", {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        type: "GetAllProducts",
+        search: searchjson,
+        return: ['product_id', 'name', 'description', 'brand', 'image_url'],
+        limit: 50
+      })
+    });
+    
+    if (!response.ok){
+      throw new Error(`http error, ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log(data);
+    displayedProducts.length = 0;
+    if (data.status !== 'success') {
+      throw new Error(data.message || 'Unknown API error');
+    }
+    
+    displayedProducts = data.data.map(product => ({
+      id: product.product_id,
+      name: product.name,
+      description: product.description,
+      brand: product.brand,
+      image: product.image_url,
+      price: null,
+      // set all to false, cookie will store boolean after
+      inWishlist: false 
+    }));
+    
     applySort();
   }
-
+  
   function applySort() {
     switch (currentSort) {
       case "name-asc":
@@ -374,7 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
         displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
         break;
       default:
-        displayedProducts = [...allProducts];
+        //displayedProducts = [...allProducts]; YOURE THE BASTARD LINE
         break;
     }
 
