@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify({
           type: 'GetAllProducts',
-          sort: "title",
           return: ['product_id', 'name', 'description', 'brand', 'image_url'],
           limit: 50
         })
@@ -337,7 +336,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const dropdown = document.createElement("div");
     dropdown.className = "sort-dropdown dropdown";
-
     dropdown.innerHTML = Object.entries(sortOptions)
       .map(
         ([value, text]) => `
@@ -366,7 +364,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const dropdown = document.createElement("div");
     dropdown.className = "filter-dropdown dropdown";
     
-
     let filterOptionsHTML = `
       <div class="dropdown-item ${"all" === currentFilter ? "active" : ""}" 
            data-value="all">
